@@ -1,0 +1,23 @@
+package rules;
+
+import com.example.demo.model.Pedido;
+import com.example.demo.model.Cliente;
+
+rule "Cliente VIP por antigüedad"
+when
+    $c : Cliente( aniosConNosotros > 1 )
+then
+    System.out.println(">>> Regla VIP activada");
+    $c.setVip(true);
+end
+
+rule "Descuento VIP"
+when
+    $p : Pedido(
+        total > 50,
+        cliente.vip == true
+    )
+then
+    System.out.println(">>> Regla descuento aplicada");
+    $p.setDescuento(10);
+end

@@ -51,7 +51,7 @@ class MistralAgent:
             name="evaluate_loan",
             description=(
                 "Utiliza OBLIGATORIAMENTE esta herramienta para evaluar si el usuario califica para un préstamo bancario. "
-                "Requiere recopilar primero la edad (age), los ingresos (income) y el monto solicitado (loan_amount)."
+                "Requiere recopilar primero todos los campos obligatorios definidos en el esquema."
             ),
             args_schema=LoanData
         )
@@ -66,9 +66,9 @@ class MistralAgent:
              "Eres un asistente conversacional de un banco. Tu trabajo es ayudar a los usuarios "
              "a conocer si su solicitud de préstamo sería aprobada. "
              "Para ello, DEBES usar la herramienta 'evaluate_loan'. "
-             "REGLA CRUCIAL: No puedes inventar datos. Si el usuario no te ha dado su EDAD, "
-             "INGRESOS ANUALES y MONTO DEL PRÉSTAMO, pregúntale educadamente lo que falta. "
-             "Una vez que tengas los 3 datos, llama a la herramienta y resume su respuesta al usuario."
+             "REGLA CRUCIAL: No puedes inventar datos. Si la herramienta requiere campos/información que el "
+             "usuario aún no te ha proporcionado en la conversación, pregúntale educadamente por los datos faltantes. "
+             "Una vez que tengas todos los datos requeridos por el esquema de la herramienta, llámala y resume su respuesta al usuario."
             ),
             # Inyección de memoria para contexto de la conversación
             MessagesPlaceholder(variable_name="chat_history"),
@@ -81,17 +81,13 @@ class MistralAgent:
         agent = create_tool_calling_agent(self.llm, self.tools, self.prompt)
         self.agent_executor = AgentExecutor(agent=agent, tools=self.tools, verbose=True)
 
-    async def _invoke_drools(self, age: int, income: float, loan_amount: float) -> str:
+    async def _invoke_drools(self, **kwargs) -> str:
         """
         Wrapper interno de la Tool. El LLM extraerá los datos en JSON, LangChain pasará kwargs a este método,
-        y este método invocará el servicio de conexión REST.
+        y este método invocará el servicio de conexión REST enviando directamente el diccionario de datos.
         """
-        data = {
-            "age": age,
-            "income": income,
-            "loan_amount": loan_amount
-        }
-        result = await self.drools_service.evaluate_loan_rules(data)
+        print('datos: ',kwargs)
+        result = await self.drools_service.evaluate_loan_rules(kwargs)
         # Se devuelve en formato de cadena para que el LLM lo pueda razonar nativamente
         return str(result)
 

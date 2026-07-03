@@ -17,6 +17,7 @@ services:
     env_file:
       - ./python-backend/.env
     environment:
+      # Esto en verdad sobra porque no usa esta variable, usa otra y que ni es este enlace (obviamente)
       - DROOLS_API_URL=http://drools-engine:8080
     depends_on:
       - drools-engine

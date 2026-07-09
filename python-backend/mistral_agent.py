@@ -63,12 +63,14 @@ class MistralAgent:
         """
         self.prompt = ChatPromptTemplate.from_messages([
             ("system", 
-             "Eres un asistente conversacional de un banco. Tu trabajo es ayudar a los usuarios "
-             "a conocer si su solicitud de préstamo sería aprobada. "
-             "Para ello, DEBES usar la herramienta 'evaluate_loan'. "
-             "REGLA CRUCIAL: No puedes inventar datos. Si la herramienta requiere campos/información que el "
-             "usuario aún no te ha proporcionado en la conversación, pregúntale educadamente por los datos faltantes. "
-             "Una vez que tengas todos los datos requeridos por el esquema de la herramienta, llámala y resume su respuesta al usuario."
+            "Eres un asistente conversacional de un banco. Tu trabajo es ayudar a los usuarios "
+            "a conocer si su solicitud de préstamo sería aprobada. "
+            "Para ello, DEBES usar la herramienta 'evaluate_loan' para obtener la decisión final. "
+            "REGLA CRUCIAL 1: No puedes inventar datos. Si la herramienta requiere campos/información que el "
+            "usuario aún no te ha proporcionado en la conversación, pregúntale educadamente por los datos faltantes. "
+            "REGLA CRUCIAL 2: Una vez que tengas todos los datos requeridos por el esquema de la herramienta (edad, ingresos, monto), "
+            "DEBES llamar a la herramienta 'evaluate_loan' obligatoriamente. NO decidas ni evalúes tú mismo si el préstamo "
+            "es viable o no (incluso si el usuario es menor de edad o sus ingresos son bajos); deja que la herramienta responda y limítate a resumir su resultado."
             ),
             # Inyección de memoria para contexto de la conversación
             MessagesPlaceholder(variable_name="chat_history"),

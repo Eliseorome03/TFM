@@ -1,0 +1,163 @@
+PROMPT FASE 1: Motor Simbólico Drools (Java / Spring Boot)
+
+
+Actúa como un Ingeniero de Software Senior especialista en Java, Spring Boot y Drools Rule Engine (KIE).
+Tu objetivo es implementar de forma completa y funcional el microservicio `drools-app` según las especificaciones del archivo SYSTEM_SPEC.md.
+
+Requisitos del microservicio:
+1. Framework: Spring Boot 3.x (o 2.7.x compatible con drools-core y drools-compiler 7.x/8.x).
+2. Puerto de escucha: 8080.
+3. Arquitectura interna:
+   - controller/RuleController.java: Expone POST /evaluar. Recibe SolicitudEvaluacion y devuelve ResultadoEvaluacion.
+   - model/: Clases POJO con Getters, Setters y constructores:
+     * DatosUsuario.java (cantidadSolicitada, plazoMeses, proposito, regimenVivienda, gastoAlquiler, deudaDeclarada, dudaCatchAll).
+     * DatosCore.java (clienteId, dni, edad, ingresosNetosMensuales, antiguedadMeses, deudaInternaBanco, esAvalistaSolidario, empresaAvaladaCif).
+     * DatosBde.java (consultado, tieneImpagosActivos, importeMorosidadAsnef, deudaCirbe, empresaAvaladaConcurso).
+     * CalculosDerivados.java (cuotaEstimada, ratioEndeudamiento, remanenteSubsistencia, edadAlVencimiento).
+     * SolicitudEvaluacion.java (contiene las 4 estructuras anteriores).
+     * ResultadoEvaluacion.java (estado, reglasDisparadas [List<String>], accionRequerida, datoFaltante, calculosDerivados, articuloNormativo, textoLegal).
+   - service/DroolsService.java:
+     * Crea e inicializa una KieSession stateless por cada llamada.
+     * Calcula o permite derivar cuotaEstimada, ratioEndeudamiento, remanenteSubsistencia y edadAlVencimiento antes o durante el disparo de reglas.
+     * Inserta los objetos en la sesión, ejecuta fireAllRules() y recopila los resultados en ResultadoEvaluacion.
+   - config/DroolsConfig.java: Configuración de KieServices, KieContainer y KieFileSystem.
+   - resources/META-INF/kmodule.xml: Configuración del kmodule estándar de Drools.
+   - resources/rules/prestamos.drl: Archivo DRL que implemente con rigor y sin inventar las 10 REGLAS declaradas en SYSTEM_SPEC.md respetando su salience y condiciones lógicas.
+
+Reglas DRL a implementar:
+1. R_VALIDACION_ALQUILER (salience 100)
+2. R_PROPOSITO_NO_FINANCIABLE (salience 90)
+3. R_EDAD_VENCIMIENTO (salience 80)
+4. R_DISPARAR_CIRBE (salience 70)
+5. R_MOROSIDAD_ASNEF (salience 60)
+6. R_ALERTA_QUIEBRA_AVAL (salience 50)
+7. R_DISCREPANCIA_DECLARADA (salience 40)
+8. R_RATIO_ENDEUDAMIENTO (salience 30)
+9. R_MINIMO_SUBSISTENCIA (salience 20)
+10. R_APROBACION_ESTANDAR (salience 10)
+
+Entrega el código íntegro de:
+- pom.xml (con dependencias funcionales de Spring Boot y Drools).
+- Todos los POJOs del paquete model.
+- DroolsConfig.java y DroolsService.java.
+- RuleController.java.
+- kmodule.xml.
+- prestamos.drl completo con la sintaxis exacta de Drools.
+- Dockerfile funcional para compilar con Maven y empaquetar en OpenJDK.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+PROMPT FASE 2: Backend Orquestador (Python / FastAPI)
+
+
+Actúa como un Desarrollador Backend Senior especialista en Python, FastAPI, SQLAlchemy y arquitecturas de integración de LLMs.
+Tu objetivo es implementar el servicio `backend` según el archivo SYSTEM_SPEC.md, encargado de la orquestación, conexión con Mistral, gestión de base de datos MariaDB y registro de auditoría.
+
+Requisitos técnicos del backend:
+1. Framework: FastAPI con Uvicorn en el puerto 8000.
+2. ORM: SQLAlchemy conectado a MariaDB (pymysql).
+3. Cliente LLM: Uso de la librería oficial de Mistral (mistralai) o LangChain Mistral para structured output garantizado mediante Pydantic.
+4. Organización modular de carpetas según SYSTEM_SPEC.md:
+   - config.py: Variables de entorno (DATABASE_URL, DROOLS_URL, MISTRAL_API_KEY).
+   - database.py: Base, engine y get_db session.
+   - models/:
+     * cliente.py: Mapeo de la tabla 'clientes' (cliente_id, dni, nombre, edad, ingresos_netos_mensuales, antiguedad_meses, deuda_interna_banco, es_avalista_solidario, empresa_avalada_cif).
+     * traza.py: Mapeo de 'trazas_auditoria' (id, session_id, turn_id, step_order, component, action_type, step_input, step_output, information_state, created_at).
+   - schemas/:
+     * nlu.py: Esquema Pydantic EsquemaNLU para la salida forzada de Mistral.
+     * drools.py: Modelos de intercambio con la API de Drools.
+     * state.py: Modelo del Information State canónico.
+     * chat.py: Request (mensaje, cliente_id, session_id) y Response (respuesta, session_id, turn_id).
+   - clients/:
+     * mistral_client.py:
+       - extraer_nlu(mensaje: str) -> EsquemaNLU: Prompt del sistema para estructuración en JSON.
+       - generar_nlg(state: dict, mensaje_usuario: str) -> str: Prompt estricto de solo lectura que usa el estado consolidado de Drools y su justificación normativa para generar el mensaje natural al usuario.
+     * drools_client.py:
+       - evaluar_reglas(payload: dict) -> dict: Llamada HTTP POST a DROOLS_URL con manejo de errores y timeout.
+   - services/:
+     * audit_tracker.py: Clase AuditTracker que recibe session_id, turn_id y db session. Método record_step(component, action_type, step_input, step_output, state_update) que clona el estado y persiste una fila atómica en trazas_auditoria.
+     * bde_mock_service.py: Devuelve datos CIRBE/ASNEF simulados basados en el DNI.
+     * orchestrator.py: Contiene procesar_turno_conversacional(mensaje, cliente_id, session_id, db). Ejecuta los 7 pasos secuenciales definidos en SYSTEM_SPEC.md y registra cada micro-acción en el AuditTracker.
+   - routers/:
+     * chat_router.py: Endpoint POST /api/chat.
+     * clientes_router.py: Endpoint GET /api/clientes (para alimentar la interfaz).
+     * bde_mock_router.py: Endpoint GET /api/mock/bde/{dni}.
+   - main.py: Inclusión de routers, CORS y montaje de estáticos en /static.
+   - requirements.txt: Lista de dependencias necesarias.
+   - Dockerfile: Dockerfile funcional para compilar con pip.
+5. Paradigma de Programación Estricto (POO):
+   - Todo el código debe estar estructurado mediante Programación Orientada a Objetos (clases y métodos).
+   - Prohibido dejar funciones sueltas procedurales en clients/ y services/.
+   - Implementa clases de servicio bien definidas:
+     * class MistralClient en app/clients/mistral_client.py.
+     * class DroolsClient en app/clients/drools_client.py.
+     * class BdeMockService en app/services/bde_mock_service.py.
+     * class PipelineOrchestrator en app/services/orchestrator.py (inyectando dependencias en el __init__).
+   - Los routers de FastAPI deben limitarse a instanciar o recibir mediante inyección de dependencias (Depends) estas clases de servicio.
+
+Entrega el código íntegro, sin elisiones ni comentarios TODO, de cada uno de los archivos indicados, junto a requirements.txt y el Dockerfile.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+PROMPT FASE 3: Infraestructura, Base de Datos, Frontend y Validación E2E
+
+
+Actúa como un Ingeniero DevOps y Desarrollador Full-Stack.
+Tu objetivo es finalizar la infraestructura del proyecto uniendo los componentes de SYSTEM_SPEC.md mediante Docker Compose, inicializando la base de datos MariaDB y creando un frontend interactivo que permita probar los casos de uso.
+
+Requisitos de la fase:
+1. database/init.sql:
+   - Script SQL ejecutable en MariaDB 11.2.
+   - Creación de la base de datos `banca_db` y uso de codificación UTF-8.
+   - Definición de tablas `clientes` y `trazas_auditoria` con sus índices.
+   - Inserción de al menos 4 clientes de prueba diseñados para detonar casos concretos:
+     * CLI-001 (Laura): Solicitud limpia -> Aprobación directa.
+     * CLI-002 (Carlos): Avalista de empresa en concurso -> Detona R_ALERTA_QUIEBRA_AVAL.
+     * CLI-003 (Marta): Con deudas e impagos en ASNEF -> Detona R_MOROSIDAD_ASNEF.
+     * CLI-004 (Javier): 72 años solicitando crédito a 5 años -> Detona R_EDAD_VENCIMIENTO.
+2. Frontend Web (HTML / CSS / Vanilla JS) montado en backend/app/static/:
+   - index.html:
+     * Selector desplegable superior (<select id="clienteSelect">) que consulte GET /api/clientes para cambiar de usuario simulado activo.
+     * Tarjeta visual que muestre los datos del Core del cliente seleccionado (DNI, ingresos, si es avalista).
+     * Caja de conversación de chat con histórico de mensajes.
+     * Input de texto y botón de envío.
+     * Panel colapsable lateral o inferior que muestre en tiempo real el último `information_state` y las trazas de auditoría registradas en ese turno para fines de demostración y defensa del TFM.
+   - styles.css: Diseño limpio, profesional y bancario.
+   - app.js:
+     * Gestión del session_id único.
+     * Peticiones fetch() a /api/chat y /api/clientes.
+     * Renderizado dinámico de mensajes y actualización del visor de estado/trazas.
+3. docker-compose.yml:
+   - Orquesta los servicios: mariadb, drools-app y backend.
+   - Configura redes internas, dependencias de arranque (depends_on con healthchecks si aplica) y persistencia de volúmenes.
+   - Mapeo de puertos: 3306 (DB), 8080 (Drools), 8000 (FastAPI + Frontend).
+4. Archivo .env.example con las variables de configuración necesarias.
+5. Guía de Verificación E2E: Instrucciones para ejecutar `docker compose up --build` y probar interactivamente los escenarios de aprobación, rechazo por aval, petición de alquiler faltante y mitigación de prompt injection.
+
+Proporciona todos los archivos completos y listos para ser desplegados.

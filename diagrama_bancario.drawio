@@ -1,0 +1,80 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Página-1" id="X7VUrS5zNPWF8XC8cFE-">
+    <mxGraphModel dx="1030" dy="658" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="2VuHJ-zDEnUHZl90euMv-8" edge="1" parent="1" source="2VuHJ-zDEnUHZl90euMv-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="2VuHJ-zDEnUHZl90euMv-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="2VuHJ-zDEnUHZl90euMv-1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Pregunta" vertex="1">
+          <mxGeometry height="60" width="120" x="220" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="2VuHJ-zDEnUHZl90euMv-2" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Flujo de un mensaje" vertex="1">
+          <mxGeometry height="30" width="130" x="30" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="2VuHJ-zDEnUHZl90euMv-9" edge="1" parent="1" source="2VuHJ-zDEnUHZl90euMv-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" target="2VuHJ-zDEnUHZl90euMv-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="2VuHJ-zDEnUHZl90euMv-16" edge="1" parent="1" source="2VuHJ-zDEnUHZl90euMv-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" target="2VuHJ-zDEnUHZl90euMv-15">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="2VuHJ-zDEnUHZl90euMv-3" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="LLM actualiza state" vertex="1">
+          <mxGeometry height="60" width="120" x="220" y="150" as="geometry" />
+        </mxCell>
+        <mxCell id="2VuHJ-zDEnUHZl90euMv-10" edge="1" parent="1" source="2VuHJ-zDEnUHZl90euMv-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="2VuHJ-zDEnUHZl90euMv-5">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="385" y="280" />
+              <mxPoint x="385" y="200" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="2VuHJ-zDEnUHZl90euMv-11" edge="1" parent="1" source="2VuHJ-zDEnUHZl90euMv-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="2VuHJ-zDEnUHZl90euMv-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="2VuHJ-zDEnUHZl90euMv-12" edge="1" parent="1" source="2VuHJ-zDEnUHZl90euMv-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="2VuHJ-zDEnUHZl90euMv-7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="2VuHJ-zDEnUHZl90euMv-13" edge="1" parent="1" source="2VuHJ-zDEnUHZl90euMv-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="2VuHJ-zDEnUHZl90euMv-14">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="280" y="370" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="2VuHJ-zDEnUHZl90euMv-4" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Motor de reglas" vertex="1">
+          <mxGeometry height="60" width="120" x="220" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="2VuHJ-zDEnUHZl90euMv-5" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Base de datos cliente" vertex="1">
+          <mxGeometry height="60" width="120" x="430" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="2VuHJ-zDEnUHZl90euMv-6" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Lista morosos" vertex="1">
+          <mxGeometry height="60" width="120" x="430" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="2VuHJ-zDEnUHZl90euMv-7" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Lista riesgos financieros" vertex="1">
+          <mxGeometry height="60" width="120" x="430" y="330" as="geometry" />
+        </mxCell>
+        <mxCell id="2VuHJ-zDEnUHZl90euMv-14" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="LLM propone respuesta con:&lt;div style=&quot;text-align: justify;&quot;&gt;- state&lt;/div&gt;&lt;div style=&quot;text-align: justify;&quot;&gt;-&amp;nbsp;respuesta motor&lt;/div&gt;" vertex="1">
+          <mxGeometry height="80" width="120" x="220" y="370" as="geometry" />
+        </mxCell>
+        <mxCell id="2VuHJ-zDEnUHZl90euMv-21" edge="1" parent="1" source="2VuHJ-zDEnUHZl90euMv-15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="2VuHJ-zDEnUHZl90euMv-20">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="2VuHJ-zDEnUHZl90euMv-15" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;" value="trazas" vertex="1">
+          <mxGeometry height="80" width="60" x="50" y="230" as="geometry" />
+        </mxCell>
+        <mxCell id="2VuHJ-zDEnUHZl90euMv-17" edge="1" parent="1" source="2VuHJ-zDEnUHZl90euMv-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" target="2VuHJ-zDEnUHZl90euMv-15">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="2VuHJ-zDEnUHZl90euMv-18" edge="1" parent="1" source="2VuHJ-zDEnUHZl90euMv-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" target="2VuHJ-zDEnUHZl90euMv-15">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="2VuHJ-zDEnUHZl90euMv-20" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="Interfaz conversacional" vertex="1">
+          <mxGeometry height="60" width="120" x="20" y="350" as="geometry" />
+        </mxCell>
+        <mxCell id="2VuHJ-zDEnUHZl90euMv-22" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Realmente los campos del state deberían ser pocos, los coje de una bd la mayoría y del BE" vertex="1">
+          <mxGeometry height="80" width="140" x="410" y="35" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

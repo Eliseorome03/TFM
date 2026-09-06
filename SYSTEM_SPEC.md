@@ -21,13 +21,13 @@ Este esquema JSON define la verdad del sistema en cualquier instante del diálog
   "session_id": "string (UUID)",
   "turn_id": "integer",
   "datos_usuario": {
+    "intencion_principal": "string (SOLICITAR_PRESTAMO | CONSULTAR_DUDA | SALUDAR | OTRA)",
     "cantidad_solicitada": "float | null",
     "plazo_meses": "integer | null",
-    "proposito": "string | null",
-    "regimen_vivienda": "string | null",
-    "gasto_alquiler": "float | null",
+    "proposito": "string (VEHICULO | REFORMA | ESTUDIOS | SALUD | OTRO | CRIPTOMONEDAS | APUESTAS | REFINANCIACION_INFORMAL | null)",
+    "gastos_fijos_mensuales": "float | null", 
     "deuda_declarada": "float | null",
-    "duda_catch_all": "string | null"
+    "duda_catch_all": "string (NINGUNA | REQUISITOS_APROBACION | CONDICIONES_CANCELACION | NORMATIVA_SOLVENCIA | FUERA_DE_DOMINIO)"
   },
   "datos_core_bancario": {
     "cliente_id": "string",
@@ -35,16 +35,17 @@ Este esquema JSON define la verdad del sistema en cualquier instante del diálog
     "edad": "integer",
     "ingresos_netos_mensuales": "float",
     "antiguedad_meses": "integer",
-    "deuda_interna_banco": "float",
-    "es_avalista_solidario": "boolean",
+    "deuda_interna_banco_mensual": "float",
+    "es_avalista": "boolean",
     "empresa_avalada_cif": "string | null"
   },
   "datos_externos_bde": {
     "consultado": "boolean",
     "tiene_impagos_activos": "boolean",
     "importe_morosidad_asnef": "float",
-    "deuda_cirbe": "float",
-    "empresa_avalada_concurso": "boolean"
+    "empresa_avalada_concurso": "boolean | null",
+    "deuda_cirbe_mensual": "float",
+    "deuda_cirbe_total": "float"
   },
   "calculos_derivados": {
     "cuota_estimada": "float",
@@ -88,22 +89,26 @@ Drools recibe una versión aplanada o anidada de los datos consolidados:
     "edad_al_vencimiento": 36
   },
   "articulo_normativo": "Art. 18 Directiva 2014/17/UE",
-  "texto_legal": "El prestamista solo pondrá el crédito a disposición del consumidor si el resultado de la evaluación de solvencia indica que es probable que las obligaciones sean satisfechas."
+  "texto_legal": "El ratio máximo de endeudamiento no debe exceder el 40% de los ingresos netos mensuales del solicitante, salvo excepciones justificadas.",
+  "tono_mensaje": "firme, claro y respetuoso"
 }
 ```
 
 ### 3.3. Salida de NLU Mistral (`EsquemaNLU`)
 
+Input: texto del usuario ('Quiero pedir 12 mil euros para devolver en 48 meses para comprarme un coche')
+
+Output:
+
 ```json
 {
-  "intencion_principal": "solicitar_prestamo | consultar_duda | saludar | desconocida",
+  "intencion_principal": "SOLICITAR_PRESTAMO",
   "cantidad_solicitada": 12000.0,
   "plazo_meses": 48,
-  "proposito": "vehiculo",
-  "regimen_vivienda": "ALQUILER",
-  "gasto_alquiler": 650.0,
-  "deuda_declarada": 0.0,
-  "duda_catch_all": null
+  "proposito": "VEHICULO",
+  "gastos_fijos_mensuales": null,
+  "deuda_declarada": null,
+  "duda_catch_all": "NINGUNA"
 }
 ```
 
@@ -111,18 +116,27 @@ Drools recibe una versión aplanada o anidada de los datos consolidados:
 
 ## 4. Catálogo de Reglas en Drools DRL
 
-| Regla | Prioridad (*Salience*) | Condición Lógica | Estado Resultante / Acción | Justificación Normativa |
-| :--- | :---: | :--- | :--- | :--- |
-| `R_VALIDACION_ALQUILER` | 100 | `regimen_vivienda == "ALQUILER" && (gasto_alquiler == null \|\| gasto_alquiler <= 0)` | `REQUIERE_DATOS`<br>`dato_faltante: "gasto_alquiler"` | Obligación de comprobación rigurosa de gastos fijos |
-| `R_PROPOSITO_NO_FINANCIABLE` | 90 | `proposito in ("CRIPTOMONEDAS", "APUESTAS", "REFINANCIACION_INFORMAL")` | `DENEGADO` | Ley 10/2010 PBC y directrices EBA sobre originación de crédito prudencial |
-| `R_EDAD_VENCIMIENTO` | 80 | `edad < 18 \|\| (edad + (plazo_meses / 12)) > 75` | `DENEGADO` | Criterios de capacidad legal y riesgo actuarial por edad |
-| `R_DISPARAR_CIRBE` | 70 | `datos_externos_bde.consultado == false` | `REQUIERE_ACCION`<br>`accion_requerida: "CONSULTAR_CIRBE_ASNEF"` | Obligación regulatoria de consulta previa a ficheros de solvencia patrimonial |
-| `R_MOROSIDAD_ASNEF` | 60 | `tiene_impagos_activos == true \|\| importe_morosidad_asnef > 0` | `DENEGADO` | Criterios prudenciales de morosidad crediticia |
-| `R_ALERTA_QUIEBRA_AVAL` | 50 | `es_avalista_solidario == true && empresa_avalada_concurso == true` | `DENEGADO` | Riesgo concursal indirecto exigible a corto plazo (Criterios EBA) |
-| `R_DISCREPANCIA_DECLARADA` | 40 | `deuda_cirbe > (deuda_declarada * 1.35)` | `REQUIERE_SUPERVISION_HUMANA` | Art. 14 EU AI Act (Supervisión humana ante anomalías no resueltas) |
-| `R_RATIO_ENDEUDAMIENTO` | 30 | `ratio_endeudamiento > 0.40` | `DENEGADO` | Directiva 2014/17/UE y Banco de España (Límite máximo del 40% de endeudamiento) |
-| `R_MINIMO_SUBSISTENCIA` | 20 | `remanente_subsistencia < 700.0` | `DENEGADO` | Art. 607 LEC (Mínimo vital inembargable derivado del SMI) |
-| `R_APROBACION_ESTANDAR` | 10 | Sin alertas morosas, `ratio <= 0.35`, `remanente >= 700` | `APROBADO` | Art. 18.1 Directiva 2014/17/UE (Capacidad positiva comprobada) |
+<!-- quiero añadir en las reglas el tono que debe tener el mensaje que se envía al usuario según la regla que se active, lo quiero añadir como un campo más de la salida de drools -->
+
+| Regla | Prioridad (*Salience*) | Condición Lógica | Estado Resultante / Acción | Justificación Normativa | Tono |
+| :--- | :---: | :--- | :--- | :--- | :--- |
+| `R_EDAD_MINIMA` | 100 | `edad < 18` | `DENEGADO` | Criterios de capacidad legal y riesgo actuarial por edad (préstamos a menores de edad no permitidos) | `firme, claro y respetuoso` |
+<!-- regla para asegurar que hayan puesto la cantidad y el plazo (o lo haya inferido el LLM con los dicho por el cliente) -->
+| `R_CANTIDAD_Y_PLAZO_REQUERIDOS` | 99 | `cantidad_solicitada == null \|\| plazo_meses == null` | `REQUIERE_DATOS`<br>`dato_faltante: "cantidad_solicitada" o "plazo_meses"` | Debe conocerse la cantidad y el plazo del prestamo para evaluar el riesgo | `amable, orientativo y conciso` |
+| `R_EDAD_MAXIMA` | 98 | `(edad + (plazo_meses / 12)) > 75` | `DENEGADO` | Criterios de capacidad legal y riesgo actuarial por edad (al vencimiento del prestamo el cliente no debe superar los 75 años) | `claro, respetuoso y transparente` |
+<!-- regla para pedir un proposito del prestamo -->
+| `R_PROPOSITO_REQUERIDO` | 97 | `proposito == null`   | `REQUIERE_DATOS`<br>`dato_faltante: "proposito"` | Debe conocerse el proposito del prestamo para evaluar el riesgo | `amable, cercano y orientativo` |
+| `R_PROPOSITO_NO_FINANCIABLE` | 96 | `proposito in ("CRIPTOMONEDAS", "APUESTAS", "REFINANCIACION_INFORMAL")` | `DENEGADO` | Ley 10/2010 PBC y directrices EBA sobre originación de crédito prudencial | `firme, profesional y no acusatorio` |
+<!-- pedir gastos fijos (donde se incluyen cosas como alquiler, gastos de suministros, etc) estimados No incluye deudas ya se recogen por otro lado -->
+| `R_GASTOS_FIJOS_REQUERIDOS` | 95 | `gastos_fijos_mensuales == null`   | `REQUIERE_DATOS`<br>`dato_faltante: "gastos_fijos_mensuales"` | Art. 18 Directiva 2014/17/UE (Obligación de computar los compromisos periódicos ineludibles para evaluar la solvencia real) | `amable, sencillo y orientativo (explicar que no se refiere a deudas, sino a gastos fijos como por ej alquiler, gastos de suministros, etc.)`|
+| `R_DISPARAR_CIRBE` | 70 | `datos_externos_bde.consultado == false` | `REQUIERE_ACCION`<br>`accion_requerida: "CONSULTAR_CIRBE_ASNEF"` | Obligación regulatoria de consulta previa a ficheros de solvencia patrimonial |  |
+| `R_MOROSIDAD_ASNEF` | 60 | `datos_externos_bde.tiene_impagos_activos == true \|\| datos_externos_bde.importe_morosidad_asnef > 0` | `DENEGADO` | Criterios prudenciales de morosidad crediticia | `firme, profesional y especialmente cuidadoso`|
+| `R_ALERTA_QUIEBRA_AVAL` | 50 | `es_avalista == true && datos_externos_bde.empresa_avalada_concurso == true` | `DENEGADO` | Riesgo concursal indirecto exigible a corto plazo (Criterios EBA) | `serio, prudente y respetuoso`|
+| `R_DEUDA_DECLARADA_REQUERIDA` | 45 | `deuda_declarada == null`   | `REQUIERE_DATOS`<br>`dato_faltante: "deuda_declarada"` | Obligación de computar los compromisos ineludibles para evaluar la solvencia real |`amable, claro y orientativo`|
+| `R_DISCREPANCIA_DECLARADA` | 40 | `datos_externos_bde.deuda_cirbe_total > (deuda_declarada * 1.35)` | `REQUIERE_SUPERVISION_HUMANA` | Art. 14 EU AI Act (Supervisión humana ante anomalías no resueltas) |`neutral, prudente y no acusatorio`|
+| `R_RATIO_ENDEUDAMIENTO` | 30 | `ratio_endeudamiento > 0.40` | `DENEGADO` | Directiva 2014/17/UE y Banco de España (Límite máximo del 40% de endeudamiento) |`firme, claro y respetuoso`|
+| `R_MINIMO_SUBSISTENCIA` | 20 | `remanente_subsistencia < 700.0` | `DENEGADO` | Art. 607 LEC (Mínimo vital inembargable derivado del SMI) |`serio, prudente y respetuoso`|
+| `R_APROBACION_ESTANDAR` | 10 | Sin alertas morosas, `ratio <= 0.35`, `remanente >= 700` | `APROBADO` | Art. 18.1 Directiva 2014/17/UE (Capacidad positiva comprobada) |`positivo, claro y profesional`|
 
 ### Fórmulas de derivación ejecutadas previamente en Drools o en el motor de cálculo:
 
@@ -131,11 +145,11 @@ $$
 $$
 
 $$
-\text{ratio\_endeudamiento} = \frac{\text{cuota\_estimada} + \text{gasto\_alquiler} + \text{deuda\_interna\_banco} + \text{deuda\_cirbe}}{\text{ingresos\_netos\_mensuales}}
+\text{ratio\_endeudamiento} = \frac{\text{cuota\_estimada} + \text{gastos\_fijos\_mensuales} + \text{deuda\_interna\_banco\_mensual} + \text{deuda\_cirbe\_mensual}}{\text{ingresos\_netos\_mensuales}}
 $$
 
 $$
-\text{remanente\_subsistencia} = \text{ingresos\_netos\_mensuales} - (\text{cuota\_estimada} + \text{gasto\_alquiler} + \text{deuda\_interna\_banco} + \text{deuda\_cirbe})
+\text{remanente\_subsistencia} = \text{ingresos\_netos\_mensuales} - (\text{cuota\_estimada} + \text{gastos\_fijos\_mensuales} + \text{deuda\_interna\_banco\_mensual} + \text{deuda\_cirbe\_mensual})
 $$
 
 $$
@@ -146,12 +160,92 @@ $$
 
 ## 5. El Flujo de Ejecución por Pasos (Auditoría AI Act)
 
-Cada turno conversacional ejecuta hasta 7 micro-acciones registradas individualmente en `trazas_auditoria`:
+Cada turno conversacional ejecuta hasta 6 micro-acciones registradas individualmente en `trazas_auditoria`:
 
 1. **`EXTRACT_NLU`**: Mistral procesa el mensaje del usuario y devuelve `EsquemaNLU`.
-2. **`FETCH_CORE_DATA`**: FastAPI extrae el registro de la tabla `clientes` para el cliente seleccionado.
+2. **`FETCH_CORE_DATA`**: FastAPI extrae el registro de la tabla `clientes` para el cliente seleccionado (el id se recupera ya que la conversación va con un id asociado en el frontend) (solo en el primer turno, en los sucesivos se guarda en el estado de la sesión y no es necesario volver a consultarlo a la base de datos).
 3. **`EVALUATE_PRELIMINARY`**: Drools evalúa los datos reunidos.
 4. **`FETCH_CIRBE_ASNEF`** *(Condicional)*: Si Drools devuelve `REQUIERE_ACCION`, FastAPI consulta el mock del Banco de España (CIRBE / ASNEF).
 5. **`EVALUATE_FINAL_DECISION`** *(Condicional)*: Drools reevalúa con los datos del mock inyectados.
-6. **`GENERATE_NATURAL_RESPONSE`**: Mistral recibe el `information_state` final en modo solo lectura y genera la respuesta textual.
-7. **`PERSIST_STATE`**: Registro del snapshot final de la interacción y de la traza para auditoría.
+6. **`GENERATE_NATURAL_RESPONSE`**: Mistral recibe el `information_state` final en modo solo lectura y genera la respuesta textual ayudandose del information_state para informar al usuario de la falta de datos, o decisión obtenida.
+
+
+## 6. Estructura de Carpetas sugerida:
+
+  mi-tfm-neurosimbolico/
+├── docker-compose.yml
+├── .env
+├── .env.example
+├── SYSTEM_SPEC.md
+│
+├── database/
+│   └── init.sql                         # DDL de MariaDB (tablas clientes y trazas) + 4 perfiles mock
+│
+├── drools-app/                          # Microservicio Java (Spring Boot + Drools KIE)
+│   ├── Dockerfile                       # Multi-stage build Maven + Eclipse Temurin / OpenJDK 17
+│   ├── pom.xml                          # Dependencias de Spring Boot y drools-core/drools-compiler
+│   └── src/
+│       └── main/
+│           ├── java/com/example/demo/
+│           │   ├── DemoApplication.java # Entrypoint de la aplicación Spring Boot
+│           │   ├── config/
+│           │   │   └── DroolsConfig.java # Bean configuration (KieServices, KieContainer)
+│           │   ├── controller/
+│           │   │   └── RuleController.java # POST /evaluar (SolicitudEvaluacion -> ResultadoEvaluacion)
+│           │   ├── model/               # POJOs con getters/setters y tipos Wrapper para admitir nulls
+│           │   │   ├── DatosUsuario.java
+│           │   │   ├── DatosCore.java
+│           │   │   ├── DatosBde.java
+│           │   │   ├── CalculosDerivados.java
+│           │   │   ├── SolicitudEvaluacion.java # Agregador de entrada
+│           │   │   └── ResultadoEvaluacion.java # DTO de salida con estado, reglas y textos legales
+│           │   └── service/
+│           │       └── DroolsService.java # Cálculo de fórmulas, KieSession stateless y fireAllRules()
+│           └── resources/
+│               ├── META-INF/
+│               │   └── kmodule.xml      # Descriptivo KIE estándar
+│               └── rules/
+│                   └── prestamos.drl    # Las 14 reglas auditables con salience exacto
+│
+└── backend/                             # Orquestador Python (FastAPI + OOP + SDK nativo mistralai)
+    ├── Dockerfile                       # Python 3.11/3.12-slim + pip install requirements.txt
+    ├── requirements.txt                 # fastapi, uvicorn, sqlalchemy, pymysql, mistralai, pydantic, httpx
+    └── app/
+        ├── __init__.py
+        ├── main.py                      # Instancia FastAPI, CORS, inclusión de routers y mount /static
+        ├── config.py                    # Class Settings (pydantic-settings) para variables de entorno
+        ├── database.py                  # Engine SQLAlchemy, SessionLocal y dependencia get_db
+        │
+        ├── models/                      # Entidades ORM (Tablas de MariaDB)
+        │   ├── __init__.py
+        │   ├── cliente.py               # class ClienteModel(Base) mapeado a datos_core_bancario
+        │   └── traza.py                 # class TrazaAuditoria(Base) para el ledger inmutable AI Act
+        │
+        ├── schemas/                     # Contratos de datos y validación Pydantic
+        │   ├── __init__.py
+        │   ├── nlu.py                   # Enums (Intencion, Proposito, Duda) y class EsquemaNLU
+        │   ├── state.py                 # Esquema canónico completo de information_state
+        │   ├── drools_io.py             # DTOs tipados de entrada/salida para el microservicio Drools
+        │   └── chat.py                  # Request/Response del endpoint conversacional del frontend
+        │
+        ├── clients/                     # Conectores externos orientados a objetos
+        │   ├── __init__.py
+        │   ├── mistral_client.py        # class MistralClient (chat.parse para NLU y chat.complete para NLG)
+        │   └── drools_client.py         # class DroolsClient (HTTP POST con httpx hacia drools-app:8080)
+        │
+        ├── services/                    # Lógica de negocio y orquestación
+        │   ├── __init__.py
+        │   ├── audit_tracker.py         # class AuditTracker (persiste snapshots inmutables por micro-acción)
+        │   ├── bde_mock_service.py      # class BdeMockService (simulación CIRBE/ASNEF por DNI)
+        │   └── orchestrator.py          # class PipelineOrchestrator (orquestador de los 6 pasos del ciclo)
+        │
+        ├── routers/                     # Capa de transporte y endpoints
+        │   ├── __init__.py
+        │   ├── chat_router.py           # POST /api/chat (invoca PipelineOrchestrator)
+        │   ├── clientes_router.py       # GET /api/clientes (alimenta el selector de clientes del UI)
+        │   └── bde_mock_router.py       # GET /api/mock/bde/{dni} (simulación HTTP externa)
+        │
+        └── static/                      # Frontend web nativo
+            ├── index.html               # Chat, selector de usuario, tarjeta core y panel debug JSON
+            ├── styles.css               # Estilos visuales banking
+            └── app.js                   # Gestión de session_id, llamadas fetch y actualización reactiva

@@ -1,51 +1,75 @@
 PROMPT FASE 1: Motor Simbólico Drools (Java / Spring Boot)
 
 
-Actúa como un Ingeniero de Software Senior especialista en Java, Spring Boot y Drools Rule Engine (KIE).
-Tu objetivo es implementar de forma completa y funcional el microservicio `drools-app` basándote estrictamente en las especificaciones del archivo SYSTEM_SPEC.md adjunto.
+Actúa como un Ingeniero de Software Senior especialista en Java, Spring Boot y el motor de reglas Drools (KIE).
 
-Requisitos del microservicio:
-1. Framework: Spring Boot 3.x con Java 17 (o Spring Boot 2.7.x si prefieres compatibilidad probada con drools-core/drools-compiler 7.x).
-2. Puerto de escucha: 8080.
-3. Arquitectura interna y POJOs (Usa clases Wrapper como Double e Integer para permitir nulls):
-   - controller/RuleController.java: Expone POST /evaluar. Recibe SolicitudEvaluacion y devuelve ResultadoEvaluacion.
-   - model/DatosUsuario.java: intencionPrincipal, cantidadSolicitada, plazoMeses, proposito, gastosFijosMensuales, deudaDeclarada, dudaCatchAll.
-   - model/DatosCore.java: clienteId, dni, edad, ingresosNetosMensuales, antiguedadMeses, deudaInternaBancoMensual, esAvalista, empresaAvaladaCif.
-   - model/DatosBde.java: consultado, tieneImpagosActivos, importeMorosidadAsnef, empresaAvaladaConcurso, deudaCirbeMensual, deudaCirbeTotal.
-   - model/CalculosDerivados.java: cuotaEstimada, ratioEndeudamiento, remanenteSubsistencia, edadAlVencimiento.
-   - model/SolicitudEvaluacion.java: Compone los 4 objetos anteriores.
-   - model/ResultadoEvaluacion.java: estado, reglasDisparadas (List<String>), accionRequerida, datoFaltante, calculosDerivados, articuloNormativo, textoLegal.
-4. Lógica de Servicio (service/DroolsService.java):
-   - Crea e inicializa una KieSession stateless por cada llamada.
-   - Antes de insertar los objetos en la sesión Drools, calcula los valores de `CalculosDerivados` aplicando las fórmulas matemáticas exactas definidas en el SYSTEM_SPEC.md. Si faltan datos (nulls) para el cálculo, los campos derivados pertinentes serán null.
-   - Inserta `DatosUsuario`, `DatosCore`, `DatosBde`, `CalculosDerivados` y un objeto `ResultadoEvaluacion` vacío en la sesión.
-   - Ejecuta fireAllRules() y retorna el `ResultadoEvaluacion` modificado por las reglas.
-5. Reglas DRL (resources/rules/prestamos.drl): Implementa con rigor la sintaxis de Drools (dialect "mvel" o "java") para las 14 REGLAS del catálogo de SYSTEM_SPEC.md. Respeta sus condiciones lógicas, sus asignaciones de estado/acción y su 'salience' (prioridad) exacto:
-   1. R_EDAD_MINIMA (salience 100)
-   2. R_CANTIDAD_Y_PLAZO_REQUERIDOS (salience 99)
-   3. R_EDAD_MAXIMA (salience 98)
-   4. R_PROPOSITO_REQUERIDO (salience 97)
-   5. R_PROPOSITO_NO_FINANCIABLE (salience 96)
-   6. R_GASTOS_FIJOS_REQUERIDOS (salience 95)
-   7. R_DISPARAR_CIRBE (salience 70)
-   8. R_MOROSIDAD_ASNEF (salience 60)
-   9. R_ALERTA_QUIEBRA_AVAL (salience 50)
-   10. R_DEUDA_DECLARADA_REQUERIDA (salience 45)
-   11. R_DISCREPANCIA_DECLARADA (salience 40)
-   12. R_RATIO_ENDEUDAMIENTO (salience 30)
-   13. R_MINIMO_SUBSISTENCIA (salience 20)
-   14. R_APROBACION_ESTANDAR (salience 10)
+Tu objetivo es implementar de forma completa, robusta y funcional el microservicio `drools-app` basándote estrictamente en el archivo `SYSTEM_SPEC.md`. Este microservicio actúa como el motor de decisiones simbólico y auditable dentro de una arquitectura neurosimbólica Kautz Nivel 1-2.
 
-Instrucciones de entrega:
-Genera la estructura completa de carpetas y entrega EL CÓDIGO ÍNTEGRO Y SIN ELISIONES de:
-- pom.xml (con dependencias funcionales).
-- Todos los POJOs del paquete `model`.
-- DroolsConfig.java y DroolsService.java.
-- RuleController.java.
-- META-INF/kmodule.xml.
-- prestamos.drl (con las 14 reglas programadas al detalle).
-- Dockerfile funcional para compilar con Maven y ejecutar la app.
+REQUISITOS CRÍTICOS DE ARQUITECTURA Y TIPADO:
+1. Convenciones Java y Null-Safety: Es OBLIGATORIO usar Clases Wrapper (`Double`, `Integer`, `Boolean`) en todos los atributos de los POJOs (nunca tipos primitivos) para permitir la evaluación de nulos (`== null`). Genera constructores, getters y setters manualmente sin omitir ninguno.
+2. Condición de Guarda Anticolisión (DRL): Para evitar que reglas de menor prioridad sobreescriban decisiones previas, TODAS las reglas deben incluir como condición en el `when`:
+   `$res : ResultadoEvaluacion(estado == "EN_PROCESO")`
+   Si una regla previa cambió el estado (a DENEGADO, REQUIERE_DATOS, etc.), ninguna regla posterior debe dispararse.
 
+Estructura de archivos y requerimientos:
+
+1. `pom.xml` y `Dockerfile`:
+   - Spring Boot 3.x con Java 17 (o 2.7.x compatible con drools 7.x/8.x).
+   - Dependencias: `drools-core`, `drools-compiler` y `drools-mvel`.
+   - Dockerfile multi-stage con Maven para compilar y empaquetar el JAR, exponiendo el puerto 8080.
+
+2. Modelos de Datos (`src/main/java/com/example/demo/model/`):
+   - `DatosUsuario`: intencionPrincipal (String), cantidadSolicitada (Double), plazoMeses (Integer), proposito (String), gastosFijosMensuales (Double), deudaDeclarada (Double), dudaCatchAll (String).
+   - `DatosCoreBancario`: clienteId (String), dni (String), edad (Integer), ingresosNetosMensuales (Double), antiguedadMeses (Integer), deudaInternaBancoMensual (Double), esAvalista (Boolean), empresaAvaladaCif (String).
+   - `DatosExternosBde`: consultado (Boolean), tieneImpagosActivos (Boolean), importeMorosidadAsnef (Double), empresaAvaladaConcurso (Boolean), deudaCirbeMensual (Double), deudaCirbeTotal (Double).
+   - `CalculosDerivados`: cuotaEstimada (Double), ratioEndeudamiento (Double), remanenteSubsistencia (Double), edadAlVencimiento (Integer).
+   - `SolicitudEvaluacion`: Agrega instancias de DatosUsuario, DatosCoreBancario y DatosExternosBde.
+   - `ResultadoEvaluacion`: 
+     * estado (String inicializado en "EN_PROCESO")
+     * reglasDisparadas (List<String> inicializada vacía)
+     * accionRequerida (String)
+     * datoFaltante (String)
+     * articuloNormativo (String)
+     * textoLegal (String)
+     * tono (String)
+     * calculosDerivados (CalculosDerivados)
+
+3. Configuración y Controlador:
+   - `DroolsConfig.java`: Configura `KieServices`, `KieFileSystem` cargando el DRL desde el classpath, `KieBuilder` y expone el `KieContainer` como Bean.
+   - `RuleController.java`: Endpoint HTTP `POST /evaluar`. Recibe `SolicitudEvaluacion`, invoca `DroolsService` y devuelve `ResultadoEvaluacion`.
+
+4. Servicio (`DroolsService.java`):
+   - Inyecta el `KieContainer`.
+   - Método `evaluar(SolicitudEvaluacion solicitud)`:
+     1. Calcula matemáticamente los `CalculosDerivados` usando las fórmulas de SYSTEM_SPEC.md. Si alguna variable necesaria para el cálculo es `null`, el resultado de ese campo derivado debe ser `null` (previniendo `NullPointerException`).
+     2. Instancia una `KieSession` stateless por petición.
+     3. Inserta como facts en la sesión: `DatosUsuario`, `DatosCoreBancario`, `DatosExternosBde`, `CalculosDerivados` calculados, y un `ResultadoEvaluacion` recién instanciado.
+     4. Ejecuta `kieSession.fireAllRules()`.
+     5. Cierra la sesión (`dispose`), asocia los `CalculosDerivados` al `ResultadoEvaluacion` y lo retorna.
+
+5. Reglas Drools (`src/main/resources/rules/prestamos.drl`):
+   Implementa la sintaxis exacta de Drools para las 14 REGLAS. Cada regla debe evaluar `$res : ResultadoEvaluacion(estado == "EN_PROCESO")` y en el bloque `then` asignar: `$res.setEstado(...)`, `$res.getReglasDisparadas().add(...)`, `$res.setArticuloNormativo(...)`, `$res.setTextoLegal(...)` y `$res.setTono(...)`.
+
+   Catálogo de reglas, salience y tonos:
+   - R_EDAD_MINIMA (salience 100): `firme, claro y respetuoso`
+   - R_CANTIDAD_Y_PLAZO_REQUERIDOS (salience 99): `amable, orientativo y conciso`
+   - R_EDAD_MAXIMA (salience 98): `claro, respetuoso y transparente`
+   - R_PROPOSITO_REQUERIDO (salience 97): `amable, cercano y orientativo`
+   - R_PROPOSITO_NO_FINANCIABLE (salience 96): `firme, profesional y no acusatorio`
+   - R_GASTOS_FIJOS_REQUERIDOS (salience 95): `amable, sencillo y orientativo (explicar que no se refiere a deudas, sino a gastos fijos como alquiler, recibos o suministros)`
+   - R_DISPARAR_CIRBE (salience 70): `neutro y técnico` (accion_requerida: "CONSULTAR_CIRBE_ASNEF")
+   - R_MOROSIDAD_ASNEF (salience 60): `firme, profesional y especialmente cuidadoso`
+   - R_ALERTA_QUIEBRA_AVAL (salience 50): `serio, prudente y respetuoso`
+   - R_DEUDA_DECLARADA_REQUERIDA (salience 45): `amable, claro y orientativo`
+   - R_DISCREPANCIA_DECLARADA (salience 40): `neutral, prudente y no acusatorio`
+   - R_RATIO_ENDEUDAMIENTO (salience 30): `firme, claro y respetuoso`
+   - R_MINIMO_SUBSISTENCIA (salience 20): `serio, prudente y respetuoso`
+   - R_APROBACION_ESTANDAR (salience 10): `positivo, claro y profesional`
+
+6. Archivo KIE (`src/main/resources/META-INF/kmodule.xml`):
+   Configuración canónica del módulo KIE.
+
+Entrega el código íntegro de cada archivo, con imports completos, getters/setters y la implementación detallada del DRL sin elisiones ni comentarios de tipo TODO.
 
 
 
@@ -71,7 +95,7 @@ Requisitos técnicos del backend:
 3. Cliente LLM: Uso de la librería oficial de Mistral (mistralai) para structured output garantizado mediante Pydantic.
 4. Organización modular de carpetas según SYSTEM_SPEC.md:
    - config.py: Variables de entorno (DATABASE_URL, DROOLS_URL, MISTRAL_API_KEY).
-   - database.py: Base, engine y get_db session.
+   - database.py: declarative_base, create_engine, sessionmaker y generador `get_db()`.
    - models/:
      * cliente.py: Mapeo de la tabla 'clientes' (cliente_id, dni, edad, ingresos_netos_mensuales, antiguedad_meses, deuda_interna_banco, es_avalista, empresa_avalada_cif).
      * traza.py: Mapeo de 'trazas_auditoria':
@@ -103,21 +127,22 @@ Requisitos técnicos del backend:
      * chat_router.py: Endpoint POST /api/chat.
      * clientes_router.py: Endpoint GET /api/clientes (para alimentar la interfaz frontend con los usuarios posibles en el desplegable).
      * bde_mock_router.py: Endpoint GET /api/mock/bde/{dni}.
-   - main.py: Inclusión de routers, CORS y montaje de estáticos en /static.
+   - main.py: Inclusión de routers, CORS y montaje de estáticos en /static (que posteriormente se programarán).
    - requirements.txt: Lista de dependencias necesarias.
    - Dockerfile: Dockerfile funcional para compilar con pip.
    - bde.json: Archivo con datos simulados de CIRBE/ASNEF para el servicio bde_mock_service.py.
+   - .env.example: Archivo con variables de entorno necesarias.
+   - README.md: Archivo con instrucciones de uso detalladas, ve haciendolo conforme vayas programando para ir autocontextualizandote el proyecto y evitar así alucinaciones.
 5. Paradigma de Programación Estricto (POO):
    - Todo el código debe estar estructurado mediante Programación Orientada a Objetos (clases y métodos).
-   - Prohibido dejar funciones sueltas procedurales en clients/ y services/.
    - Implementa clases de servicio bien definidas:
      * class MistralClient en app/clients/mistral_client.py.
      * class DroolsClient en app/clients/drools_client.py.
      * class BdeMockService en app/services/bde_mock_service.py.
-     * class PipelineOrchestrator en app/services/orchestrator.py (inyectando dependencias en el __init__).
+     * class PipelineOrchestrator en app/services/orchestrator.py.
    - Los routers de FastAPI deben limitarse a instanciar o recibir mediante inyección de dependencias (Depends) estas clases de servicio.
 
-Entrega el código íntegro, sin elisiones ni comentarios TODO, de cada uno de los archivos indicados, junto a requirements.txt y el Dockerfile.
+Haz todos los archivos de esta fase, uno por uno, sin elisiones ni comentarios TODO, de cada uno de los archivos indicados.
 
 
 

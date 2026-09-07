@@ -1,0 +1,359 @@
+/**
+ * Archivo de Reglas Drools (DRL) para la evaluación de solicitudes de préstamo personal.
+ *
+ * Arquitectura: Neurosimbólica Kautz Nivel 1-2 - Symbolic[Neuro]
+ * Referencia normativa: Directiva 2014/17/UE, Ley 10/2010 PBC, EU AI Act, Art. 607 LEC
+ *
+ * CONVENCIÓN DE GUARDA ANTICOLISIÓN:
+ *   Todas las reglas incluyen la condición:
+ *     $res : ResultadoEvaluacion(estado == "EN_PROCESO")
+ *   Esto garantiza que, una vez que una regla de mayor salience cambia el estado,
+ *   ninguna regla de menor prioridad puede sobreescribir la decisión.
+ *
+ * Catálogo de reglas (por orden de salience descendente):
+ *   R_EDAD_MINIMA                  (100)
+ *   R_CANTIDAD_Y_PLAZO_REQUERIDOS  (99)
+ *   R_EDAD_MAXIMA                  (98)
+ *   R_PROPOSITO_REQUERIDO          (97)
+ *   R_PROPOSITO_NO_FINANCIABLE     (96)
+ *   R_GASTOS_FIJOS_REQUERIDOS      (95)
+ *   R_DISPARAR_CIRBE               (70)
+ *   R_MOROSIDAD_ASNEF              (60)
+ *   R_ALERTA_QUIEBRA_AVAL         (50)
+ *   R_DEUDA_DECLARADA_REQUERIDA    (45)
+ *   R_DISCREPANCIA_DECLARADA       (40)
+ *   R_RATIO_ENDEUDAMIENTO          (30)
+ *   R_MINIMO_SUBSISTENCIA          (20)
+ *   R_APROBACION_ESTANDAR          (10)
+ */
+package rules;
+
+import com.example.demo.model.DatosUsuario;
+import com.example.demo.model.DatosCoreBancario;
+import com.example.demo.model.DatosExternosBde;
+import com.example.demo.model.CalculosDerivados;
+import com.example.demo.model.ResultadoEvaluacion;
+
+// =============================================================================
+// REGLA 1: R_EDAD_MINIMA
+// Salience: 100 | Estado: DENEGADO
+// Condición: El cliente es menor de 18 años.
+// Normativa: Criterios de capacidad legal y riesgo actuarial.
+//            Los préstamos a menores de edad no están permitidos.
+// Tono: firme, claro y respetuoso
+// =============================================================================
+rule "R_EDAD_MINIMA"
+    salience 100
+    when
+        $res : ResultadoEvaluacion(estado == "EN_PROCESO")
+        $core : DatosCoreBancario(edad != null, edad < 18)
+    then
+        $res.setEstado("DENEGADO");
+        $res.getReglasDisparadas().add("R_EDAD_MINIMA");
+        $res.setArticuloNormativo("Criterios de capacidad legal y riesgo actuarial");
+        $res.setTextoLegal("Los préstamos personales no pueden concederse a personas menores de 18 años, ya que carecen de plena capacidad jurídica para contraer obligaciones financieras según la legislación vigente.");
+        $res.setTono("firme, claro y respetuoso");
+        update($res);
+end
+
+// =============================================================================
+// REGLA 2: R_CANTIDAD_Y_PLAZO_REQUERIDOS
+// Salience: 99 | Estado: REQUIERE_DATOS
+// Condición: La cantidad solicitada o el plazo en meses son nulos.
+// Normativa: Debe conocerse la cantidad y el plazo para evaluar el riesgo.
+// Tono: amable, orientativo y conciso
+// =============================================================================
+rule "R_CANTIDAD_Y_PLAZO_REQUERIDOS"
+    salience 99
+    when
+        $res : ResultadoEvaluacion(estado == "EN_PROCESO")
+        $core : DatosCoreBancario(edad != null, edad >= 18)
+        $du : DatosUsuario(cantidadSolicitada == null || plazoMeses == null)
+    then
+        $res.setEstado("REQUIERE_DATOS");
+        $res.getReglasDisparadas().add("R_CANTIDAD_Y_PLAZO_REQUERIDOS");
+        String faltante = ($du.getCantidadSolicitada() == null) ? "cantidad_solicitada" : "plazo_meses";
+        $res.setDatoFaltante(faltante);
+        $res.setArticuloNormativo("Obligación de evaluación de riesgos crediticios");
+        $res.setTextoLegal("Para poder evaluar correctamente su solicitud es imprescindible conocer tanto el importe total del préstamo como el plazo de devolución en meses. Sin estos datos no es posible realizar el análisis de solvencia requerido por la normativa.");
+        $res.setTono("amable, orientativo y conciso");
+        update($res);
+end
+
+// =============================================================================
+// REGLA 3: R_EDAD_MAXIMA
+// Salience: 98 | Estado: DENEGADO
+// Condición: La edad del cliente al vencimiento del préstamo supera los 75 años.
+// Normativa: Criterios de capacidad legal y riesgo actuarial por edad.
+// Tono: claro, respetuoso y transparente
+// =============================================================================
+rule "R_EDAD_MAXIMA"
+    salience 98
+    when
+        $res : ResultadoEvaluacion(estado == "EN_PROCESO")
+        $calc : CalculosDerivados(edadAlVencimiento != null, edadAlVencimiento > 75)
+    then
+        $res.setEstado("DENEGADO");
+        $res.getReglasDisparadas().add("R_EDAD_MAXIMA");
+        $res.setArticuloNormativo("Criterios de capacidad legal y riesgo actuarial por edad");
+        $res.setTextoLegal("Al vencimiento del préstamo, la edad del solicitante superaría los 75 años. Por criterios de riesgo actuarial, la entidad no puede conceder préstamos cuya devolución finalice más allá de dicha edad límite.");
+        $res.setTono("claro, respetuoso y transparente");
+        update($res);
+end
+
+// =============================================================================
+// REGLA 4: R_PROPOSITO_REQUERIDO
+// Salience: 97 | Estado: REQUIERE_DATOS
+// Condición: El propósito del préstamo es nulo.
+// Normativa: Debe conocerse el propósito para evaluar el riesgo adecuadamente.
+// Tono: amable, cercano y orientativo
+// =============================================================================
+rule "R_PROPOSITO_REQUERIDO"
+    salience 97
+    when
+        $res : ResultadoEvaluacion(estado == "EN_PROCESO")
+        $du : DatosUsuario(cantidadSolicitada != null, plazoMeses != null, proposito == null)
+    then
+        $res.setEstado("REQUIERE_DATOS");
+        $res.getReglasDisparadas().add("R_PROPOSITO_REQUERIDO");
+        $res.setDatoFaltante("proposito");
+        $res.setArticuloNormativo("Obligación de evaluación de riesgos crediticios");
+        $res.setTextoLegal("Para continuar con el análisis de su solicitud, necesitamos conocer el propósito del préstamo. Esta información es necesaria para cumplir con los requisitos regulatorios de evaluación de riesgo crediticio.");
+        $res.setTono("amable, cercano y orientativo");
+        update($res);
+end
+
+// =============================================================================
+// REGLA 5: R_PROPOSITO_NO_FINANCIABLE
+// Salience: 96 | Estado: DENEGADO
+// Condición: El propósito es CRIPTOMONEDAS, APUESTAS o REFINANCIACION_INFORMAL.
+// Normativa: Ley 10/2010 PBC y directrices EBA sobre originación de crédito prudencial.
+// Tono: firme, profesional y no acusatorio
+// =============================================================================
+rule "R_PROPOSITO_NO_FINANCIABLE"
+    salience 96
+    when
+        $res : ResultadoEvaluacion(estado == "EN_PROCESO")
+        $du : DatosUsuario(proposito != null,
+                           proposito == "CRIPTOMONEDAS" ||
+                           proposito == "APUESTAS" ||
+                           proposito == "REFINANCIACION_INFORMAL")
+    then
+        $res.setEstado("DENEGADO");
+        $res.getReglasDisparadas().add("R_PROPOSITO_NO_FINANCIABLE");
+        $res.setArticuloNormativo("Ley 10/2010 PBC y directrices EBA sobre originación de crédito prudencial");
+        $res.setTextoLegal("El propósito declarado para el préstamo solicitado no se encuentra entre las finalidades financiables por esta entidad, de conformidad con la normativa de prevención del blanqueo de capitales (Ley 10/2010) y las directrices de la Autoridad Bancaria Europea (EBA) sobre originación prudencial de crédito.");
+        $res.setTono("firme, profesional y no acusatorio");
+        update($res);
+end
+
+// =============================================================================
+// REGLA 6: R_GASTOS_FIJOS_REQUERIDOS
+// Salience: 95 | Estado: REQUIERE_DATOS
+// Condición: Los gastos fijos mensuales son nulos.
+// Normativa: Art. 18 Directiva 2014/17/UE - obligación de computar compromisos periódicos.
+// Tono: amable, sencillo y orientativo
+// =============================================================================
+rule "R_GASTOS_FIJOS_REQUERIDOS"
+    salience 95
+    when
+        $res : ResultadoEvaluacion(estado == "EN_PROCESO")
+        $du : DatosUsuario(cantidadSolicitada != null, plazoMeses != null,
+                           proposito != null, gastosFijosMensuales == null)
+    then
+        $res.setEstado("REQUIERE_DATOS");
+        $res.getReglasDisparadas().add("R_GASTOS_FIJOS_REQUERIDOS");
+        $res.setDatoFaltante("gastos_fijos_mensuales");
+        $res.setArticuloNormativo("Art. 18 Directiva 2014/17/UE");
+        $res.setTextoLegal("Para evaluar su solvencia conforme al Art. 18 de la Directiva 2014/17/UE, necesitamos conocer sus gastos fijos mensuales. Nos referimos a compromisos periódicos ineludibles como el alquiler, los gastos de suministros (luz, agua, gas), seguros u otros recibos fijos. No incluya aquí sus deudas o préstamos, ya que se recogen por separado.");
+        $res.setTono("amable, sencillo y orientativo");
+        update($res);
+end
+
+// =============================================================================
+// REGLA 7: R_DISPARAR_CIRBE
+// Salience: 70 | Estado: REQUIERE_ACCION
+// Condición: No se ha consultado aún el BdE (CIRBE/ASNEF).
+// Normativa: Obligación regulatoria de consulta previa a ficheros de solvencia patrimonial.
+// Tono: neutro y técnico
+// =============================================================================
+rule "R_DISPARAR_CIRBE"
+    salience 70
+    when
+        $res : ResultadoEvaluacion(estado == "EN_PROCESO")
+        $du : DatosUsuario(cantidadSolicitada != null, plazoMeses != null,
+                           proposito != null, gastosFijosMensuales != null)
+        $bde : DatosExternosBde(consultado == false || consultado == null)
+    then
+        $res.setEstado("REQUIERE_ACCION");
+        $res.getReglasDisparadas().add("R_DISPARAR_CIRBE");
+        $res.setAccionRequerida("CONSULTAR_CIRBE_ASNEF");
+        $res.setArticuloNormativo("Obligación regulatoria de consulta previa a ficheros de solvencia patrimonial");
+        $res.setTextoLegal("La normativa vigente exige la consulta obligatoria a los ficheros de solvencia patrimonial (CIRBE y ASNEF) del Banco de España como paso previo a la resolución de cualquier solicitud de crédito.");
+        $res.setTono("neutro y técnico");
+        update($res);
+end
+
+// =============================================================================
+// REGLA 8: R_MOROSIDAD_ASNEF
+// Salience: 60 | Estado: DENEGADO
+// Condición: El cliente tiene impagos activos en ASNEF o importe de morosidad > 0.
+// Normativa: Criterios prudenciales de morosidad crediticia.
+// Tono: firme, profesional y especialmente cuidadoso
+// =============================================================================
+rule "R_MOROSIDAD_ASNEF"
+    salience 60
+    when
+        $res : ResultadoEvaluacion(estado == "EN_PROCESO")
+        $bde : DatosExternosBde(consultado == true,
+                                tieneImpagosActivos != null,
+                                importeMorosidadAsnef != null,
+                                tieneImpagosActivos == true || importeMorosidadAsnef > 0)
+    then
+        $res.setEstado("DENEGADO");
+        $res.getReglasDisparadas().add("R_MOROSIDAD_ASNEF");
+        $res.setArticuloNormativo("Criterios prudenciales de morosidad crediticia");
+        $res.setTextoLegal("Los registros consultados en los ficheros de solvencia patrimonial reflejan la existencia de obligaciones de pago impagadas o situaciones de morosidad activa. De conformidad con los criterios prudenciales de riesgo crediticio, no es posible conceder nueva financiación en esta situación.");
+        $res.setTono("firme, profesional y especialmente cuidadoso");
+        update($res);
+end
+
+// =============================================================================
+// REGLA 9: R_ALERTA_QUIEBRA_AVAL
+// Salience: 50 | Estado: DENEGADO
+// Condición: El cliente es avalista y la empresa avalada está en concurso de acreedores.
+// Normativa: Riesgo concursal indirecto exigible a corto plazo (Criterios EBA).
+// Tono: serio, prudente y respetuoso
+// =============================================================================
+rule "R_ALERTA_QUIEBRA_AVAL"
+    salience 50
+    when
+        $res : ResultadoEvaluacion(estado == "EN_PROCESO")
+        $core : DatosCoreBancario(esAvalista != null, esAvalista == true)
+        $bde : DatosExternosBde(consultado == true,
+                                empresaAvaladaConcurso != null,
+                                empresaAvaladaConcurso == true)
+    then
+        $res.setEstado("DENEGADO");
+        $res.getReglasDisparadas().add("R_ALERTA_QUIEBRA_AVAL");
+        $res.setArticuloNormativo("Criterios EBA sobre riesgo concursal indirecto");
+        $res.setTextoLegal("Se ha detectado que el solicitante actúa como avalista de una empresa que se encuentra actualmente en situación de concurso de acreedores. Esta circunstancia genera un riesgo concursal indirecto exigible a corto plazo que impide la concesión de nueva financiación, de conformidad con los criterios de la Autoridad Bancaria Europea (EBA).");
+        $res.setTono("serio, prudente y respetuoso");
+        update($res);
+end
+
+// =============================================================================
+// REGLA 10: R_DEUDA_DECLARADA_REQUERIDA
+// Salience: 45 | Estado: REQUIERE_DATOS
+// Condición: La deuda declarada por el usuario es nula.
+// Normativa: Obligación de computar compromisos para evaluar la solvencia real.
+// Tono: amable, claro y orientativo
+// =============================================================================
+rule "R_DEUDA_DECLARADA_REQUERIDA"
+    salience 45
+    when
+        $res : ResultadoEvaluacion(estado == "EN_PROCESO")
+        $du : DatosUsuario(cantidadSolicitada != null, plazoMeses != null,
+                           proposito != null, gastosFijosMensuales != null,
+                           deudaDeclarada == null)
+        $bde : DatosExternosBde(consultado == true)
+    then
+        $res.setEstado("REQUIERE_DATOS");
+        $res.getReglasDisparadas().add("R_DEUDA_DECLARADA_REQUERIDA");
+        $res.setDatoFaltante("deuda_declarada");
+        $res.setArticuloNormativo("Obligación de computar los compromisos ineludibles para evaluar la solvencia real");
+        $res.setTextoLegal("Para completar el análisis de solvencia, necesitamos que nos indique el importe total de sus deudas o préstamos activos con otras entidades. Esta información es necesaria para una evaluación rigurosa de su capacidad de pago.");
+        $res.setTono("amable, claro y orientativo");
+        update($res);
+end
+
+// =============================================================================
+// REGLA 11: R_DISCREPANCIA_DECLARADA
+// Salience: 40 | Estado: REQUIERE_SUPERVISION_HUMANA
+// Condición: La deuda total CIRBE supera en más de un 35% la deuda declarada por el usuario.
+// Normativa: Art. 14 EU AI Act - supervisión humana ante anomalías no resueltas.
+// Tono: neutral, prudente y no acusatorio
+// =============================================================================
+rule "R_DISCREPANCIA_DECLARADA"
+    salience 40
+    when
+        $res : ResultadoEvaluacion(estado == "EN_PROCESO")
+        $du : DatosUsuario(deudaDeclarada != null, deudaDeclarada > 0)
+        $bde : DatosExternosBde(consultado == true, deudaCirbeTotal != null)
+        eval($bde.getDeudaCirbeTotal() > ($du.getDeudaDeclarada() * 1.35))
+    then
+        $res.setEstado("REQUIERE_SUPERVISION_HUMANA");
+        $res.getReglasDisparadas().add("R_DISCREPANCIA_DECLARADA");
+        $res.setArticuloNormativo("Art. 14 EU AI Act - Supervisión humana ante anomalías no resueltas");
+        $res.setTextoLegal("Se ha detectado una discrepancia significativa entre la deuda declarada por el solicitante y los datos registrados en los ficheros de solvencia patrimonial (CIRBE). De conformidad con el artículo 14 del Reglamento de Inteligencia Artificial de la UE (EU AI Act), esta anomalía requiere revisión por parte de un analista de riesgos antes de que pueda emitirse una decisión automatizada.");
+        $res.setTono("neutral, prudente y no acusatorio");
+        update($res);
+end
+
+// =============================================================================
+// REGLA 12: R_RATIO_ENDEUDAMIENTO
+// Salience: 30 | Estado: DENEGADO
+// Condición: El ratio de endeudamiento supera el 40% de los ingresos netos.
+// Normativa: Directiva 2014/17/UE y Banco de España - límite máximo del 40%.
+// Tono: firme, claro y respetuoso
+// =============================================================================
+rule "R_RATIO_ENDEUDAMIENTO"
+    salience 30
+    when
+        $res : ResultadoEvaluacion(estado == "EN_PROCESO")
+        $calc : CalculosDerivados(ratioEndeudamiento != null, ratioEndeudamiento > 0.40)
+    then
+        $res.setEstado("DENEGADO");
+        $res.getReglasDisparadas().add("R_RATIO_ENDEUDAMIENTO");
+        $res.setArticuloNormativo("Art. 18 Directiva 2014/17/UE y criterios del Banco de España");
+        $res.setTextoLegal("El ratio máximo de endeudamiento no debe exceder el 40% de los ingresos netos mensuales del solicitante. La cuota de este préstamo, sumada a sus compromisos de pago actuales, supera dicho umbral, lo que indica que la carga financiera resultante podría comprometer su capacidad de hacer frente a las obligaciones de pago.");
+        $res.setTono("firme, claro y respetuoso");
+        update($res);
+end
+
+// =============================================================================
+// REGLA 13: R_MINIMO_SUBSISTENCIA
+// Salience: 20 | Estado: DENEGADO
+// Condición: El remanente de subsistencia tras los compromisos es inferior a 700 euros.
+// Normativa: Art. 607 LEC - mínimo vital inembargable derivado del SMI.
+// Tono: serio, prudente y respetuoso
+// =============================================================================
+rule "R_MINIMO_SUBSISTENCIA"
+    salience 20
+    when
+        $res : ResultadoEvaluacion(estado == "EN_PROCESO")
+        $calc : CalculosDerivados(remanenteSubsistencia != null, remanenteSubsistencia < 700.0)
+    then
+        $res.setEstado("DENEGADO");
+        $res.getReglasDisparadas().add("R_MINIMO_SUBSISTENCIA");
+        $res.setArticuloNormativo("Art. 607 LEC - Mínimo vital inembargable derivado del Salario Mínimo Interprofesional");
+        $res.setTextoLegal("Tras asumir la cuota del préstamo solicitado y el resto de compromisos financieros activos, el remanente mensual disponible quedaría por debajo del mínimo de subsistencia establecido en el artículo 607 de la Ley de Enjuiciamiento Civil, derivado del Salario Mínimo Interprofesional. Esta entidad no puede conceder financiación que comprometa el mínimo vital necesario para el sustento del solicitante.");
+        $res.setTono("serio, prudente y respetuoso");
+        update($res);
+end
+
+// =============================================================================
+// REGLA 14: R_APROBACION_ESTANDAR
+// Salience: 10 | Estado: APROBADO
+// Condición: Todos los controles anteriores han pasado (estado sigue EN_PROCESO),
+//            el ratio de endeudamiento es <= 0.35 y el remanente >= 700 euros.
+// Normativa: Art. 18.1 Directiva 2014/17/UE - capacidad positiva comprobada.
+// Tono: positivo, claro y profesional
+// =============================================================================
+rule "R_APROBACION_ESTANDAR"
+    salience 10
+    when
+        $res : ResultadoEvaluacion(estado == "EN_PROCESO")
+        $calc : CalculosDerivados(ratioEndeudamiento != null, ratioEndeudamiento <= 0.4,
+                                  remanenteSubsistencia != null, remanenteSubsistencia >= 700.0)
+        $bde : DatosExternosBde(consultado == true,
+                                tieneImpagosActivos != null, tieneImpagosActivos == false,
+                                importeMorosidadAsnef != null, importeMorosidadAsnef <= 0)
+    then
+        $res.setEstado("APROBADO");
+        $res.getReglasDisparadas().add("R_APROBACION_ESTANDAR");
+        $res.setArticuloNormativo("Art. 18.1 Directiva 2014/17/UE - Evaluación de solvencia positiva");
+        $res.setTextoLegal("Tras la evaluación completa de la solvencia del solicitante conforme al artículo 18.1 de la Directiva 2014/17/UE, se ha verificado que la capacidad de pago es adecuada: el ratio de endeudamiento se encuentra dentro de los límites prudenciales, el remanente de subsistencia garantiza el mínimo vital y no se registran incidencias de morosidad activa. La solicitud cumple los requisitos para su aprobación.");
+        $res.setTono("positivo, claro y profesional");
+        update($res);
+end

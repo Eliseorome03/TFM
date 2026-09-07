@@ -20,7 +20,7 @@ class ClienteModel(Base):
         edad                    — Edad en años del titular.
         ingresos_netos_mensuales — Ingresos netos tras impuestos (EUR/mes).
         antiguedad_meses        — Años de antigüedad como cliente del banco (en meses).
-        deuda_interna_banco     — Cuota mensual de deudas activas con este banco (EUR/mes).
+        deuda_interna_banco_mensual     — Cuota mensual de deudas activas con este banco (EUR/mes).
         es_avalista             — Indica si el cliente actúa como avalista de terceros.
         empresa_avalada_cif     — CIF de la empresa avalada (solo cuando es_avalista=True).
     """
@@ -56,7 +56,7 @@ class ClienteModel(Base):
         default=0,
         comment="Antigüedad como cliente del banco (en meses)",
     )
-    deuda_interna_banco: float = Column(
+    deuda_interna_banco_mensual: float = Column(
         Float,
         nullable=False,
         default=0.0,

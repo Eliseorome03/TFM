@@ -268,7 +268,7 @@ class PipelineOrchestrator:
                 edad=cliente.edad,
                 ingresos_netos_mensuales=cliente.ingresos_netos_mensuales,
                 antiguedad_meses=cliente.antiguedad_meses,
-                deuda_interna_banco_mensual=cliente.deuda_interna_banco,
+                deuda_interna_banco_mensual=cliente.deuda_interna_banco_mensual,
                 es_avalista=cliente.es_avalista,
                 empresa_avalada_cif=cliente.empresa_avalada_cif,
             )

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Descriptor canónico del módulo KIE.
+  Define el Knowledge Base "prestamosKB" con la Knowledge Session "prestamosKS"
+  que utiliza las reglas del paquete "rules" (directorio resources/rules/).
+-->
+<kmodule xmlns="http://www.drools.org/xsd/kmodule">
+    <kbase name="prestamosKB" packages="rules">
+        <ksession name="prestamosKS"/>
+    </kbase>
+</kmodule>

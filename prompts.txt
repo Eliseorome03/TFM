@@ -97,7 +97,7 @@ Requisitos técnicos del backend:
    - config.py: Variables de entorno (DATABASE_URL, DROOLS_URL, MISTRAL_API_KEY).
    - database.py: declarative_base, create_engine, sessionmaker y generador `get_db()`.
    - models/:
-     * cliente.py: Mapeo de la tabla 'clientes' (cliente_id, dni, edad, ingresos_netos_mensuales, antiguedad_meses, deuda_interna_banco, es_avalista, empresa_avalada_cif).
+     * cliente.py: Mapeo de la tabla 'clientes' (cliente_id, dni, edad, ingresos_netos_mensuales, antiguedad_meses, deuda_interna_banco_mensual, es_avalista, empresa_avalada_cif).
      * traza.py: Mapeo de 'trazas_auditoria':
        - id: BIGIN  AUTO_INCREMENT PK: Identificador único de la traza.
        - session_id: VARCHAR(64): Identificador único de la conversación del cliente.
@@ -164,36 +164,49 @@ Haz todos los archivos de esta fase, uno por uno, sin elisiones ni comentarios T
 PROMPT FASE 3: Infraestructura, Base de Datos, Frontend y Validación E2E
 
 
-Actúa como un Ingeniero DevOps y Desarrollador Full-Stack.
-Tu objetivo es finalizar la infraestructura del proyecto uniendo los componentes de SYSTEM_SPEC.md mediante Docker Compose, inicializando la base de datos MariaDB y creando un frontend interactivo que permita probar los casos de uso.
+Actúa como un Ingeniero DevOps y Desarrollador Full-Stack Senior.
 
-Requisitos de la fase:
-1. database/init.sql:
-   - Script SQL ejecutable en MariaDB 11.2.
-   - Creación de la base de datos `banca_db` y uso de codificación UTF-8.
-   - Definición de tablas `clientes` (mapeada exactamente a `datos_core_bancario` del SYSTEM_SPEC.md) y `trazas_auditoria`.
-   - Inserción de al menos 4 clientes de prueba diseñados para detonar casos concretos de Drools:
-     * CLI-001 (Laura): Solicitud limpia -> Aprobación directa (R_APROBACION_ESTANDAR).
-     * CLI-002 (Carlos): es_avalista = true, empresa_avalada_concurso = true (vía BDE mock) -> Detona R_ALERTA_QUIEBRA_AVAL.
-     * CLI-003 (Marta): Con deudas e impagos en ASNEF (vía BDE mock) -> Detona R_MOROSIDAD_ASNEF.
-     * CLI-004 (Javier): 72 años solicitando crédito a 5 años -> Detona R_EDAD_MAXIMA.
-2. Frontend Web (HTML / CSS / Vanilla JS) montado en backend/app/static/:
-   - index.html:
-     * Selector desplegable superior (<select id="clienteSelect">) que consulte GET /api/clientes para cambiar de usuario simulado activo.
-     * Tarjeta visual que muestre los datos del Core del cliente seleccionado (DNI, ingresos, deuda_interna_banco_mensual, si es avalista).
-     * Caja de conversación de chat con histórico de mensajes.
-     * Input de texto y botón de envío.
-     * Panel colapsable lateral o inferior que muestre en tiempo real el último `information_state` (JSON) y las trazas de auditoría registradas en ese turno para fines de demostración del TFM.
-   - styles.css: Diseño limpio, profesional y bancario.
+Tu objetivo es finalizar la infraestructura del proyecto neurosimbólico integrando los componentes backend y Drools (ya desarrollados) mediante Docker Compose, inicializando la base de datos MariaDB y creando una interfaz de usuario interactiva (Vanilla JS/HTML/CSS) según el SYSTEM_SPEC.md.
+
+Requisitos técnicos y entregables:
+
+1. Base de Datos (`database/init.sql`):
+   - Script DDL para MariaDB. Crea la base de datos `banca_db`.
+   - Crea la tabla `clientes` alineada con `DatosCoreBancario`: `cliente_id` (PK), `dni` (UNIQUE), `edad`, `ingresos_netos_mensuales`, `antiguedad_meses`, `deuda_interna_banco_mensual`, `es_avalista` (BOOLEAN), `empresa_avalada_cif`.
+   - Crea la tabla `trazas_auditoria` alineada con el AI Act: `id` (PK AUTO_INCREMENT), `session_id`, `turn_id`, `step_order`, `action_type`, `step_input` (JSON), `step_output` (JSON), `information_state` (JSON), `created_at` (TIMESTAMP).
+   - INSERTS de prueba (4 perfiles mockificados que hagan match con el `bde.json` de la Fase 2):
+     * CLI-001 (Laura Martínez Gil, DNI: 55443322E): 35 años, ingresos altos (ej. 3200€), sin deuda interna, es_avalista = FALSE. (Al consultar BdE vendrá limpio -> Aprobación).
+     * CLI-002 (María Blanco Torres, DNI: 11223344C): 29 años, ingresos medios, es_avalista = TRUE, empresa_avalada_cif = 'B9999999'. (Al consultar BdE saltará empresa_avalada_concurso = true -> Detona R_ALERTA_QUIEBRA_AVAL).
+     * CLI-003 (Carlos Ruiz Fernández, DNI: 87654321B): 45 años, ingresos bajos (ej. 1100€). (Al consultar BdE saltará morosidad activa de 2300.50€ -> Detona R_MOROSIDAD_ASNEF).
+     * CLI-004 (Pedro Sánchez Moreno, DNI: 99887766D): 74 años, ingresos medios (ej. 1800€). (Detonará R_EDAD_MAXIMA en cuanto pida un préstamo con plazo, independientemente de su deuda en CIRBE).
+
+2. Infraestructura (`docker-compose.yml` y `.env.example`):
+   - `mariadb`: Imagen mariadb:11.2, puerto 3306, volúmenes mapeados a `./database/init.sql:/docker-entrypoint-initdb.d/init.sql`.
+   - `drools-app`: Build desde `./drools-app`, puerto 8080, depende de `mariadb`.
+   - `backend`: Build desde `./backend`, puerto 8000, depende de `mariadb` y `drools-app`. Añade `DATABASE_URL`, `DROOLS_URL=http://drools-app:8080/api/evaluate` y `MISTRAL_API_KEY`.
+
+3. Frontend Web (backend/app/static/):
+   - Escribe código limpio, moderno y sin frameworks pesados (Vanilla JS).
+   - Utiliza CSS Grid para crear un layout de "Pantalla Dividida" (Split-Screen) muy visual, ideal para una demostración técnica:
+     * COLUMNA IZQUIERDA (Interfaz del Cliente - 40% del ancho):
+       - Header con `<select id="clienteSelect">` para cambiar el rol del cliente.
+       - Tarjeta resumen mostrando los datos del Core Bancario del cliente actual (sueldo, edad, deudas).
+       - Interfaz de Chat (mensajes estilo burbuja) con input y botón de envío.
+     * COLUMNA DERECHA (Consola de Auditoría AI Act - 60% del ancho):
+       - Un panel técnico oscuro (estilo terminal) que se actualice dinámicamente con cada turno.
+       - Debe mostrar un log visual de los 6 pasos ejecutados (EXTRACT_NLU, FETCH_CORE, EVALUATE, etc.).
+       - Tres secciones a mostrar que se cojan dinamicamente de la base de datos de trazas_auditoria:
+        - SECCIÓN 1: "Pipeline del Turno" -> Un timeline visual de píldoras (badges) que muestre los `action_type` ejecutados en ese turno (EXTRACT_NLU, FETCH_CORE, EVALUATE, etc.).
+        - SECCIÓN 2: "Insights del Motor" -> Un bloque de texto destacado que extraiga y muestre de forma legible: La intención detectada por Mistral, el Estado final de Drools (ej. DENEGADO), las Reglas Disparadas, y el Texto Legal.
+        - SECCIÓN 3: "Snapshot ISU (Information State)" -> Un bloque scrollable con `<pre><code>` que imprima el JSON formateado del `information_state` final del turno.
    - app.js:
-     * Gestión del session_id único.
-     * Peticiones fetch() a /api/chat y /api/clientes.
-     * Renderizado dinámico de mensajes y actualización del visor de estado/trazas.
-3. docker-compose.yml:
-   - Orquesta los servicios: mariadb, drools-app y backend.
-   - Configura redes internas, dependencias de arranque (depends_on con healthchecks) y persistencia de volúmenes.
-   - Mapeo de puertos: 3306 (DB), 8080 (Drools), 8000 (FastAPI + Frontend).
-4. Archivo .env.example con las variables de configuración necesarias.
-5. Guía de Verificación E2E: Instrucciones para ejecutar `docker compose up --build` y probar interactivamente los escenarios de aprobación, rechazo por aval, petición de gastos fijos faltantes (R_GASTOS_FIJOS_REQUERIDOS), y mitigación de prompt injection (duda_catch_all = FUERA_DE_DOMINIO).
+     * Manejo del historial del chat en la columna izquierda.
+     * Actualización reactiva de las trazas y del JSON en la columna derecha tras recibir la respuesta de `POST /api/chat`.
+     * `uuidv4()` para generar un `session_id` único al cargar la página o cambiar de cliente.
+     * Función autoejecutada que llame a `GET /api/clientes` y pueble el `<select>`.
+     * Listener en el select para actualizar la tarjeta de contexto de core bancario y resetear el chat y el `session_id`.
+     * Función `enviarMensaje()` conectada al submit que haga un `POST /api/chat` enviando `{ "mensaje": txt, "cliente_id": id, "session_id": uuid }`.
+     * Renderizado reactivo de la conversación y del panel JSON.
+   - `styles.css`: Estilos profesionales, paleta de azules/grises corporativos, diseño responsive.
 
-Proporciona todos los archivos completos y listos para ser desplegados sin omitir lógicas en el JS ni estilos en el CSS.
+Entrega el código ÍNTEGRO de `init.sql`, `docker-compose.yml`, `.env.example`, `index.html`, `styles.css` y `app.js`. No dejes estilos a medias ni funciones vacías.

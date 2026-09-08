@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="es" dir="ltr">
+<head>
+  <!-- ====================================================================
+       Sistema Neurosimbólico de Evaluación de Préstamos Bancarios
+       TFM — Arquitectura Symbolic[Neuro] | EU AI Act compliant
+       Paradigma ISU (Information State Update) + Drools KIE
+       ==================================================================== -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  <!-- SEO -->
+  <title>NeuroLéndiz — Sistema Neurosimbólico de Evaluación de Préstamos</title>
+  <meta name="description"
+        content="Sistema de evaluación de préstamos personales que combina la inteligencia conversacional de Mistral AI con el motor de reglas Drools, conforme al EU AI Act y la Directiva 2014/17/UE." />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="theme-color" content="#090e1a" />
+
+  <!-- Preconnect Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <!-- Estilos principales -->
+  <link rel="stylesheet" href="/static/styles.css" />
+
+  <!-- Favicon SVG inline -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%231e5aaf'/><text y='22' x='6' font-size='18' font-weight='bold' fill='white' font-family='Arial'>N</text></svg>" />
+</head>
+<body>
+
+<!-- ======================================================================
+     #app — Contenedor raíz de la aplicación
+     Grid: topbar (fila 1) + split-screen (fila 2)
+     ====================================================================== -->
+<div id="app">
+
+  <!-- ==================================================================
+       TOPBAR — Barra de navegación superior
+       ================================================================== -->
+  <header class="topbar" role="banner">
+    <div class="topbar__brand">
+      <div class="topbar__logo" aria-hidden="true">N</div>
+      <div class="topbar__title">
+        <h1>NeuroLéndiz · Sistema Neurosimbólico</h1>
+        <span>Evaluación de Préstamos Personales · TFM</span>
+      </div>
+    </div>
+
+    <div class="topbar__badges" role="list" aria-label="Estándares de conformidad">
+      <span class="topbar__badge topbar__badge--act" role="listitem" title="EU AI Act — Sistema de Alto Riesgo (Art. 6)">EU AI Act</span>
+      <span class="topbar__badge topbar__badge--dir" role="listitem" title="Directiva 2014/17/UE sobre contratos de crédito para bienes inmuebles">Dir. 2014/17/UE</span>
+    </div>
+
+    <div class="topbar__status" aria-live="polite" aria-label="Estado del sistema">
+      <div class="status-dot" title="Sistema operativo"></div>
+      <span>Sistema Operativo</span>
+    </div>
+  </header>
+
+
+  <!-- ==================================================================
+       SPLIT-SCREEN — Contenido principal
+       Columna izquierda: 40% — Interfaz del Cliente
+       Columna derecha:   60% — Consola de Auditoría AI Act
+       ================================================================== -->
+  <main class="split-screen" role="main">
+
+    <!-- ================================================================
+         COLUMNA IZQUIERDA — Interfaz del Cliente (40%)
+         ================================================================ -->
+    <section class="panel-cliente" aria-label="Interfaz del cliente">
+
+      <!-- ── Selector de cliente ──────────────────────────────────────── -->
+      <div class="selector-section">
+        <label class="selector-label" for="clienteSelect">
+          <span class="icon" aria-hidden="true">👤</span>
+          Seleccionar cliente
+        </label>
+        <div class="select-wrapper">
+          <select
+            id="clienteSelect"
+            aria-label="Selector de perfil de cliente para la evaluación"
+            title="Cambiar el cliente reiniciará la sesión y el historial de conversación"
+          >
+            <option value="">Cargando clientes…</option>
+          </select>
+          <span class="select-arrow" aria-hidden="true">▼</span>
+        </div>
+      </div>
+
+      <!-- ── Tarjeta de Core Bancario ─────────────────────────────────── -->
+      <div class="core-card" id="coreCard" role="region" aria-label="Datos bancarios del cliente seleccionado">
+        <div class="core-card__empty">
+          <span aria-hidden="true">🏦</span>
+          Selecciona un cliente para ver sus datos bancarios
+        </div>
+      </div>
+
+      <!-- ── Sección de Chat ──────────────────────────────────────────── -->
+      <div class="chat-section">
+        <div class="chat-section__header">
+          <div class="chat-section__title" aria-hidden="true">
+            💬 Conversación
+          </div>
+          <span
+            class="chat-section__turn"
+            id="turnCounter"
+            aria-label="Número de turno actual"
+            aria-live="polite"
+          >Turno 0</span>
+        </div>
+
+        <!-- Historial de mensajes -->
+        <div
+          id="chatMessages"
+          role="log"
+          aria-label="Historial de mensajes de la conversación"
+          aria-live="polite"
+          aria-relevant="additions"
+        >
+          <!-- Generado dinámicamente por app.js -->
+          <div class="chat-empty" id="chatEmpty">
+            <div class="chat-empty__icon" aria-hidden="true">💬</div>
+            <div class="chat-empty__title">Inicia la conversación</div>
+            <div class="chat-empty__sub">Escribe tu mensaje para comenzar la evaluación del préstamo</div>
+          </div>
+        </div>
+
+        <!-- Input de mensaje -->
+        <div class="chat-input-area" role="region" aria-label="Área de entrada de mensaje">
+          <div class="chat-input-row">
+            <label for="chatInput" class="sr-only">Escribe tu mensaje al sistema de evaluación</label>
+            <textarea
+              id="chatInput"
+              placeholder="Ej: Quiero pedir 10.000€ a 36 meses para reforma del hogar…"
+              rows="1"
+              maxlength="2000"
+              autocomplete="off"
+              autocorrect="on"
+              spellcheck="true"
+              aria-label="Mensaje para el sistema de evaluación de préstamos"
+              aria-describedby="chatInputHint"
+            ></textarea>
+            <button
+              id="sendBtn"
+              type="button"
+              title="Enviar mensaje (Enter)"
+              aria-label="Enviar mensaje al sistema"
+            >
+              ➤
+            </button>
+          </div>
+          <div class="chat-hint" id="chatInputHint" aria-label="Atajo de teclado">
+            <kbd>Enter</kbd> para enviar · <kbd>Shift+Enter</kbd> para salto de línea
+          </div>
+        </div>
+      </div><!-- /.chat-section -->
+
+    </section><!-- /.panel-cliente -->
+
+
+    <!-- ================================================================
+         COLUMNA DERECHA — Consola de Auditoría AI Act (60%)
+         ================================================================ -->
+    <aside class="panel-auditoria" aria-label="Consola de auditoría AI Act">
+
+      <!-- ── Header de consola estilo terminal ────────────────────────── -->
+      <div class="console-header" role="banner" aria-label="Encabezado de la consola de auditoría">
+        <div class="console-header__title">
+          <div class="console-dots-group" aria-hidden="true">
+            <div class="console-dot console-dot--red"></div>
+            <div class="console-dot console-dot--yellow"></div>
+            <div class="console-dot console-dot--green"></div>
+          </div>
+          🔍 Consola de Auditoría AI Act
+        </div>
+        <div class="console-header__meta" aria-label="Metadatos de sesión">
+          <span>session_id:</span>
+          <span
+            class="console-session-id"
+            id="sessionIdDisplay"
+            title="UUID de la sesión conversacional actual"
+            aria-label="Identificador de sesión"
+          >—</span>
+        </div>
+      </div>
+
+      <!-- ── Cuerpo scrollable de la consola ──────────────────────────── -->
+      <div class="console-body" id="consoleBody">
+
+        <!-- Placeholder inicial (se oculta tras el primer turno) -->
+        <div class="console-placeholder" id="consolePlaceholder" role="status" aria-live="polite">
+          <div class="console-placeholder__icon" aria-hidden="true">🔐</div>
+          <div class="console-placeholder__title">Consola de Auditoría en Espera</div>
+          <div class="console-placeholder__sub">
+            Los logs del pipeline de 6 pasos aparecerán aquí en tiempo real
+            tras el primer mensaje de la conversación.
+            <br/><br/>
+            <code style="opacity:0.5">EXTRACT_NLU → FETCH_CORE → EVALUATE → [CIRBE] → NLG</code>
+          </div>
+        </div>
+
+        <!-- Contenido dinámico (oculto hasta el primer turno) -->
+        <div id="consoleContent" class="hidden" aria-live="polite">
+
+          <!-- ────────────────────────────────────────────────────────────
+               SECCIÓN 1 — Pipeline del Turno
+               Timeline visual de píldoras (badges) con los action_type
+               ejecutados en el turno actual.
+               ──────────────────────────────────────────────────────────── -->
+          <section
+            class="console-section"
+            aria-labelledby="pipelineSectionTitle"
+          >
+            <div class="console-section__title" id="pipelineSectionTitle">
+              <span class="console-section__icon" aria-hidden="true">⚡</span>
+              Pipeline del Turno
+              <span
+                class="console-section__turn-badge"
+                id="pipelineTurnBadge"
+                aria-label="Número de turno del pipeline"
+              >Turno —</span>
+            </div>
+            <div class="pipeline-body">
+              <div
+                class="pipeline-timeline"
+                id="pipelineTimeline"
+                role="list"
+                aria-label="Pasos del pipeline de evaluación ejecutados en este turno"
+              >
+                <!-- Generado dinámicamente por app.js → renderizarPipeline() -->
+              </div>
+            </div>
+          </section>
+
+          <!-- ────────────────────────────────────────────────────────────
+               SECCIÓN 2 — Insights del Motor
+               Muestra de forma legible los datos clave extraídos del
+               information_state: intención, estado Drools, reglas, legal.
+               ──────────────────────────────────────────────────────────── -->
+          <section
+            class="console-section"
+            aria-labelledby="insightsSectionTitle"
+          >
+            <div class="console-section__title" id="insightsSectionTitle">
+              <span class="console-section__icon" aria-hidden="true">🧬</span>
+              Insights del Motor
+              <span
+                class="console-section__turn-badge"
+                id="insightsTurnBadge"
+                aria-label="Número de turno de los insights"
+              >Turno —</span>
+            </div>
+            <div class="insights-body">
+
+              <!-- Intención detectada por Mistral NLU -->
+              <div class="insight-row">
+                <div class="insight-row__label" title="Intención clasificada por el componente Mistral NLU">
+                  <span aria-hidden="true">🧠</span> Intención NLU
+                </div>
+                <div
+                  class="insight-row__value"
+                  id="intentionValue"
+                  aria-label="Intención principal detectada"
+                >—</div>
+              </div>
+
+              <!-- Estado final de evaluación Drools -->
+              <div class="insight-row">
+                <div class="insight-row__label" title="Estado resultante del motor de reglas Drools KIE">
+                  <span aria-hidden="true">⚙️</span> Estado Drools
+                </div>
+                <div
+                  class="insight-row__value"
+                  id="estadoValue"
+                  aria-label="Estado de evaluación de Drools"
+                >—</div>
+              </div>
+
+              <!-- Reglas disparadas -->
+              <div class="insight-row">
+                <div class="insight-row__label" title="Reglas DRL activadas durante la evaluación">
+                  <span aria-hidden="true">📋</span> Reglas Disparadas
+                </div>
+                <div
+                  class="insight-row__value"
+                  id="reglasValue"
+                  aria-label="Lista de reglas disparadas en Drools"
+                >—</div>
+              </div>
+
+              <!-- Artículo normativo -->
+              <div class="insight-row">
+                <div class="insight-row__label" title="Referencia normativa asociada a la regla más relevante">
+                  <span aria-hidden="true">📜</span> Artículo Normativo
+                </div>
+                <div
+                  class="insight-row__value"
+                  id="articuloValue"
+                  aria-label="Artículo normativo referenciado"
+                >—</div>
+              </div>
+
+              <!-- Texto legal -->
+              <div class="insight-row">
+                <div class="insight-row__label" title="Justificación legal generada por Drools (constitutiva, no post-hoc)">
+                  <span aria-hidden="true">⚖️</span> Texto Legal
+                </div>
+                <div
+                  class="insight-row__value"
+                  id="textoLegalValue"
+                  aria-label="Texto legal explicativo de la decisión"
+                >—</div>
+              </div>
+
+            </div><!-- /.insights-body -->
+          </section><!-- /.console-section (Insights) -->
+
+          <!-- ────────────────────────────────────────────────────────────
+               SECCIÓN 3 — Snapshot ISU (Information State Update)
+               Bloque scrollable con el JSON formateado del
+               information_state completo del último turno.
+               ──────────────────────────────────────────────────────────── -->
+          <section
+            class="console-section"
+            aria-labelledby="isuSectionTitle"
+          >
+            <div class="console-section__title" id="isuSectionTitle">
+              <span class="console-section__icon" aria-hidden="true">📊</span>
+              Snapshot ISU — <code style="font-size:9px;color:var(--color-blue-light)">information_state</code>
+              <span
+                class="console-section__turn-badge"
+                id="isuTurnBadge"
+                aria-label="Número de turno del snapshot"
+              >Turno —</span>
+            </div>
+            <div class="isu-body" aria-label="JSON del estado de información del sistema">
+              <!-- Generado dinámicamente por app.js → renderizarISU() -->
+              <pre id="isuJson" aria-label="JSON formateado del information_state"><code></code></pre>
+            </div>
+          </section><!-- /.console-section (ISU) -->
+
+        </div><!-- /#consoleContent -->
+      </div><!-- /.console-body -->
+    </aside><!-- /.panel-auditoria -->
+
+  </main><!-- /.split-screen -->
+
+</div><!-- /#app -->
+
+<!-- ======================================================================
+     Toast de notificaciones
+     ====================================================================== -->
+<div
+  id="toast"
+  role="status"
+  aria-live="polite"
+  aria-atomic="true"
+></div>
+
+<!-- ======================================================================
+     Script principal
+     ====================================================================== -->
+<script src="/static/app.js" defer></script>
+
+</body>
+</html>

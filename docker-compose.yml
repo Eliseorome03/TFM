@@ -1,0 +1,163 @@
+# ==============================================================================
+# docker-compose.yml — Orquestación del Sistema Neurosimbólico Bancario
+#
+# Servicios:
+#   - mariadb:     Base de datos MariaDB 11.2 (tablas clientes + trazas_auditoria)
+#   - drools-app:  Motor de reglas Drools (Spring Boot + KIE, puerto 8080)
+#   - backend:     Orquestador FastAPI (Python 3.11, puerto 8000)
+#
+# Dependencias:
+#   drools-app  → espera a que mariadb esté healthy
+#   backend     → espera a que mariadb y drools-app estén healthy
+#
+# Uso:
+#   1. Copiar .env.example como .env y rellenar MISTRAL_API_KEY
+#   2. docker compose up --build
+#   3. Abrir http://localhost:8000/static/index.html
+# ==============================================================================
+
+services:
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # SERVICIO 1: MariaDB 11.2
+  # Base de datos relacional principal.
+  # El script init.sql se ejecuta automáticamente en el primer arranque
+  # (solo cuando el volumen banca_db_data está vacío).
+  # ─────────────────────────────────────────────────────────────────────────────
+  mariadb:
+    image: mariadb:11.2
+    container_name: banca_mariadb
+    restart: unless-stopped
+
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      MARIADB_DATABASE:      ${MARIADB_DATABASE}
+      MARIADB_USER:          ${MARIADB_USER}
+      MARIADB_PASSWORD:      ${MARIADB_PASSWORD}
+
+    ports:
+      - "${MARIADB_PORT}:3306"
+
+    volumes:
+      # Script DDL + datos mock ejecutado en el primer arranque
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      # Volumen persistente para los datos de la BD
+      - banca_db_data:/var/lib/mysql
+
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+    networks:
+      - banca_net
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # SERVICIO 2: Drools App (Spring Boot + Drools KIE)
+  # Motor de reglas simbólico. Expone POST /api/evaluate.
+  # Multi-stage build: Maven (compilación) → Eclipse Temurin JRE 17 (runtime).
+  # ─────────────────────────────────────────────────────────────────────────────
+  drools-app:
+    build:
+      context: ./drools-app
+      dockerfile: Dockerfile
+    container_name: banca_drools
+    restart: unless-stopped
+
+    ports:
+      - "${DROOLS_PORT}:8080"
+
+    environment:
+      # Spring Boot config
+      SPRING_PROFILES_ACTIVE: docker
+      SERVER_PORT: 8080
+      # JVM tuning para entorno de demostración
+      JAVA_OPTS: >-
+        -Xms256m
+        -Xmx512m
+        -XX:+UseContainerSupport
+        -Djava.security.egd=file:/dev/./urandom
+
+    depends_on:
+      mariadb:
+        condition: service_healthy
+
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8080/actuator/health || exit 1"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+
+    networks:
+      - banca_net
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # SERVICIO 3: Backend FastAPI (Orquestador Neurosimbólico)
+  # Orquesta el pipeline de 6 pasos: NLU → Core → Drools → CIRBE → Drools → NLG.
+  # Sirve el frontend estático en /static/.
+  # ─────────────────────────────────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: banca_backend
+    restart: unless-stopped
+
+    ports:
+      - "${BACKEND_PORT}:8000"
+
+    environment:
+      # ── Base de datos ────────────────────────────────────────────────────────
+      # Debe apuntar a banca_db (la BD creada por init.sql)
+      DATABASE_URL: "mysql+pymysql://${MARIADB_USER}:${MARIADB_PASSWORD}@mariadb:3306/${MARIADB_DATABASE}"
+
+      # ── Microservicio Drools ─────────────────────────────────────────────────
+      # Nombre del servicio Docker Compose (drools-app) — resolución DNS interna
+      DROOLS_URL: "http://drools-app:8080/api/evaluate"
+      DROOLS_TIMEOUT: ${DROOLS_TIMEOUT}
+
+      # ── Mistral AI ───────────────────────────────────────────────────────────
+      MISTRAL_API_KEY: ${MISTRAL_API_KEY}
+      MISTRAL_MODEL:   ${MISTRAL_MODEL}
+
+      # ── Mock BdE ─────────────────────────────────────────────────────────────
+      BDE_JSON_PATH: "bde.json"
+
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      drools-app:
+        condition: service_healthy
+
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8000/ || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+    networks:
+      - banca_net
+
+
+# ==============================================================================
+# VOLUMES — Persistencia de datos
+# ==============================================================================
+
+volumes:
+  banca_db_data:
+    driver: local
+    name: banca_neurosimbolico_db
+
+
+# ==============================================================================
+# NETWORKS — Red privada interna para comunicación inter-servicio
+# ==============================================================================
+
+networks:
+  banca_net:
+    driver: bridge
+    name: banca_neurosimbolico_net

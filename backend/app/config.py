@@ -16,16 +16,16 @@ class Settings(BaseSettings):
     """
 
     # --- Base de Datos ---
-    database_url: str = "mysql+pymysql://tfm_user:tfm_password@mariadb:3306/tfm_neurosimbolico"
+    database_url: str
 
     # --- API Key de Mistral ---
     mistral_api_key: str
 
     # --- URL del microservicio Drools ---
-    drools_url: str = "http://drools-engine:8080/api/evaluate"
+    drools_url: str
 
     # --- Modelo de Mistral a utilizar ---
-    mistral_model: str = "mistral-large-latest"
+    mistral_model: str
 
     # --- Timeout para llamadas HTTP a Drools (segundos) ---
     drools_timeout: int = 30

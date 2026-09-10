@@ -33,6 +33,10 @@ CREATE TABLE IF NOT EXISTS clientes (
     -- Identificador único del cliente (PK)
     cliente_id                  VARCHAR(64)     NOT NULL,
 
+    -- Nombre y apellidos del titular
+    nombre                      VARCHAR(120)    NOT NULL
+                                    COMMENT 'Nombre completo y apellidos del cliente',
+
     -- Documento Nacional de Identidad (único, indexado para búsquedas BdE)
     dni                         VARCHAR(20)     NOT NULL,
 
@@ -129,13 +133,14 @@ CREATE TABLE IF NOT EXISTS trazas_auditoria (
 --   CLI-001 (Laura Martínez Gil)     → Aprobación estándar (sin incidencias en BdE)
 --   CLI-002 (María Blanco Torres)    → R_ALERTA_QUIEBRA_AVAL (empresa en concurso)
 --   CLI-003 (Carlos Ruiz Fernández)  → R_MOROSIDAD_ASNEF (impagos activos en BdE)
---   CLI-004 (Pedro Sánchez Moreno)   → R_EDAD_MAXIMA (supera 75 años al vencimiento)
+--   CLI-004 (Raúl Sánchez Moreno)   → R_EDAD_MAXIMA (supera 75 años al vencimiento)
 --
 -- Los DNIs coinciden exactamente con las entradas del archivo `bde.json` (Fase 2).
 -- =============================================================================
 
 INSERT INTO clientes (
     cliente_id,
+    nombre,
     dni,
     edad,
     ingresos_netos_mensuales,
@@ -156,6 +161,7 @@ INSERT INTO clientes (
 -- ─────────────────────────────────────────────────────────────────────────────
 (
     'CLI-001',
+    'Laura Martínez Gil',
     '55443322E',
     35,
     3200.00,
@@ -177,6 +183,7 @@ INSERT INTO clientes (
 -- ─────────────────────────────────────────────────────────────────────────────
 (
     'CLI-002',
+    'María Blanco Torres',
     '11223344C',
     29,
     2100.00,
@@ -199,6 +206,7 @@ INSERT INTO clientes (
 -- ─────────────────────────────────────────────────────────────────────────────
 (
     'CLI-003',
+    'Carlos Ruiz Fernández',
     '87654321B',
     45,
     1100.00,
@@ -209,7 +217,7 @@ INSERT INTO clientes (
 ),
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- CLI-004: Pedro Sánchez Moreno
+-- CLI-004: Raúl Sánchez Moreno
 -- Escenario: R_EDAD_MAXIMA (Salience 98)
 --
 -- Perfil: Cliente mayor. Con 74 años, cualquier préstamo con plazo >= 13 meses
@@ -220,6 +228,7 @@ INSERT INTO clientes (
 -- ─────────────────────────────────────────────────────────────────────────────
 (
     'CLI-004',
+    'Raúl Sánchez Moreno',
     '99887766D',
     74,
     1800.00,
@@ -237,6 +246,7 @@ INSERT INTO clientes (
 
 SELECT
     cliente_id,
+    nombre,
     dni,
     edad,
     FORMAT(ingresos_netos_mensuales, 2) AS ingresos_eur,

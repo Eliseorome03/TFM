@@ -2,7 +2,6 @@
   "bde_mock_data": {
     "12345678A": {
       "dni": "12345678A",
-      "nombre_referencia": "Cliente Solvente - Ana García López",
       "tiene_impagos_activos": false,
       "importe_morosidad_asnef": 0.0,
       "empresa_avalada_concurso": null,
@@ -13,7 +12,6 @@
     },
     "87654321B": {
       "dni": "87654321B",
-      "nombre_referencia": "Cliente con Morosidad - Carlos Ruiz Fernández",
       "tiene_impagos_activos": true,
       "importe_morosidad_asnef": 2300.50,
       "empresa_avalada_concurso": null,
@@ -24,7 +22,6 @@
     },
     "11223344C": {
       "dni": "11223344C",
-      "nombre_referencia": "Avalista en Riesgo - María Blanco Torres",
       "tiene_impagos_activos": false,
       "importe_morosidad_asnef": 0.0,
       "empresa_avalada_concurso": true,
@@ -35,7 +32,6 @@
     },
     "99887766D": {
       "dni": "99887766D",
-      "nombre_referencia": "Cliente Endeudado - Pedro Sánchez Moreno",
       "tiene_impagos_activos": false,
       "importe_morosidad_asnef": 0.0,
       "empresa_avalada_concurso": null,
@@ -46,7 +42,6 @@
     },
     "55443322E": {
       "dni": "55443322E",
-      "nombre_referencia": "Cliente Joven Solvente - Laura Martínez Gil",
       "tiene_impagos_activos": false,
       "importe_morosidad_asnef": 0.0,
       "empresa_avalada_concurso": null,
@@ -57,7 +52,6 @@
     },
     "66778899F": {
       "dni": "66778899F",
-      "nombre_referencia": "Cliente Autónomo - Roberto Díaz Castillo",
       "tiene_impagos_activos": false,
       "importe_morosidad_asnef": 0.0,
       "empresa_avalada_concurso": false,

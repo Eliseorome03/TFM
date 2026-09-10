@@ -108,9 +108,8 @@ class BdeMockService:
         if dni_normalizado in self._datos:
             perfil = self._datos[dni_normalizado]
             logger.info(
-                "BdeMockService: Perfil específico encontrado para DNI=%s (%s)",
+                "BdeMockService: Perfil específico encontrado para DNI=%s",
                 dni_normalizado,
-                perfil.get("nombre_referencia", "Sin nombre"),
             )
         else:
             perfil = dict(self._default)

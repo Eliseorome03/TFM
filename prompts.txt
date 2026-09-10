@@ -178,7 +178,7 @@ Requisitos técnicos y entregables:
      * CLI-001 (Laura Martínez Gil, DNI: 55443322E): 35 años, ingresos altos (ej. 3200€), sin deuda interna, es_avalista = FALSE. (Al consultar BdE vendrá limpio -> Aprobación).
      * CLI-002 (María Blanco Torres, DNI: 11223344C): 29 años, ingresos medios, es_avalista = TRUE, empresa_avalada_cif = 'B9999999'. (Al consultar BdE saltará empresa_avalada_concurso = true -> Detona R_ALERTA_QUIEBRA_AVAL).
      * CLI-003 (Carlos Ruiz Fernández, DNI: 87654321B): 45 años, ingresos bajos (ej. 1100€). (Al consultar BdE saltará morosidad activa de 2300.50€ -> Detona R_MOROSIDAD_ASNEF).
-     * CLI-004 (Pedro Sánchez Moreno, DNI: 99887766D): 74 años, ingresos medios (ej. 1800€). (Detonará R_EDAD_MAXIMA en cuanto pida un préstamo con plazo, independientemente de su deuda en CIRBE).
+     * CLI-004 (Raúl Sánchez Moreno, DNI: 99887766D): 74 años, ingresos medios (ej. 1800€). (Detonará R_EDAD_MAXIMA en cuanto pida un préstamo con plazo, independientemente de su deuda en CIRBE).
 
 2. Infraestructura (`docker-compose.yml` y `.env.example`):
    - `mariadb`: Imagen mariadb:11.2, puerto 3306, volúmenes mapeados a `./database/init.sql:/docker-entrypoint-initdb.d/init.sql`.

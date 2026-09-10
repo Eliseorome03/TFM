@@ -16,6 +16,7 @@ class ClienteModel(Base):
 
     Campos:
         cliente_id              — Identificador único del cliente (PK).
+        nombre                  — Nombre completo y apellidos del cliente.
         dni                     — Documento Nacional de Identidad.
         edad                    — Edad en años del titular.
         ingresos_netos_mensuales — Ingresos netos tras impuestos (EUR/mes).
@@ -32,6 +33,11 @@ class ClienteModel(Base):
         primary_key=True,
         index=True,
         comment="Identificador único del cliente",
+    )
+    nombre: str = Column(
+        String(120),
+        nullable=False,
+        comment="Nombre completo y apellidos del cliente",
     )
     dni: str = Column(
         String(20),
@@ -79,6 +85,7 @@ class ClienteModel(Base):
         return (
             f"<ClienteModel("
             f"cliente_id='{self.cliente_id}', "
+            f"nombre='{self.nombre}', "
             f"dni='{self.dni}', "
             f"edad={self.edad}, "
             f"ingresos={self.ingresos_netos_mensuales}"

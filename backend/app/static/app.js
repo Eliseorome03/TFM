@@ -185,14 +185,6 @@ async function cargarClientes() {
       return;
     }
 
-    // Mapeo de cliente_id → nombre amigable para mostrar en el selector
-    const nombresPorId = {
-      'CLI-001': 'Laura Martínez Gil',
-      'CLI-002': 'María Blanco Torres',
-      'CLI-003': 'Carlos Ruiz Fernández',
-      'CLI-004': 'Pedro Sánchez Moreno',
-    };
-
     const escenariosPorId = {
       'CLI-001': '→ Aprobación',
       'CLI-002': '→ Riesgo aval',
@@ -203,7 +195,7 @@ async function cargarClientes() {
     Estado.clientes.forEach((cliente) => {
       const option = document.createElement('option');
       option.value = cliente.cliente_id;
-      const nombre = nombresPorId[cliente.cliente_id] || cliente.cliente_id;
+      const nombre = cliente.nombre || cliente.cliente_id;
       const escenario = escenariosPorId[cliente.cliente_id] || '';
       option.textContent = `${cliente.cliente_id} — ${nombre} ${escenario}`;
       option.dataset.clienteJson = JSON.stringify(cliente);
@@ -241,16 +233,8 @@ function actualizarTarjetaCore(cliente) {
     return;
   }
 
-  // Nombres completos (sincronizados con init.sql)
-  const nombreCompleto = {
-    'CLI-001': 'Laura Martínez Gil',
-    'CLI-002': 'María Blanco Torres',
-    'CLI-003': 'Carlos Ruiz Fernández',
-    'CLI-004': 'Pedro Sánchez Moreno',
-  };
-
-  const nombre = nombreCompleto[cliente.cliente_id] || cliente.cliente_id;
-  const iniciales = nombre.split(' ').map(p => p[0]).slice(0, 2).join('').toUpperCase();
+  const nombre = cliente.nombre || cliente.cliente_id;
+  const iniciales = nombre.split(' ').filter(Boolean).map(p => p[0]).slice(0, 2).join('').toUpperCase();
 
   // Calcular perfil de riesgo visual simplificado
   const ingresos = cliente.ingresos_netos_mensuales || 0;

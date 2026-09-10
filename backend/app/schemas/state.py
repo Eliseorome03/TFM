@@ -74,6 +74,7 @@ class DatosCoreBancario(BaseModel):
     """
 
     cliente_id: str | None = Field(default=None)
+    nombre: str | None = Field(default=None, description="Nombre completo del cliente")
     dni: str | None = Field(default=None)
     edad: int | None = Field(default=None)
     ingresos_netos_mensuales: float | None = Field(default=None)

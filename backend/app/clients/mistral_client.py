@@ -204,7 +204,7 @@ DATOS FINANCIEROS CONOCIDOS:
 - Ratio de endeudamiento: {calculos.get('ratio_endeudamiento', 'No calculado')}
 - Remanente de subsistencia: {calculos.get('remanente_subsistencia', 'No calculado')} EUR/mes
 
-JUSTIFICACIÓN NORMATIVA (incluir SOLO si hay texto_legal y el estado es decisivo):
+JUSTIFICACIÓN NORMATIVA (incluir SOLO si hay texto_legal y el estado es decisivo, NO INVENTAR NADA DE ESTO):
 - Artículo: {articulo_normativo or 'NO DISPONIBLE — NO INVENTAR NORMATIVA'}
 - Texto legal: {texto_legal or 'NO DISPONIBLE — NO INCLUIR EXPLICACIÓN LEGAL'}
 
@@ -219,8 +219,8 @@ Redacta ahora el mensaje para el cliente siguiendo estrictamente las instruccion
                 SystemMessage(content=_NLG_SYSTEM_PROMPT),
                 UserMessage(content=contexto_estado),
             ],
-            temperature=0.3,  # Ligera variabilidad para naturalidad, sin creatividad excesiva
-            max_tokens=600,
+            temperature=0.2,  # Ligera variabilidad para naturalidad, sin creatividad excesiva
+            max_tokens=200,
         )
 
         respuesta_texto = response.choices[0].message.content.strip()

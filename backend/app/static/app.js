@@ -411,9 +411,8 @@ function limpiarConsola() {
 const PIPELINE_LABELS = {
   EXTRACT_NLU:               { label: 'NLU',        icon: '🧠', title: 'Extracción NLU' },
   FETCH_CORE_DATA:           { label: 'CORE',       icon: '🏦', title: 'Datos Core' },
-  EVALUATE_PRELIMINARY:      { label: 'EVAL PREV',  icon: '⚙️', title: 'Evaluación Preliminar' },
+  EVALUATE_DROOLS:           { label: 'EVAL DROOLS',icon: '⚙️', title: 'Evaluación Motor' },
   FETCH_CIRBE_ASNEF:         { label: 'CIRBE',      icon: '🔍', title: 'Consulta BdE/ASNEF' },
-  EVALUATE_FINAL_DECISION:   { label: 'EVAL FINAL', icon: '✅', title: 'Decisión Final' },
   GENERATE_NATURAL_RESPONSE: { label: 'NLG',        icon: '✍️', title: 'Respuesta Natural' },
 };
 
@@ -549,19 +548,8 @@ function actualizarConsola(responseData) {
   Estado.ultimoInformationState = information_state;
 
   // ── Derivar la lista de action_types ejecutados en este turno ───────────────
-  // El pipeline siempre ejecuta al menos: NLU, CORE, EVAL_PREV, NLG.
-  // Si hay datos BdE consultados, también FETCH_CIRBE y EVAL_FINAL.
-  const bdeConsultado = information_state?.datos_externos_bde?.consultado || false;
-  const actionTypes = [
-    'EXTRACT_NLU',
-    'FETCH_CORE_DATA',
-    'EVALUATE_PRELIMINARY',
-  ];
-  if (bdeConsultado) {
-    actionTypes.push('FETCH_CIRBE_ASNEF');
-    actionTypes.push('EVALUATE_FINAL_DECISION');
-  }
-  actionTypes.push('GENERATE_NATURAL_RESPONSE');
+  // El pipeline ahora es dinámico y devuelve sus acciones exactas
+  const actionTypes = responseData.acciones_ejecutadas || [];
 
   // ── Sección 1: Pipeline ─────────────────────────────────────────────────────
   renderizarPipeline(actionTypes, turn_id);

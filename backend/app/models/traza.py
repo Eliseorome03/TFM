@@ -16,15 +16,15 @@ class TrazaAuditoria(Base):
     """
     Representación ORM de la tabla `trazas_auditoria` en MariaDB.
 
-    Registra de forma atómica e inmutable cada micro-acción del pipeline de 6 pasos
-    (EXTRACT_NLU, FETCH_CORE_DATA, EVALUATE_PRELIMINARY, FETCH_CIRBE_ASNEF,
-    EVALUATE_FINAL_DECISION, GENERATE_NATURAL_RESPONSE).
+    Registra de forma atómica e inmutable cada micro-acción del pipeline de 5 pasos dinámicos
+    (EXTRACT_NLU, FETCH_CORE_DATA, EVALUATE_DROOLS, FETCH_CIRBE_ASNEF,
+    GENERATE_NATURAL_RESPONSE).
 
     Campos:
         id              — BIGINT AUTO_INCREMENT PK. Identificador único de la traza.
         session_id      — VARCHAR(64). Identificador único de la conversación.
         turn_id         — INT. Número de turno conversacional (1, 2, 3...).
-        step_order      — INT. Secuencia cronológica dentro del turno (1 a 6).
+        step_order      — INT. Secuencia cronológica dentro del turno (1, 2, 3...).
         action_type     — VARCHAR(64). Nombre formal de la micro-acción.
         step_input      — JSON. Datos exactos entregados al componente.
         step_output     — JSON. Respuesta devuelta por el componente.
@@ -54,15 +54,15 @@ class TrazaAuditoria(Base):
     step_order: int = Column(
         Integer,
         nullable=False,
-        comment="Secuencia cronológica dentro del turno (1 a 6)",
+        comment="Secuencia cronológica dentro del turno (1, 2, 3...)",
     )
     action_type: str = Column(
         String(64),
         nullable=False,
         comment=(
             "Nombre formal de la micro-acción: "
-            "EXTRACT_NLU | FETCH_CORE_DATA | EVALUATE_PRELIMINARY | "
-            "FETCH_CIRBE_ASNEF | EVALUATE_FINAL_DECISION | GENERATE_NATURAL_RESPONSE"
+            "EXTRACT_NLU | FETCH_CORE_DATA | EVALUATE_DROOLS | "
+            "FETCH_CIRBE_ASNEF | GENERATE_NATURAL_RESPONSE"
         ),
     )
     step_input: dict = Column(

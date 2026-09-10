@@ -42,7 +42,14 @@ def get_drools_client() -> DroolsClient:
 
 def get_bde_service() -> BdeMockService:
     """Fábrica de BdeMockService para inyección de dependencias."""
-    return BdeMockService()
+    try:
+        return BdeMockService()
+    except FileNotFoundError as exc:
+        logger.error("Archivo bde.json no encontrado: %s", str(exc))
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Datos mock del BdE no disponibles: {str(exc)}",
+        ) from exc
 
 
 def get_orchestrator(
@@ -65,8 +72,7 @@ def get_orchestrator(
     response_model=ChatResponse,
     summary="Enviar mensaje conversacional al sistema neurosimbólico",
     description=(
-        "Recibe el mensaje del usuario y ejecuta el pipeline completo de 6 pasos "
-        "(NLU → Core Data → Drools → CIRBE → Drools Final → NLG). "
+        "Recibe el mensaje del usuario y ejecuta el pipeline dinámico de 5 acciones."
         "Devuelve la respuesta textual y el information_state completo para auditoría."
     ),
     status_code=status.HTTP_200_OK,
@@ -79,7 +85,7 @@ def post_chat(
     """
     Endpoint principal del sistema conversacional.
 
-    Invoca el `PipelineOrchestrator` que ejecuta los 6 pasos secuenciales,
+    Invoca el `PipelineOrchestrator` que ejecuta las acciones dinámicamente,
     registra la auditoría completa y devuelve la respuesta al frontend.
 
     Args:
@@ -103,7 +109,7 @@ def post_chat(
     )
 
     try:
-        respuesta_texto, information_state = orchestrator.procesar_turno_conversacional(
+        respuesta_texto, information_state, acciones_ejecutadas = orchestrator.procesar_turno_conversacional(
             mensaje=request.mensaje,
             cliente_id=request.cliente_id,
             session_id=request.session_id,
@@ -123,6 +129,7 @@ def post_chat(
             session_id=request.session_id,
             turn_id=turn_id,
             estado_evaluacion=estado_evaluacion,
+            acciones_ejecutadas=acciones_ejecutadas,
         )
 
     except ValueError as exc:

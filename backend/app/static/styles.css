@@ -934,9 +934,8 @@ kbd {
 /* Colores por action_type */
 .badge--EXTRACT_NLU           { background: rgba(124,58,237,0.15); color: #a78bfa; }
 .badge--FETCH_CORE_DATA       { background: rgba(2,132,199,0.15);  color: #38bdf8; }
-.badge--EVALUATE_PRELIMINARY  { background: rgba(8,145,178,0.15);  color: #22d3ee; }
+.badge--EVALUATE_DROOLS       { background: rgba(8,145,178,0.15);  color: #22d3ee; }
 .badge--FETCH_CIRBE_ASNEF     { background: rgba(217,119,6,0.15);  color: #fbbf24; }
-.badge--EVALUATE_FINAL_DECISION { background: rgba(5,150,105,0.15); color: #34d399; }
 .badge--GENERATE_NATURAL_RESPONSE { background: rgba(219,39,119,0.15); color: #f472b6; }
 
 /* ── SECCIÓN 2: Insights del Motor ─────────────────────────────────────────── */

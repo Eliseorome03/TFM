@@ -126,7 +126,6 @@ def healthcheck() -> JSONResponse:
                 "clientes": "GET /api/clientes",
                 "bde_mock": "GET /api/mock/bde/{dni}",
                 "docs": "GET /docs",
-                "redoc": "GET /redoc",
                 "static": "GET /static/*",
             },
         }

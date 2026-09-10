@@ -3,8 +3,8 @@ uvicorn[standard]==0.32.1
 sqlalchemy==2.0.36
 pymysql==1.1.1
 cryptography==43.0.3
-mistralai==1.2.5
-pydantic==2.10.2
-pydantic-settings==2.6.1
-httpx==0.28.0
-python-dotenv==1.0.1
+mistralai==2.9.4
+pydantic>=2.11.2
+pydantic-settings>=2.8.1
+httpx>=0.28.1
+python-dotenv>=1.0.1

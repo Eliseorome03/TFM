@@ -17,8 +17,8 @@ Arquitectura: Symbolic[Neuro] — el LLM es un servicio encapsulado.
 """
 
 import logging
-from mistralai import Mistral
-from mistralai.models import UserMessage, SystemMessage
+from mistralai.client import Mistral
+from mistralai.client.models import UserMessage, SystemMessage
 
 from app.config import settings
 from app.schemas.nlu import EsquemaNLU

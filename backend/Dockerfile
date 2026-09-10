@@ -27,9 +27,6 @@ RUN pip install --no-cache-dir --upgrade pip && \
 COPY app/ ./app/
 COPY bde.json ./bde.json
 
-# Crear directorio de estáticos si no existe
-RUN mkdir -p ./app/static
-
 # Exponer el puerto de Uvicorn
 EXPOSE 8000
 

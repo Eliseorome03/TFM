@@ -39,8 +39,14 @@ class BdeConsultaResponse(BaseModel):
 
 
 def get_bde_service() -> BdeMockService:
-    """Fábrica de BdeMockService para inyección de dependencias."""
-    return BdeMockService()
+    try:
+        return BdeMockService()
+    except FileNotFoundError as exc:
+        logger.error("Archivo bde.json no encontrado: %s", str(exc))
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Datos mock del BdE no disponibles: {str(exc)}",
+        ) from exc
 
 
 @router.get(

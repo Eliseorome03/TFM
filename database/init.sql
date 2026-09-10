@@ -77,9 +77,9 @@ CREATE TABLE IF NOT EXISTS clientes (
 -- Requerido por EU AI Act Art. 14 (supervisión humana de sistemas de alto riesgo)
 -- y Art. 12 (registro de logs para sistemas de alto riesgo).
 --
--- Cada registro = 1 micro-acción atómica del pipeline de 6 pasos:
---   EXTRACT_NLU | FETCH_CORE_DATA | EVALUATE_PRELIMINARY |
---   FETCH_CIRBE_ASNEF | EVALUATE_FINAL_DECISION | GENERATE_NATURAL_RESPONSE
+-- Cada registro = 1 micro-acción atómica del pipeline de 5 acciones dinámicas:
+--   EXTRACT_NLU | FETCH_CORE_DATA | EVALUATE_DROOLS |
+--   FETCH_CIRBE_ASNEF | GENERATE_NATURAL_RESPONSE
 -- =============================================================================
 
 CREATE TABLE IF NOT EXISTS trazas_auditoria (
@@ -92,7 +92,7 @@ CREATE TABLE IF NOT EXISTS trazas_auditoria (
     turn_id             INT             NOT NULL
                             COMMENT 'Número de turno conversacional (1, 2, 3...)',
     step_order          INT             NOT NULL
-                            COMMENT 'Secuencia cronológica dentro del turno (1 a 6)',
+                            COMMENT 'Secuencia cronológica dentro del turno (1, 2, 3...)',
 
     -- Tipo de micro-acción registrada
     action_type         VARCHAR(64)     NOT NULL

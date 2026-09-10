@@ -55,6 +55,7 @@ class ChatResponse(BaseModel):
         session_id          — Echo del session_id para correlación en el frontend.
         turn_id             — Número de turno completado.
         estado_evaluacion   — Estado de la evaluación Drools para el UI.
+        acciones_ejecutadas — Lista de las acciones dinámicas ejecutadas en el turno.
     """
 
     respuesta: str = Field(
@@ -76,4 +77,8 @@ class ChatResponse(BaseModel):
     estado_evaluacion: str = Field(
         ...,
         description="Estado de la evaluación Drools (para indicadores visuales del UI)",
+    )
+    acciones_ejecutadas: list[str] = Field(
+        ...,
+        description="Lista de acciones ejecutadas por el orquestador en este turno",
     )

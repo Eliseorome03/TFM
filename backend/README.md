@@ -48,7 +48,7 @@ backend/
     ├── services/           # Lógica de negocio
     │   ├── audit_tracker.py   # AuditTracker: ledger inmutable AI Act
     │   ├── bde_mock_service.py # BdeMockService: CIRBE/ASNEF simulado por DNI
-    │   └── orchestrator.py    # PipelineOrchestrator: 6 pasos ISU
+    │   └── orchestrator.py    # PipelineOrchestrator: 5 acciones dinámicas ISU
     │
     ├── routers/            # Endpoints FastAPI
     │   ├── chat_router.py     # POST /api/chat
@@ -79,9 +79,9 @@ cp .env.example .env
 
 ---
 
-## 4. Pipeline Conversacional — Los 6 Pasos ISU
+## 4. Pipeline Conversacional — 5 Acciones Dinámicas ISU
 
-Cada mensaje del usuario activa hasta 6 micro-acciones registradas atómicamente en `trazas_auditoria`:
+Cada mensaje del usuario activa acciones de forma dinámica gobernadas por Drools, que se registran atómicamente en `trazas_auditoria`:
 
 ```
 Usuario envía mensaje
@@ -93,21 +93,20 @@ Usuario envía mensaje
 [2] FETCH_CORE_DATA ─────────── SELECT clientes WHERE cliente_id=? (solo turno 1)
        │
        ▼
-[3] EVALUATE_PRELIMINARY ────── POST /api/evaluate → Drools → DroolsResponse
-       │
+[3] EVALUATE_DROOLS ─────────── POST /api/evaluate → Drools → DroolsResponse
+       │     ▲
+       │     │ (Reevaluación post-bde)
+       │     │
        ├─ estado == REQUIERE_ACCION + CONSULTAR_CIRBE_ASNEF?
-       │          │
-       │          ▼
+       │     │
+       │     ▼
        │  [4] FETCH_CIRBE_ASNEF ─── BdeMockService.consultar_por_dni()
-       │          │
-       │          ▼
-       │  [5] EVALUATE_FINAL_DECISION ─── POST /api/evaluate (con datos BdE)
        │
        ▼
-[6] GENERATE_NATURAL_RESPONSE ── Mistral.chat.complete() ← Read-Only State Dump
+[5] GENERATE_NATURAL_RESPONSE ── Mistral.chat.complete() ← Read-Only State Dump
        │
        ▼
-ChatResponse { respuesta, information_state, turn_id, estado_evaluacion }
+ChatResponse { respuesta, information_state, turn_id, estado_evaluacion, acciones_ejecutadas }
 ```
 
 ### Estados de Evaluación Drools

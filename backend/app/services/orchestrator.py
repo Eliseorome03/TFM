@@ -1,16 +1,15 @@
 """
 services/orchestrator.py — Orquestador del pipeline conversacional de 6 pasos.
 
-Implementa la clase `PipelineOrchestrator` que ejecuta los 6 micro-acciones
-secuenciales definidas en SYSTEM_SPEC.md § 5, registrando cada una en el
+Implementa la clase `PipelineOrchestrator` que ejecuta las 5 micro-acciones
+secuenciales definidas en SYSTEM_SPEC.md 5, registrando cada una en el
 ledger de auditoría mediante `AuditTracker`.
 
 Pipeline por turno conversacional:
   1. EXTRACT_NLU         — Mistral extrae entidades del mensaje del usuario.
   2. FETCH_CORE_DATA     — FastAPI consulta la tabla 'clientes' (solo turno 1).
-  3. EVALUATE_PRELIMINARY — Drools evalúa con los datos disponibles.
   4. FETCH_CIRBE_ASNEF   — (Condicional) BdE mock si Drools pide CONSULTAR_CIRBE_ASNEF.
-  5. EVALUATE_FINAL_DECISION — (Condicional) Drools reevalúa con datos BdE.
+  5. EVALUATE_DROOLS — (Condicional) Drools reevalúa con datos BdE.
   6. GENERATE_NATURAL_RESPONSE — Mistral genera la respuesta textual (read-only).
 
 Paradigma ISU (Information State Update):
@@ -178,9 +177,13 @@ class PipelineOrchestrator:
                 edad_al_vencimiento=calcs.edad_al_vencimiento,
             )
 
+        # Mantener las reglas previas de este mismo turno
+        reglas_acumuladas = estado.evaluacion_drools.reglas_disparadas.copy() if estado.evaluacion_drools else []
+        reglas_acumuladas.extend(drools_response.reglas_disparadas)
+
         estado.evaluacion_drools = EvaluacionDrools(
             estado=EstadoEvaluacion(drools_response.estado),
-            reglas_disparadas=drools_response.reglas_disparadas,
+            reglas_disparadas=reglas_acumuladas,
             accion_requerida=drools_response.accion_requerida,
             dato_faltante=drools_response.dato_faltante,
             articulo_normativo=drools_response.articulo_normativo,
@@ -195,13 +198,13 @@ class PipelineOrchestrator:
         cliente_id: str,
         session_id: str,
         db: Session,
-    ) -> tuple[str, dict]:
+    ) -> tuple[str, dict, list[str]]:
         """
-        Ejecuta el pipeline completo de 6 pasos para un turno conversacional.
+        Ejecuta el pipeline dinámico de 5 acciones para un turno conversacional.
 
-        Método principal del orquestador. Ejecuta los pasos secuencialmente,
-        registra cada uno en la tabla de auditoría y devuelve la respuesta
-        textual y el estado final del sistema.
+        Método principal del orquestador. Ejecuta las acciones dinámicamente,
+        registra cada una en la tabla de auditoría y devuelve la respuesta
+        textual, el estado final del sistema y las acciones ejecutadas.
 
         Args:
             mensaje: Texto libre del mensaje del usuario.
@@ -210,19 +213,40 @@ class PipelineOrchestrator:
             db: Sesión SQLAlchemy para acceso a BD y auditoría.
 
         Returns:
-            tuple: (respuesta_texto: str, information_state: dict)
+            tuple: (respuesta_texto: str, information_state: dict, acciones_ejecutadas: list[str])
         """
         tracker = AuditTracker(db=db)
 
         # ── Recuperar o crear el Information State ────────────────────────────
         estado, turn_id = self._obtener_o_crear_estado(session_id, cliente_id)
         estado.turn_id = turn_id
+        
+        # Reseteamos las reglas disparadas al inicio del turno para que acumulen solo las iteraciones actuales
+        if estado.evaluacion_drools:
+            estado.evaluacion_drools.reglas_disparadas = []
+
+        acciones_ejecutadas = []
+        step_order = 1
+
+        def registrar_accion(action_type: str, step_input: dict | str, step_output: dict | str):
+            nonlocal step_order
+            tracker.registrar_paso(
+                session_id=session_id,
+                turn_id=turn_id,
+                step_order=step_order,
+                action_type=action_type,
+                step_input=step_input,
+                step_output=step_output,
+                information_state=estado.as_dict(),
+            )
+            acciones_ejecutadas.append(action_type)
+            step_order += 1
 
         # ═══════════════════════════════════════════════════════════════════════
-        # PASO 1: EXTRACT_NLU
+        # ACCIÓN 1: EXTRACT_NLU
         # Mistral analiza el mensaje y extrae entidades financieras estructuradas
         # ═══════════════════════════════════════════════════════════════════════
-        logger.info("[Paso 1] EXTRACT_NLU — sesión=%s turno=%d", session_id[:8], turn_id)
+        logger.info("[Acción] EXTRACT_NLU — sesión=%s turno=%d", session_id[:8], turn_id)
 
         step1_input = {"mensaje": mensaje}
         nlu_resultado = self._mistral.extraer_nlu(mensaje)
@@ -231,24 +255,15 @@ class PipelineOrchestrator:
         # Fusionar datos NLU en el estado (acumulativo)
         estado = self._actualizar_datos_usuario(estado, nlu_resultado)
 
-        tracker.registrar_paso(
-            session_id=session_id,
-            turn_id=turn_id,
-            step_order=1,
-            action_type="EXTRACT_NLU",
-            step_input=step1_input,
-            step_output=step1_output,
-            information_state=estado.as_dict(),
-        )
+        registrar_accion("EXTRACT_NLU", step1_input, step1_output)
 
         # ═══════════════════════════════════════════════════════════════════════
-        # PASO 2: FETCH_CORE_DATA
+        # ACCIÓN 2: FETCH_CORE_DATA
         # Solo en el primer turno: cargar datos bancarios core desde la BD.
         # En turnos sucesivos ya están en el estado, no se vuelven a consultar.
         # ═══════════════════════════════════════════════════════════════════════
-        logger.info("[Paso 2] FETCH_CORE_DATA — sesión=%s turno=%d", session_id[:8], turn_id)
-
         if turn_id == 1:
+            logger.info("[Acción] FETCH_CORE_DATA — sesión=%s turno=%d", session_id[:8], turn_id)
             step2_input = {"cliente_id": cliente_id, "motivo": "Primer turno — carga inicial"}
             cliente: ClienteModel | None = (
                 db.query(ClienteModel)
@@ -275,142 +290,85 @@ class PipelineOrchestrator:
             )
             step2_output = estado.datos_core_bancario.model_dump()
             logger.info(
-                "[Paso 2] Cliente cargado: %s (%s, DNI=%s, edad=%d, ingresos=%.2f)",
+                "Cliente cargado: %s (%s, DNI=%s, edad=%d, ingresos=%.2f)",
                 cliente.cliente_id,
                 cliente.nombre,
                 cliente.dni,
                 cliente.edad,
                 cliente.ingresos_netos_mensuales,
             )
+            registrar_accion("FETCH_CORE_DATA", step2_input, step2_output)
         else:
-            step2_input = {"cliente_id": cliente_id, "motivo": "Turno >1 — datos ya en estado"}
-            step2_output = {"cached": True, "datos_core_bancario": estado.datos_core_bancario.model_dump()}
             logger.info(
-                "[Paso 2] Datos core bancarios recuperados del estado cacheado (turno %d)",
+                "FETCH_CORE_DATA omitido — Datos core bancarios recuperados del estado cacheado (turno %d)",
                 turn_id,
             )
 
-        tracker.registrar_paso(
-            session_id=session_id,
-            turn_id=turn_id,
-            step_order=2,
-            action_type="FETCH_CORE_DATA",
-            step_input=step2_input,
-            step_output=step2_output,
-            information_state=estado.as_dict(),
-        )
-
         # ═══════════════════════════════════════════════════════════════════════
-        # PASO 3: EVALUATE_PRELIMINARY
-        # Drools evalúa con todos los datos disponibles hasta ahora.
-        # Si hay datos de BdE de turnos anteriores, ya están en el estado.
+        # BUCLE DINÁMICO: EVALUATE_DROOLS <-> FETCH_CIRBE_ASNEF
         # ═══════════════════════════════════════════════════════════════════════
-        logger.info(
-            "[Paso 3] EVALUATE_PRELIMINARY — sesión=%s turno=%d",
-            session_id[:8],
-            turn_id,
-        )
+        max_ciclos = 3
+        ciclos = 0
 
-        step3_input = self._drools.construir_payload(estado.as_dict())
-        drools_respuesta_preliminar = self._drools.evaluar_reglas(step3_input)
-        step3_output = drools_respuesta_preliminar.model_dump()
-
-        estado = self._actualizar_datos_drools(estado, drools_respuesta_preliminar)
-
-        tracker.registrar_paso(
-            session_id=session_id,
-            turn_id=turn_id,
-            step_order=3,
-            action_type="EVALUATE_PRELIMINARY",
-            step_input=step3_input,
-            step_output=step3_output,
-            information_state=estado.as_dict(),
-        )
-
-        # ═══════════════════════════════════════════════════════════════════════
-        # PASO 4: FETCH_CIRBE_ASNEF (CONDICIONAL)
-        # Solo se ejecuta si Drools devuelve REQUIERE_ACCION: CONSULTAR_CIRBE_ASNEF
-        # Y los datos BdE no han sido consultados previamente en esta sesión.
-        # ═══════════════════════════════════════════════════════════════════════
-        necesita_cirbe = (
-            drools_respuesta_preliminar.estado == "REQUIERE_ACCION"
-            and drools_respuesta_preliminar.accion_requerida == "CONSULTAR_CIRBE_ASNEF"
-            and not estado.datos_externos_bde.consultado
-        )
-
-        if necesita_cirbe:
+        while ciclos < max_ciclos:
+            ciclos += 1
+            # ── EVALUATE_DROOLS ───────────────────────────────────────────────
             logger.info(
-                "[Paso 4] FETCH_CIRBE_ASNEF — consultando BdE mock para DNI=%s",
-                estado.datos_core_bancario.dni,
+                "[Acción] EVALUATE_DROOLS (Ciclo %d) — sesión=%s turno=%d",
+                ciclos,
+                session_id[:8],
+                turn_id,
+            )
+            drools_input = self._drools.construir_payload(estado.as_dict())
+            drools_resp = self._drools.evaluar_reglas(drools_input)
+            estado = self._actualizar_datos_drools(estado, drools_resp)
+            registrar_accion("EVALUATE_DROOLS", drools_input, drools_resp.model_dump())
+
+            necesita_cirbe = (
+                drools_resp.estado == "REQUIERE_ACCION"
+                and drools_resp.accion_requerida == "CONSULTAR_CIRBE_ASNEF"
             )
 
-            dni = estado.datos_core_bancario.dni
-            step4_input = {
-                "dni": dni,
-                "motivo": "Drools solicitó CONSULTAR_CIRBE_ASNEF",
-                "es_avalista": estado.datos_core_bancario.es_avalista,
-            }
+            if necesita_cirbe:
+                if not estado.datos_externos_bde.consultado:
+                    # ── FETCH_CIRBE_ASNEF ─────────────────────────────────────────
+                    logger.info(
+                        "[Acción] FETCH_CIRBE_ASNEF — consultando BdE mock para DNI=%s",
+                        estado.datos_core_bancario.dni,
+                    )
+                    dni = estado.datos_core_bancario.dni
+                    bde_input = {
+                        "dni": dni,
+                        "motivo": "Drools solicitó CONSULTAR_CIRBE_ASNEF",
+                        "es_avalista": estado.datos_core_bancario.es_avalista,
+                    }
+                    bde_output = self._bde.consultar_por_dni(dni)
 
-            datos_bde = self._bde.consultar_por_dni(dni)
-            step4_output = datos_bde
-
-            estado.datos_externos_bde = DatosExternosBde(
-                consultado=datos_bde["consultado"],
-                tiene_impagos_activos=datos_bde["tiene_impagos_activos"],
-                importe_morosidad_asnef=datos_bde["importe_morosidad_asnef"],
-                empresa_avalada_concurso=datos_bde.get("empresa_avalada_concurso"),
-                deuda_cirbe_mensual=datos_bde["deuda_cirbe_mensual"],
-                deuda_cirbe_total=datos_bde["deuda_cirbe_total"],
-            )
-
-            tracker.registrar_paso(
-                session_id=session_id,
-                turn_id=turn_id,
-                step_order=4,
-                action_type="FETCH_CIRBE_ASNEF",
-                step_input=step4_input,
-                step_output=step4_output,
-                information_state=estado.as_dict(),
-            )
-
-            # ═══════════════════════════════════════════════════════════════════
-            # PASO 5: EVALUATE_FINAL_DECISION (CONDICIONAL — solo después de CIRBE)
-            # Drools reevalúa con los datos del BdE ya inyectados en el estado.
-            # ═══════════════════════════════════════════════════════════════════
-            logger.info(
-                "[Paso 5] EVALUATE_FINAL_DECISION — reevaluando con datos BdE",
-            )
-
-            step5_input = self._drools.construir_payload(estado.as_dict())
-            drools_respuesta_final = self._drools.evaluar_reglas(step5_input)
-            step5_output = drools_respuesta_final.model_dump()
-
-            estado = self._actualizar_datos_drools(estado, drools_respuesta_final)
-
-            tracker.registrar_paso(
-                session_id=session_id,
-                turn_id=turn_id,
-                step_order=5,
-                action_type="EVALUATE_FINAL_DECISION",
-                step_input=step5_input,
-                step_output=step5_output,
-                information_state=estado.as_dict(),
-            )
-        else:
-            logger.info(
-                "[Paso 4/5] Omitidos — FETCH_CIRBE_ASNEF no requerido "
-                "(estado Drools: %s, ya consultado: %s)",
-                drools_respuesta_preliminar.estado,
-                estado.datos_externos_bde.consultado,
-            )
+                    estado.datos_externos_bde = DatosExternosBde(
+                        consultado=bde_output["consultado"],
+                        tiene_impagos_activos=bde_output["tiene_impagos_activos"],
+                        importe_morosidad_asnef=bde_output["importe_morosidad_asnef"],
+                        empresa_avalada_concurso=bde_output.get("empresa_avalada_concurso"),
+                        deuda_cirbe_mensual=bde_output["deuda_cirbe_mensual"],
+                        deuda_cirbe_total=bde_output["deuda_cirbe_total"],
+                    )
+                    registrar_accion("FETCH_CIRBE_ASNEF", bde_input, bde_output)
+                    # El bucle continúa para que Drools re-evalúe
+                    continue
+                else:
+                    logger.error("Drools sigue solicitando CIRBE aunque ya fue consultado.")
+                    break
+            else:
+                # No se requiere más información de fuentes externas
+                break
 
         # ═══════════════════════════════════════════════════════════════════════
-        # PASO 6: GENERATE_NATURAL_RESPONSE
+        # ACCIÓN 5: GENERATE_NATURAL_RESPONSE
         # Mistral recibe el information_state final en modo solo lectura y
         # genera la respuesta textual para el usuario.
         # ═══════════════════════════════════════════════════════════════════════
         logger.info(
-            "[Paso 6] GENERATE_NATURAL_RESPONSE — estado final: %s",
+            "[Acción] GENERATE_NATURAL_RESPONSE — estado final: %s",
             estado.evaluacion_drools.estado,
         )
 
@@ -427,15 +385,7 @@ class PipelineOrchestrator:
         )
         step6_output = {"respuesta": respuesta_texto}
 
-        tracker.registrar_paso(
-            session_id=session_id,
-            turn_id=turn_id,
-            step_order=6,
-            action_type="GENERATE_NATURAL_RESPONSE",
-            step_input=step6_input,
-            step_output=step6_output,
-            information_state=estado_final_dict,
-        )
+        registrar_accion("GENERATE_NATURAL_RESPONSE", step6_input, step6_output)
 
         # ── Persistir el estado actualizado en caché ──────────────────────────
         self._persistir_estado(session_id, estado)
@@ -447,4 +397,4 @@ class PipelineOrchestrator:
             estado.evaluacion_drools.estado,
         )
 
-        return respuesta_texto, estado_final_dict
+        return respuesta_texto, estado_final_dict, acciones_ejecutadas

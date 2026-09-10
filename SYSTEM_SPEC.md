@@ -159,16 +159,15 @@ $$
 
 ---
 
-## 5. El Flujo de Ejecución por Pasos (Auditoría AI Act)
+## 5. El Flujo de Ejecución por Acciones Dinámicas (Auditoría AI Act)
 
-Cada turno conversacional ejecuta hasta 6 micro-acciones registradas individualmente en `trazas_auditoria`:
+Cada turno conversacional ejecuta acciones dinámicamente que quedan registradas individualmente en `trazas_auditoria`:
 
 1. **`EXTRACT_NLU`**: Mistral procesa el mensaje del usuario y devuelve `EsquemaNLU`.
-2. **`FETCH_CORE_DATA`**: FastAPI extrae el registro de la tabla `clientes` para el cliente seleccionado (el id se recupera ya que la conversación va con un id asociado en el frontend) (solo en el primer turno, en los sucesivos se guarda en el estado de la sesión y no es necesario volver a consultarlo a la base de datos).
-3. **`EVALUATE_PRELIMINARY`**: Drools evalúa los datos reunidos.
-4. **`FETCH_CIRBE_ASNEF`** *(Condicional)*: Si Drools devuelve `REQUIERE_ACCION`, FastAPI consulta el mock del Banco de España (CIRBE / ASNEF).
-5. **`EVALUATE_FINAL_DECISION`** *(Condicional)*: Drools reevalúa con los datos del mock inyectados.
-6. **`GENERATE_NATURAL_RESPONSE`**: Mistral recibe el `information_state` final en modo solo lectura y genera la respuesta textual ayudandose del information_state para informar al usuario de la falta de datos, o decisión obtenida.
+2. **`FETCH_CORE_DATA`**: FastAPI extrae el registro de la tabla `clientes` para el cliente seleccionado (solo en el primer turno, en los sucesivos se guarda en el estado de la sesión y no es necesario volver a consultarlo a la base de datos).
+3. **`EVALUATE_DROOLS`**: Drools evalúa los datos reunidos. Puede ejecutarse varias veces en un mismo turno si solicita datos externos.
+4. **`FETCH_CIRBE_ASNEF`** *(Condicional)*: Si Drools devuelve `REQUIERE_ACCION`, FastAPI consulta el mock del Banco de España (CIRBE / ASNEF). Tras esto, se re-evalúa el motor (`EVALUATE_DROOLS`).
+5. **`GENERATE_NATURAL_RESPONSE`**: Mistral recibe el `information_state` final en modo solo lectura y genera la respuesta textual ayudandose del information_state para informar al usuario de la falta de datos, o decisión obtenida.
 
 
 ## 6. Estructura de Carpetas sugerida:

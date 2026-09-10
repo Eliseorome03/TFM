@@ -31,6 +31,7 @@ Este esquema JSON define la verdad del sistema en cualquier instante del diálog
   },
   "datos_core_bancario": {
     "cliente_id": "string",
+    "nombre": "string",
     "dni": "string",
     "edad": "integer",
     "ingresos_netos_mensuales": "float",

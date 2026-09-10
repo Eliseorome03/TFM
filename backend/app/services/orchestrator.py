@@ -264,6 +264,7 @@ class PipelineOrchestrator:
 
             estado.datos_core_bancario = DatosCoreBancario(
                 cliente_id=cliente.cliente_id,
+                nombre=cliente.nombre,
                 dni=cliente.dni,
                 edad=cliente.edad,
                 ingresos_netos_mensuales=cliente.ingresos_netos_mensuales,
@@ -274,8 +275,9 @@ class PipelineOrchestrator:
             )
             step2_output = estado.datos_core_bancario.model_dump()
             logger.info(
-                "[Paso 2] Cliente cargado: %s (DNI=%s, edad=%d, ingresos=%.2f)",
+                "[Paso 2] Cliente cargado: %s (%s, DNI=%s, edad=%d, ingresos=%.2f)",
                 cliente.cliente_id,
+                cliente.nombre,
                 cliente.dni,
                 cliente.edad,
                 cliente.ingresos_netos_mensuales,

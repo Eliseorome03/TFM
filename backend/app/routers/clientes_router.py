@@ -28,6 +28,7 @@ class ClienteResumen(BaseModel):
     """Resumen público de un cliente para el desplegable del frontend."""
 
     cliente_id: str
+    nombre: str
     dni: str
     edad: int
     ingresos_netos_mensuales: float
@@ -85,6 +86,7 @@ def get_clientes(db: Session = Depends(get_db)) -> ClientesListResponse:
             clientes=[
                 ClienteResumen(
                     cliente_id=c.cliente_id,
+                    nombre=c.nombre,
                     dni=c.dni,
                     edad=c.edad,
                     ingresos_netos_mensuales=c.ingresos_netos_mensuales,

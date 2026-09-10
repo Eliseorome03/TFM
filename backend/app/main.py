@@ -3,7 +3,6 @@ main.py — Entrypoint principal de la aplicación FastAPI.
 
 Configura la instancia FastAPI con:
   - Metadatos OpenAPI (título, descripción, versión)
-  - Middleware CORS para el frontend local
   - Inclusión de todos los routers de la aplicación
   - Montaje de archivos estáticos en /static
   - Evento de startup para crear tablas si no existen
@@ -17,7 +16,6 @@ import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
 from pathlib import Path
@@ -28,7 +26,7 @@ from app.routers.clientes_router import router as clientes_router
 from app.routers.bde_mock_router import router as bde_mock_router
 
 # Importar modelos para que Base los registre antes del create_all
-from app.models import ClienteModel, TrazaAuditoria  # noqa: F401
+from app.models import ClienteModel, TrazaAuditoria
 
 # Configuración del sistema de logging
 logging.basicConfig(
@@ -53,7 +51,7 @@ async def lifespan(app: FastAPI):
     logger.info("Verificando/creando tablas en MariaDB...")
     try:
         Base.metadata.create_all(bind=engine)
-        logger.info("✓ Tablas verificadas: 'clientes', 'trazas_auditoria'")
+        logger.info("Tablas verificadas: 'clientes', 'trazas_auditoria'")
     except Exception as exc:
         logger.warning(
             "No se pudieron crear las tablas automáticamente: %s "
@@ -80,34 +78,7 @@ app = FastAPI(
         "- `GET /api/mock/bde/{dni}`: Simulación CIRBE/ASNEF del Banco de España\n"
     ),
     version="1.0.0",
-    contact={
-        "name": "TFM Neurosimbólico Bancario",
-        "email": "tfm@universidad.es",
-    },
-    license_info={
-        "name": "Proyecto TFM — Uso Académico",
-    },
     lifespan=lifespan,
-)
-
-
-# ── Middleware CORS ───────────────────────────────────────────────────────────
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
-        "http://localhost",
-        "http://localhost:80",
-        "http://localhost:3000",
-        "http://localhost:8000",
-        "http://127.0.0.1",
-        "http://127.0.0.1:80",
-        "http://127.0.0.1:3000",
-        "http://127.0.0.1:8000",
-    ],
-    allow_credentials=True,
-    allow_methods=["GET", "POST", "OPTIONS"],
-    allow_headers=["*"],
 )
 
 
@@ -149,8 +120,6 @@ def healthcheck() -> JSONResponse:
     return JSONResponse(
         content={
             "status": "ok",
-            "sistema": "Sistema Neurosimbólico Bancario",
-            "version": "1.0.0",
             "paradigma": "Symbolic[Neuro] — EU AI Act compliant",
             "endpoints": {
                 "chat": "POST /api/chat",

@@ -47,7 +47,7 @@ class PipelineOrchestrator:
     """
     Orquestador del pipeline conversacional neurosimbólico.
 
-    Ejecuta los 6 pasos secuenciales del ciclo por cada turno del usuario,
+    Ejecuta las 5 acciones secuenciales del ciclo por cada turno del usuario,
     manteniendo el InformationState entre turnos mediante caché en memoria.
 
     Cada micro-acción se registra de forma atómica en la tabla de auditoría

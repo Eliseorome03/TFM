@@ -1,0 +1,78 @@
+=== TEST: 13_avalista ===
+Cliente ID: CLI-002
+Session ID: ca86bbeb-296b-4511-b3f0-006c97f20bba
+
+[Turno 1] Usuario: Quiero 1000 euros a 12 meses
+[Turno 1] Sistema: Para poder ayudarle a procesar su solicitud de **1.000 € a 12 meses**, le agradecería que nos indicara el **propósito** para el que necesita este préstamo.
+
+De este modo, podremos evaluar su solicitud de manera más precisa y ajustada a sus necesidades. ¡Muchas gracias por su colaboración!
+[Turno 2] Usuario: para salud
+[Turno 2] Sistema: Para continuar con la evaluación de su solicitud de **1.000 EUR a 12 meses** destinada a salud, le agradecemos que nos indique sus **gastos fijos mensuales**.
+
+Con esto nos referimos a pagos recurrentes como el alquiler, suministros (luz, agua, gas), seguros u otros recibos fijos que tenga. Así podremos ajustar mejor la valoración de su capacidad para asumir la cuota mensual de **83,33 EUR**.
+
+¡Muchas gracias por su colaboración!
+[Turno 3] Usuario: 0 gastos fijos
+[Turno 3] Sistema: **Asunto:** Información sobre su solicitud de financiación
+
+Estimado/a cliente,
+
+Lamentamos comunicarle que, tras evaluar su solicitud de **1.000 €** para un propósito relacionado con salud, no podemos proceder con la aprobación del préstamo en las condiciones solicitadas.
+
+Esta decisión se debe a que, al analizar su perfil financiero y otros factores de riesgo, hemos detectado una situación que nos obliga a denegar la operación. En concreto, su participación como avalista en una empresa actualmente en concurso de acreedores incrementa el riesgo asociado a su solicitud, según los criterios establecidos por la Autoridad Bancaria Europea (EBA).
+
+Entendemos que esta noticia pueda generar descontento, pero agradecemos su confianza en nuestro banco. Si lo desea, puede contactar con nuestro departamento de asesoramiento financiero para explorar alternativas que se ajusten mejor a su situación.
+
+Qu
+
+=== ESTADO FINAL (INFORMATION STATE) ===
+{
+  "session_id": "ca86bbeb-296b-4511-b3f0-006c97f20bba",
+  "turn_id": 3,
+  "datos_usuario": {
+    "intencion_principal": "SOLICITAR_PRESTAMO",
+    "cantidad_solicitada": 1000.0,
+    "plazo_meses": 12,
+    "proposito": "SALUD",
+    "gastos_fijos_mensuales": 0.0,
+    "deuda_declarada": null,
+    "duda_catch_all": "NINGUNA"
+  },
+  "datos_core_bancario": {
+    "cliente_id": "CLI-002",
+    "nombre": "María Blanco Torres",
+    "dni": "11223344C",
+    "edad": 29,
+    "ingresos_netos_mensuales": 2100.0,
+    "antiguedad_meses": 24,
+    "deuda_interna_banco_mensual": 0.0,
+    "es_avalista": true,
+    "empresa_avalada_cif": "B9999999"
+  },
+  "datos_externos_bde": {
+    "consultado": true,
+    "tiene_impagos_activos": false,
+    "importe_morosidad_asnef": 0.0,
+    "empresa_avalada_concurso": true,
+    "deuda_cirbe_mensual": 0.0,
+    "deuda_cirbe_total": 0.0
+  },
+  "calculos_derivados": {
+    "cuota_estimada": 83.33333333333333,
+    "ratio_endeudamiento": 0.03968253968253968,
+    "remanente_subsistencia": 2016.6666666666667,
+    "edad_al_vencimiento": 30
+  },
+  "evaluacion_drools": {
+    "estado": "DENEGADO",
+    "reglas_disparadas": [
+      "R_DISPARAR_CIRBE",
+      "R_ALERTA_QUIEBRA_AVAL"
+    ],
+    "accion_requerida": null,
+    "dato_faltante": null,
+    "articulo_normativo": "Criterios EBA sobre riesgo concursal indirecto",
+    "texto_legal": "Se ha detectado que el solicitante actúa como avalista de una empresa que se encuentra actualmente en situación de concurso de acreedores. Esta circunstancia genera un riesgo concursal indirecto exigible a corto plazo que impide la concesión de nueva financiación, de conformidad con los criterios de la Autoridad Bancaria Europea (EBA).",
+    "tono_mensaje": "serio, prudente y respetuoso"
+  }
+}

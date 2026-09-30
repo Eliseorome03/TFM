@@ -1,0 +1,71 @@
+=== TEST: 14_aprobacion_estandar ===
+Cliente ID: CLI-001
+Session ID: 644c1d6d-5441-4f1b-999c-f486aa8a9fdc
+
+[Turno 1] Usuario: Hola quiero 2000 euros a 12 meses para reforma, tengo 100 de gastos fijos.
+[Turno 1] Sistema: **Asunto:** Su solicitud de préstamo ha sido aprobada
+
+**Hola,**
+
+¡Excelente noticia! Su solicitud de **2.000 € a 12 meses** para reforma ha sido **aprobada** por nuestro banco.
+
+Con esta operación, su cuota mensual sería de **166,67 €**, y tras el análisis de su situación financiera, hemos confirmado que cumple con los requisitos para garantizar su solvencia.
+
+En breve, recibirá más detalles por correo electrónico con los siguientes pasos para formalizar el préstamo. ¡Enhorabuena y gracias por confiar en nosotros!
+
+Quedamos a su disposición para cualquier consulta.
+
+**Atentamente,**
+Equipo de Atención al Cliente
+
+=== ESTADO FINAL (INFORMATION STATE) ===
+{
+  "session_id": "644c1d6d-5441-4f1b-999c-f486aa8a9fdc",
+  "turn_id": 1,
+  "datos_usuario": {
+    "intencion_principal": "SOLICITAR_PRESTAMO",
+    "cantidad_solicitada": 2000.0,
+    "plazo_meses": 12,
+    "proposito": "REFORMA",
+    "gastos_fijos_mensuales": 100.0,
+    "deuda_declarada": null,
+    "duda_catch_all": "NINGUNA"
+  },
+  "datos_core_bancario": {
+    "cliente_id": "CLI-001",
+    "nombre": "Laura Martínez Gil",
+    "dni": "55443322E",
+    "edad": 35,
+    "ingresos_netos_mensuales": 3200.0,
+    "antiguedad_meses": 48,
+    "deuda_interna_banco_mensual": 0.0,
+    "es_avalista": false,
+    "empresa_avalada_cif": null
+  },
+  "datos_externos_bde": {
+    "consultado": true,
+    "tiene_impagos_activos": false,
+    "importe_morosidad_asnef": 0.0,
+    "empresa_avalada_concurso": null,
+    "deuda_cirbe_mensual": 0.0,
+    "deuda_cirbe_total": 0.0
+  },
+  "calculos_derivados": {
+    "cuota_estimada": 166.66666666666666,
+    "ratio_endeudamiento": 0.08333333333333331,
+    "remanente_subsistencia": 2933.3333333333335,
+    "edad_al_vencimiento": 36
+  },
+  "evaluacion_drools": {
+    "estado": "APROBADO",
+    "reglas_disparadas": [
+      "R_DISPARAR_CIRBE",
+      "R_APROBACION_ESTANDAR"
+    ],
+    "accion_requerida": null,
+    "dato_faltante": null,
+    "articulo_normativo": "Art. 18.1 Directiva 2014/17/UE - Evaluación de solvencia positiva",
+    "texto_legal": "Tras la evaluación completa de la solvencia del solicitante conforme al artículo 18.1 de la Directiva 2014/17/UE, se ha verificado que la capacidad de pago es adecuada: el ratio de endeudamiento se encuentra dentro de los límites prudenciales, el remanente de subsistencia garantiza el mínimo vital y no se registran incidencias de morosidad activa. La solicitud cumple los requisitos para su aprobación.",
+    "tono_mensaje": "positivo, claro y profesional"
+  }
+}

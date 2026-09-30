@@ -1,0 +1,77 @@
+=== TEST: 06_choque_reglas ===
+Cliente ID: CLI-004
+Session ID: 27e51fc0-0b2b-4aa7-bbef-09e9da1a6087
+
+[Turno 1] Usuario: Quiero pedir un préstamo de 2000 euros
+[Turno 1] Sistema: Para poder ayudarle a evaluar su solicitud de préstamo de **2.000 euros**, necesitaría conocer el plazo de devolución que tendría en mente (por ejemplo, en meses).
+
+Con esa información, podremos calcular su cuota mensual y analizar su viabilidad. ¿Podría indicármelo? Estamos aquí para orientarle.
+[Turno 2] Usuario: A pagar en 24 meses
+[Turno 2] Sistema: Lamentamos informarle que, tras evaluar su solicitud, **no podemos aprobar el préstamo** solicitado para un plazo de 24 meses.
+
+Esto se debe a que, al finalizar el pago, su edad superaría los 75 años, lo que no cumple con los criterios de riesgo actuarial que nuestra entidad aplica para garantizar la sostenibilidad del préstamo.
+
+Agradecemos su confianza y quedamos a su disposición para asesorarle en alternativas que se ajusten a su situación.
+[Turno 3] Usuario: Para reforma
+[Turno 3] Sistema: Lamentamos informarle que no podemos aprobar su solicitud de préstamo para la reforma.
+
+Tras revisar su perfil, hemos detectado que, al finalizar el plazo de devolución, su edad superaría los 75 años. Según nuestros criterios de riesgo actuarial, no es posible conceder préstamos cuya devolución finalice más allá de esta edad límite.
+
+Agradecemos su confianza y le invitamos a consultarnos en el futuro si tiene alguna otra necesidad financiera.
+[Turno 4] Usuario: No tengo gastos fijos
+[Turno 4] Sistema: Lamentamos informarle que, tras evaluar su solicitud de **2.000 EUR** para su reforma, no podemos aprobar el préstamo.
+
+La razón es que, al finalizar el plazo de **24 meses**, su edad superaría los **75 años**, lo que implica un riesgo actuarial que nuestra entidad no puede asumir según nuestros criterios internos.
+
+Agradecemos su confianza y le invitamos a revisar otras opciones que se adapten mejor a su situación. Si lo desea, podemos orientarle sobre alternativas.
+
+=== ESTADO FINAL (INFORMATION STATE) ===
+{
+  "session_id": "27e51fc0-0b2b-4aa7-bbef-09e9da1a6087",
+  "turn_id": 4,
+  "datos_usuario": {
+    "intencion_principal": "SOLICITAR_PRESTAMO",
+    "cantidad_solicitada": 2000.0,
+    "plazo_meses": 24,
+    "proposito": "REFORMA",
+    "gastos_fijos_mensuales": null,
+    "deuda_declarada": null,
+    "duda_catch_all": "NINGUNA"
+  },
+  "datos_core_bancario": {
+    "cliente_id": "CLI-004",
+    "nombre": "Raúl Sánchez Moreno",
+    "dni": "99887766D",
+    "edad": 74,
+    "ingresos_netos_mensuales": 1800.0,
+    "antiguedad_meses": 96,
+    "deuda_interna_banco_mensual": 200.0,
+    "es_avalista": false,
+    "empresa_avalada_cif": null
+  },
+  "datos_externos_bde": {
+    "consultado": false,
+    "tiene_impagos_activos": false,
+    "importe_morosidad_asnef": 0.0,
+    "empresa_avalada_concurso": null,
+    "deuda_cirbe_mensual": 0.0,
+    "deuda_cirbe_total": 0.0
+  },
+  "calculos_derivados": {
+    "cuota_estimada": 83.33333333333333,
+    "ratio_endeudamiento": 0.15740740740740738,
+    "remanente_subsistencia": 1516.6666666666667,
+    "edad_al_vencimiento": 76
+  },
+  "evaluacion_drools": {
+    "estado": "DENEGADO",
+    "reglas_disparadas": [
+      "R_EDAD_MAXIMA"
+    ],
+    "accion_requerida": null,
+    "dato_faltante": null,
+    "articulo_normativo": "Criterios de capacidad legal y riesgo actuarial por edad",
+    "texto_legal": "Al vencimiento del préstamo, la edad del solicitante superaría los 75 años. Por criterios de riesgo actuarial, la entidad no puede conceder préstamos cuya devolución finalice más allá de dicha edad límite.",
+    "tono_mensaje": "claro, respetuoso y transparente"
+  }
+}

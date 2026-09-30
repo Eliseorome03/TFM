@@ -1,0 +1,82 @@
+=== TEST: 18_ruido_extremo ===
+Cliente ID: CLI-001
+Session ID: 0855cb3c-4927-4f65-90bd-b1307ce8a8a8
+
+[Turno 1] Usuario: Quiero 2000 euros
+[Turno 1] Sistema: Para poder ayudarle a evaluar su solicitud de **2.000 euros**, necesitaría conocer el plazo de devolución que tendría en mente (por ejemplo, en meses). Así podremos calcular su cuota mensual y ajustar la propuesta a sus necesidades.
+
+¿Podría indicarnos cuántos meses planea devolver este importe? Le agradecemos su colaboración.
+[Turno 2] Usuario: A pagar en 12 meses. bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla  para salud
+[Turno 2] Sistema: Para poder continuar con la evaluación de su solicitud de **2.000 € a pagar en 12 meses** destinados a salud, le agradeceríamos que nos facilitara sus **gastos fijos mensuales**.
+
+Con esto nos referimos a pagos recurrentes como el alquiler, suministros (luz, agua, gas), seguros u otros recibos fijos que tenga. Así podremos ajustar mejor la valoración de su capacidad de pago.
+
+¡Muchas gracias por su colaboración!
+[Turno 3] Usuario: 0 gastos
+[Turno 3] Sistema: **Asunto:** Su solicitud de préstamo ha sido aprobada
+
+Estimado/a [Nombre del cliente],
+
+Le comunicamos con gran satisfacción que su solicitud de préstamo por **2.000,00 €** ha sido **aprobada**.
+
+El importe se destinará a su propósito de **salud**, con un plazo de **12 meses** y una cuota mensual estimada de **166,67 €**. Hemos verificado que su situación financiera cumple con los requisitos necesarios para garantizar una gestión responsable del préstamo.
+
+En breve, recibirá más detalles sobre los siguientes pasos para formalizar la operación. Mientras tanto, no dude en contactarnos si tiene alguna pregunta.
+
+Le agradecemos su confianza y quedamos a su disposición para lo que necesite.
+
+Atentamente,
+[Nombre de la entidad bancaria]
+[Contacto de atención al cliente]
+
+=== ESTADO FINAL (INFORMATION STATE) ===
+{
+  "session_id": "0855cb3c-4927-4f65-90bd-b1307ce8a8a8",
+  "turn_id": 3,
+  "datos_usuario": {
+    "intencion_principal": "SOLICITAR_PRESTAMO",
+    "cantidad_solicitada": 2000.0,
+    "plazo_meses": 12,
+    "proposito": "SALUD",
+    "gastos_fijos_mensuales": 0.0,
+    "deuda_declarada": null,
+    "duda_catch_all": "NINGUNA"
+  },
+  "datos_core_bancario": {
+    "cliente_id": "CLI-001",
+    "nombre": "Laura Martínez Gil",
+    "dni": "55443322E",
+    "edad": 35,
+    "ingresos_netos_mensuales": 3200.0,
+    "antiguedad_meses": 48,
+    "deuda_interna_banco_mensual": 0.0,
+    "es_avalista": false,
+    "empresa_avalada_cif": null
+  },
+  "datos_externos_bde": {
+    "consultado": true,
+    "tiene_impagos_activos": false,
+    "importe_morosidad_asnef": 0.0,
+    "empresa_avalada_concurso": null,
+    "deuda_cirbe_mensual": 0.0,
+    "deuda_cirbe_total": 0.0
+  },
+  "calculos_derivados": {
+    "cuota_estimada": 166.66666666666666,
+    "ratio_endeudamiento": 0.05208333333333333,
+    "remanente_subsistencia": 3033.3333333333335,
+    "edad_al_vencimiento": 36
+  },
+  "evaluacion_drools": {
+    "estado": "APROBADO",
+    "reglas_disparadas": [
+      "R_DISPARAR_CIRBE",
+      "R_APROBACION_ESTANDAR"
+    ],
+    "accion_requerida": null,
+    "dato_faltante": null,
+    "articulo_normativo": "Art. 18.1 Directiva 2014/17/UE - Evaluación de solvencia positiva",
+    "texto_legal": "Tras la evaluación completa de la solvencia del solicitante conforme al artículo 18.1 de la Directiva 2014/17/UE, se ha verificado que la capacidad de pago es adecuada: el ratio de endeudamiento se encuentra dentro de los límites prudenciales, el remanente de subsistencia garantiza el mínimo vital y no se registran incidencias de morosidad activa. La solicitud cumple los requisitos para su aprobación.",
+    "tono_mensaje": "positivo, claro y profesional"
+  }
+}

@@ -1,0 +1,6 @@
+[2026-10-01 01:38:39] Test: 01_cliente_telegrafico | Resultado: PASSED | Tiempo_Medio_Turno: 2.55s | BDE_Llamado: True
+[2026-10-01 01:38:50] Test: 02_cliente_indeciso | Resultado: PASSED | Tiempo_Medio_Turno: 2.68s | BDE_Llamado: True
+[2026-10-01 01:38:55] Test: 03_extraccion_con_ruido | Resultado: PASSED | Tiempo_Medio_Turno: 2.66s | BDE_Llamado: True
+[2026-10-01 01:39:05] Test: 10_negacionista | Resultado: PASSED | Tiempo_Medio_Turno: 3.13s | BDE_Llamado: True
+[2026-10-01 01:39:16] Test: 11_topic_shift | Resultado: PASSED | Tiempo_Medio_Turno: 2.80s | BDE_Llamado: True
+[2026-10-01 01:39:21] Test: 12_multilingue | Resultado: PASSED | Tiempo_Medio_Turno: 2.58s | BDE_Llamado: True

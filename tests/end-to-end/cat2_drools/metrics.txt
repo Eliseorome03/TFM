@@ -1,0 +1,5 @@
+[2026-10-01 01:39:32] Test: 04_early_rejection | Resultado: PASSED | Tiempo_Medio_Turno: 3.40s | BDE_Llamado: False
+[2026-10-01 01:39:43] Test: 05_rechazo_cirbe | Resultado: FAILED | Tiempo_Medio_Turno: 2.72s | BDE_Llamado: False
+[2026-10-01 01:39:53] Test: 06_choque_reglas | Resultado: PASSED | Tiempo_Medio_Turno: 2.44s | BDE_Llamado: False
+[2026-10-01 01:40:01] Test: 13_avalista | Resultado: PASSED | Tiempo_Medio_Turno: 2.94s | BDE_Llamado: True
+[2026-10-01 01:40:05] Test: 14_aprobacion_estandar | Resultado: PASSED | Tiempo_Medio_Turno: 3.48s | BDE_Llamado: True

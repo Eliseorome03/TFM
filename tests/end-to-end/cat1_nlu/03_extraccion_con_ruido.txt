@@ -1,0 +1,76 @@
+=== TEST: 03_extraccion_con_ruido ===
+Cliente ID: CLI-001
+Session ID: 7494a6cf-abf8-4f64-a573-6a9b2b781be1
+
+[Turno 1] Usuario: Hola buenas tardes, me llamo Juan y tengo 54 años, trabajo en una empresa de seguros desde hace 18 años y gano bien.
+[Turno 1] Sistema: Buenas tardes, señor Juan.
+
+Para continuar con el proceso de evaluación de su solicitud, ¿podría indicarme **el importe total que desea financiar** y **el plazo de devolución en meses** que prevé? Así podremos analizar su caso con mayor precisión. ¡Muchas gracias!
+[Turno 2] Usuario: Quiero pedir unos 3000 euros para comprarle una moto a mi hijo que cumple 18 años el mes que viene, yo ya digo que me va bien la vida, solo pago 150 de comunidad e internet y no tengo otras deudas ni nada de eso, a ver si me lo podéis dar para devolvéroslo en un año.
+[Turno 2] Sistema: **Asunto:** Solicitud aprobada – Financiación para la moto de su hijo
+
+Estimado/a [Nombre del cliente],
+
+¡Excelente noticia! Hemos aprobado su solicitud para financiar **3.000 €** para la moto de su hijo, con un plazo de **12 meses** y una cuota mensual de **250 €**.
+
+Dada su situación financiera actual —sin deudas pendientes y con un ratio de endeudamiento muy equilibrado—, confiamos en que podrá hacer frente a este compromiso sin inconvenientes.
+
+En las próximas horas recibirá más detalles por correo electrónico con los pasos a seguir para formalizar el préstamo. Si tiene alguna duda, no dude en contactarnos.
+
+¡Enhorabuena y gracias por confiar en nosotros!
+
+Atentamente,
+[Nombre del banco]
+*Equipo de Atención al Cliente*
+
+=== ESTADO FINAL (INFORMATION STATE) ===
+{
+  "session_id": "7494a6cf-abf8-4f64-a573-6a9b2b781be1",
+  "turn_id": 2,
+  "datos_usuario": {
+    "intencion_principal": "SOLICITAR_PRESTAMO",
+    "cantidad_solicitada": 3000.0,
+    "plazo_meses": 12,
+    "proposito": "VEHICULO",
+    "gastos_fijos_mensuales": 150.0,
+    "deuda_declarada": null,
+    "duda_catch_all": "NINGUNA"
+  },
+  "datos_core_bancario": {
+    "cliente_id": "CLI-001",
+    "nombre": "Laura Martínez Gil",
+    "dni": "55443322E",
+    "edad": 35,
+    "ingresos_netos_mensuales": 3200.0,
+    "antiguedad_meses": 48,
+    "deuda_interna_banco_mensual": 0.0,
+    "es_avalista": false,
+    "empresa_avalada_cif": null
+  },
+  "datos_externos_bde": {
+    "consultado": true,
+    "tiene_impagos_activos": false,
+    "importe_morosidad_asnef": 0.0,
+    "empresa_avalada_concurso": null,
+    "deuda_cirbe_mensual": 0.0,
+    "deuda_cirbe_total": 0.0
+  },
+  "calculos_derivados": {
+    "cuota_estimada": 250.0,
+    "ratio_endeudamiento": 0.125,
+    "remanente_subsistencia": 2800.0,
+    "edad_al_vencimiento": 36
+  },
+  "evaluacion_drools": {
+    "estado": "APROBADO",
+    "reglas_disparadas": [
+      "R_DISPARAR_CIRBE",
+      "R_APROBACION_ESTANDAR"
+    ],
+    "accion_requerida": null,
+    "dato_faltante": null,
+    "articulo_normativo": "Art. 18.1 Directiva 2014/17/UE - Evaluación de solvencia positiva",
+    "texto_legal": "Tras la evaluación completa de la solvencia del solicitante conforme al artículo 18.1 de la Directiva 2014/17/UE, se ha verificado que la capacidad de pago es adecuada: el ratio de endeudamiento se encuentra dentro de los límites prudenciales, el remanente de subsistencia garantiza el mínimo vital y no se registran incidencias de morosidad activa. La solicitud cumple los requisitos para su aprobación.",
+    "tono_mensaje": "positivo, claro y profesional"
+  }
+}

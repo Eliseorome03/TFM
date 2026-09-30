@@ -12,18 +12,18 @@
  *
  * Catálogo de reglas (por orden de salience descendente):
  *   R_EDAD_MINIMA                  (100)
- *   R_CANTIDAD_Y_PLAZO_REQUERIDOS  (99)
- *   R_EDAD_MAXIMA                  (98)
- *   R_PROPOSITO_REQUERIDO          (97)
- *   R_PROPOSITO_NO_FINANCIABLE     (96)
- *   R_GASTOS_FIJOS_REQUERIDOS      (95)
+ *   R_EDAD_MAXIMA                  (95)
+ *   R_RATIO_ENDEUDAMIENTO          (92)
+ *   R_MINIMO_SUBSISTENCIA          (91)
+ *   R_PROPOSITO_NO_FINANCIABLE     (90)
+ *   R_CANTIDAD_Y_PLAZO_REQUERIDOS  (85)
+ *   R_PROPOSITO_REQUERIDO          (80)
+ *   R_GASTOS_FIJOS_REQUERIDOS      (75)
  *   R_DISPARAR_CIRBE               (70)
  *   R_MOROSIDAD_ASNEF              (60)
  *   R_ALERTA_QUIEBRA_AVAL         (50)
  *   R_DEUDA_DECLARADA_REQUERIDA    (45)
  *   R_DISCREPANCIA_DECLARADA       (40)
- *   R_RATIO_ENDEUDAMIENTO          (30)
- *   R_MINIMO_SUBSISTENCIA          (20)
  *   R_APROBACION_ESTANDAR          (10)
  */
 package rules;
@@ -58,13 +58,13 @@ end
 
 // =============================================================================
 // REGLA 2: R_CANTIDAD_Y_PLAZO_REQUERIDOS
-// Salience: 99 | Estado: REQUIERE_DATOS
+// Salience: 85 | Estado: REQUIERE_DATOS
 // Condición: La cantidad solicitada o el plazo en meses son nulos.
 // Normativa: Debe conocerse la cantidad y el plazo para evaluar el riesgo.
 // Tono: amable, orientativo y conciso
 // =============================================================================
 rule "R_CANTIDAD_Y_PLAZO_REQUERIDOS"
-    salience 99
+    salience 85
     when
         $res : ResultadoEvaluacion(estado == "EN_PROCESO")
         $core : DatosCoreBancario(edad != null, edad >= 18)
@@ -82,13 +82,13 @@ end
 
 // =============================================================================
 // REGLA 3: R_EDAD_MAXIMA
-// Salience: 98 | Estado: DENEGADO
+// Salience: 95 | Estado: DENEGADO
 // Condición: La edad del cliente al vencimiento del préstamo supera los 75 años.
 // Normativa: Criterios de capacidad legal y riesgo actuarial por edad.
 // Tono: claro, respetuoso y transparente
 // =============================================================================
 rule "R_EDAD_MAXIMA"
-    salience 98
+    salience 95
     when
         $res : ResultadoEvaluacion(estado == "EN_PROCESO")
         $calc : CalculosDerivados(edadAlVencimiento != null, edadAlVencimiento > 75)
@@ -103,13 +103,13 @@ end
 
 // =============================================================================
 // REGLA 4: R_PROPOSITO_REQUERIDO
-// Salience: 97 | Estado: REQUIERE_DATOS
+// Salience: 80 | Estado: REQUIERE_DATOS
 // Condición: El propósito del préstamo es nulo.
 // Normativa: Debe conocerse el propósito para evaluar el riesgo adecuadamente.
 // Tono: amable, cercano y orientativo
 // =============================================================================
 rule "R_PROPOSITO_REQUERIDO"
-    salience 97
+    salience 80
     when
         $res : ResultadoEvaluacion(estado == "EN_PROCESO")
         $du : DatosUsuario(cantidadSolicitada != null, plazoMeses != null, proposito == null)
@@ -125,13 +125,13 @@ end
 
 // =============================================================================
 // REGLA 5: R_PROPOSITO_NO_FINANCIABLE
-// Salience: 96 | Estado: DENEGADO
+// Salience: 90 | Estado: DENEGADO
 // Condición: El propósito es CRIPTOMONEDAS, APUESTAS o REFINANCIACION_INFORMAL.
 // Normativa: Ley 10/2010 PBC y directrices EBA sobre originación de crédito prudencial.
 // Tono: firme, profesional y no acusatorio
 // =============================================================================
 rule "R_PROPOSITO_NO_FINANCIABLE"
-    salience 96
+    salience 90
     when
         $res : ResultadoEvaluacion(estado == "EN_PROCESO")
         $du : DatosUsuario(proposito != null,
@@ -149,13 +149,13 @@ end
 
 // =============================================================================
 // REGLA 6: R_GASTOS_FIJOS_REQUERIDOS
-// Salience: 95 | Estado: REQUIERE_DATOS
+// Salience: 75 | Estado: REQUIERE_DATOS
 // Condición: Los gastos fijos mensuales son nulos.
 // Normativa: Art. 18 Directiva 2014/17/UE - obligación de computar compromisos periódicos.
 // Tono: amable, sencillo y orientativo
 // =============================================================================
 rule "R_GASTOS_FIJOS_REQUERIDOS"
-    salience 95
+    salience 75
     when
         $res : ResultadoEvaluacion(estado == "EN_PROCESO")
         $du : DatosUsuario(cantidadSolicitada != null, plazoMeses != null,
@@ -292,13 +292,13 @@ end
 
 // =============================================================================
 // REGLA 12: R_RATIO_ENDEUDAMIENTO
-// Salience: 30 | Estado: DENEGADO
+// Salience: 92 | Estado: DENEGADO
 // Condición: El ratio de endeudamiento supera el 40% de los ingresos netos.
 // Normativa: Directiva 2014/17/UE y Banco de España - límite máximo del 40%.
 // Tono: firme, claro y respetuoso
 // =============================================================================
 rule "R_RATIO_ENDEUDAMIENTO"
-    salience 30
+    salience 92
     when
         $res : ResultadoEvaluacion(estado == "EN_PROCESO")
         $calc : CalculosDerivados(ratioEndeudamiento != null, ratioEndeudamiento > 0.40)
@@ -313,13 +313,13 @@ end
 
 // =============================================================================
 // REGLA 13: R_MINIMO_SUBSISTENCIA
-// Salience: 20 | Estado: DENEGADO
+// Salience: 91 | Estado: DENEGADO
 // Condición: El remanente de subsistencia tras los compromisos es inferior a 700 euros.
 // Normativa: Art. 607 LEC - mínimo vital inembargable derivado del SMI.
 // Tono: serio, prudente y respetuoso
 // =============================================================================
 rule "R_MINIMO_SUBSISTENCIA"
-    salience 20
+    salience 91
     when
         $res : ResultadoEvaluacion(estado == "EN_PROCESO")
         $calc : CalculosDerivados(remanenteSubsistencia != null, remanenteSubsistencia < 700.0)

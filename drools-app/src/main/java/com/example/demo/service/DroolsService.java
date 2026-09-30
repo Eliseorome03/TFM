@@ -146,14 +146,15 @@ public class DroolsService {
         Double deudaCirbeMensual = (datosBde != null) ? datosBde.getDeudaCirbeMensual() : null;
         Double ingresos = datosCore.getIngresosNetosMensuales();
 
-        // --- Total de compromisos mensuales (para ratio y remanente) ---
-        // Sólo calculable si todos los componentes son no-null
+        // --- Total de compromisos mensuales (cálculo monotónico) ---
+        // Se calcula siempre que tengamos al menos la cuota.
+        // Los datos faltantes asumen 0 y se irán sumando en turnos posteriores.
         Double totalCompromisos = null;
-        if (cuotaEstimada != null
-                && gastosFijos != null
-                && deudaInternaBanco != null
-                && deudaCirbeMensual != null) {
-            totalCompromisos = cuotaEstimada + gastosFijos + deudaInternaBanco + deudaCirbeMensual;
+        if (cuotaEstimada != null) {
+            totalCompromisos = cuotaEstimada;
+            if (gastosFijos != null) totalCompromisos += gastosFijos;
+            if (deudaInternaBanco != null) totalCompromisos += deudaInternaBanco;
+            if (deudaCirbeMensual != null) totalCompromisos += deudaCirbeMensual;
         }
 
         // --- ratioEndeudamiento = totalCompromisos / ingresosNetosMensuales ---

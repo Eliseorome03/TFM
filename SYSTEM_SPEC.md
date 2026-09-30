@@ -122,21 +122,21 @@ Output:
 | Regla | Prioridad (*Salience*) | Condición Lógica | Estado Resultante / Acción | Justificación Normativa | Tono |
 | :--- | :---: | :--- | :--- | :--- | :--- |
 | `R_EDAD_MINIMA` | 100 | `edad < 18` | `DENEGADO` | Criterios de capacidad legal y riesgo actuarial por edad (préstamos a menores de edad no permitidos) | `firme, claro y respetuoso` |
+| `R_EDAD_MAXIMA` | 95 | `(edad + (plazo_meses / 12)) > 75` | `DENEGADO` | Criterios de capacidad legal y riesgo actuarial por edad (al vencimiento del prestamo el cliente no debe superar los 75 años) | `claro, respetuoso y transparente` |
+| `R_RATIO_ENDEUDAMIENTO` | 92 | `ratio_endeudamiento > 0.40` | `DENEGADO` | Directiva 2014/17/UE y Banco de España (Límite máximo del 40% de endeudamiento) |`firme, claro y respetuoso`|
+| `R_MINIMO_SUBSISTENCIA` | 91 | `remanente_subsistencia < 700.0` | `DENEGADO` | Art. 607 LEC (Mínimo vital inembargable derivado del SMI) |`serio, prudente y respetuoso`|
+| `R_PROPOSITO_NO_FINANCIABLE` | 90 | `proposito in ("CRIPTOMONEDAS", "APUESTAS", "REFINANCIACION_INFORMAL")` | `DENEGADO` | Ley 10/2010 PBC y directrices EBA sobre originación de crédito prudencial | `firme, profesional y no acusatorio` |
 <!-- regla para asegurar que hayan puesto la cantidad y el plazo (o lo haya inferido el LLM con los dicho por el cliente) -->
-| `R_CANTIDAD_Y_PLAZO_REQUERIDOS` | 99 | `cantidad_solicitada == null \|\| plazo_meses == null` | `REQUIERE_DATOS`<br>`dato_faltante: "cantidad_solicitada" o "plazo_meses"` | Debe conocerse la cantidad y el plazo del prestamo para evaluar el riesgo | `amable, orientativo y conciso` |
-| `R_EDAD_MAXIMA` | 98 | `(edad + (plazo_meses / 12)) > 75` | `DENEGADO` | Criterios de capacidad legal y riesgo actuarial por edad (al vencimiento del prestamo el cliente no debe superar los 75 años) | `claro, respetuoso y transparente` |
+| `R_CANTIDAD_Y_PLAZO_REQUERIDOS` | 85 | `cantidad_solicitada == null \|\| plazo_meses == null` | `REQUIERE_DATOS`<br>`dato_faltante: "cantidad_solicitada" o "plazo_meses"` | Debe conocerse la cantidad y el plazo del prestamo para evaluar el riesgo | `amable, orientativo y conciso` |
 <!-- regla para pedir un proposito del prestamo -->
-| `R_PROPOSITO_REQUERIDO` | 97 | `proposito == null`   | `REQUIERE_DATOS`<br>`dato_faltante: "proposito"` | Debe conocerse el proposito del prestamo para evaluar el riesgo | `amable, cercano y orientativo` |
-| `R_PROPOSITO_NO_FINANCIABLE` | 96 | `proposito in ("CRIPTOMONEDAS", "APUESTAS", "REFINANCIACION_INFORMAL")` | `DENEGADO` | Ley 10/2010 PBC y directrices EBA sobre originación de crédito prudencial | `firme, profesional y no acusatorio` |
+| `R_PROPOSITO_REQUERIDO` | 80 | `proposito == null`   | `REQUIERE_DATOS`<br>`dato_faltante: "proposito"` | Debe conocerse el proposito del prestamo para evaluar el riesgo | `amable, cercano y orientativo` |
 <!-- pedir gastos fijos (donde se incluyen cosas como alquiler, gastos de suministros, etc) estimados No incluye deudas ya se recogen por otro lado -->
-| `R_GASTOS_FIJOS_REQUERIDOS` | 95 | `gastos_fijos_mensuales == null`   | `REQUIERE_DATOS`<br>`dato_faltante: "gastos_fijos_mensuales"` | Art. 18 Directiva 2014/17/UE (Obligación de computar los compromisos periódicos ineludibles para evaluar la solvencia real) | `amable, sencillo y orientativo (explicar que no se refiere a deudas, sino a gastos fijos como por ej alquiler, gastos de suministros, etc.)`|
+| `R_GASTOS_FIJOS_REQUERIDOS` | 75 | `gastos_fijos_mensuales == null`   | `REQUIERE_DATOS`<br>`dato_faltante: "gastos_fijos_mensuales"` | Art. 18 Directiva 2014/17/UE (Obligación de computar los compromisos periódicos ineludibles para evaluar la solvencia real) | `amable, sencillo y orientativo (explicar que no se refiere a deudas, sino a gastos fijos como por ej alquiler, gastos de suministros, etc.)`|
 | `R_DISPARAR_CIRBE` | 70 | `datos_externos_bde.consultado == false` | `REQUIERE_ACCION`<br>`accion_requerida: "CONSULTAR_CIRBE_ASNEF"` | Obligación regulatoria de consulta previa a ficheros de solvencia patrimonial |  |
 | `R_MOROSIDAD_ASNEF` | 60 | `datos_externos_bde.tiene_impagos_activos == true \|\| datos_externos_bde.importe_morosidad_asnef > 0` | `DENEGADO` | Criterios prudenciales de morosidad crediticia | `firme, profesional y especialmente cuidadoso`|
 | `R_ALERTA_QUIEBRA_AVAL` | 50 | `es_avalista == true && datos_externos_bde.empresa_avalada_concurso == true` | `DENEGADO` | Riesgo concursal indirecto exigible a corto plazo (Criterios EBA) | `serio, prudente y respetuoso`|
 | `R_DEUDA_DECLARADA_REQUERIDA` | 45 | `deuda_declarada == null`   | `REQUIERE_DATOS`<br>`dato_faltante: "deuda_declarada"` | Obligación de computar los compromisos ineludibles para evaluar la solvencia real |`amable, claro y orientativo`|
 | `R_DISCREPANCIA_DECLARADA` | 40 | `datos_externos_bde.deuda_cirbe_total > (deuda_declarada * 1.35)` | `REQUIERE_SUPERVISION_HUMANA` | Art. 14 EU AI Act (Supervisión humana ante anomalías no resueltas) |`neutral, prudente y no acusatorio`|
-| `R_RATIO_ENDEUDAMIENTO` | 30 | `ratio_endeudamiento > 0.40` | `DENEGADO` | Directiva 2014/17/UE y Banco de España (Límite máximo del 40% de endeudamiento) |`firme, claro y respetuoso`|
-| `R_MINIMO_SUBSISTENCIA` | 20 | `remanente_subsistencia < 700.0` | `DENEGADO` | Art. 607 LEC (Mínimo vital inembargable derivado del SMI) |`serio, prudente y respetuoso`|
 | `R_APROBACION_ESTANDAR` | 10 | Sin alertas morosas, `ratio <= 0.35`, `remanente >= 700` | `APROBADO` | Art. 18.1 Directiva 2014/17/UE (Capacidad positiva comprobada) |`positivo, claro y profesional`|
 
 ### Fórmulas de derivación ejecutadas previamente en Drools o en el motor de cálculo:
@@ -146,11 +146,11 @@ $$
 $$
 
 $$
-\text{ratio\_endeudamiento} = \frac{\text{cuota\_estimada} + \text{gastos\_fijos\_mensuales} + \text{deuda\_interna\_banco\_mensual} + \text{deuda\_cirbe\_mensual}}{\text{ingresos\_netos\_mensuales}}
+\text{ratio\_endeudamiento} = \frac{\text{cuota\_estimada} + \text{gastos\_fijos\_mensuales (as 0 if null)} + \text{deuda\_banco} + \text{deuda\_cirbe (as 0 if null)}}{\text{ingresos\_netos\_mensuales}}
 $$
 
 $$
-\text{remanente\_subsistencia} = \text{ingresos\_netos\_mensuales} - (\text{cuota\_estimada} + \text{gastos\_fijos\_mensuales} + \text{deuda\_interna\_banco\_mensual} + \text{deuda\_cirbe\_mensual})
+\text{remanente\_subsistencia} = \text{ingresos\_netos\_mensuales} - (\text{cuota\_estimada} + \text{gastos\_fijos\_mensuales (as 0 if null)} + \text{deuda\_banco} + \text{deuda\_cirbe (as 0 if null)})
 $$
 
 $$

@@ -22,7 +22,6 @@
  *   R_DISPARAR_CIRBE               (70)
  *   R_MOROSIDAD_ASNEF              (60)
  *   R_ALERTA_QUIEBRA_AVAL         (50)
- *   R_DEUDA_DECLARADA_REQUERIDA    (45)
  *   R_DISCREPANCIA_DECLARADA       (40)
  *   R_APROBACION_ESTANDAR          (10)
  */
@@ -243,32 +242,7 @@ rule "R_ALERTA_QUIEBRA_AVAL"
 end
 
 // =============================================================================
-// REGLA 10: R_DEUDA_DECLARADA_REQUERIDA
-// Salience: 45 | Estado: REQUIERE_DATOS
-// Condición: La deuda declarada por el usuario es nula.
-// Normativa: Obligación de computar compromisos para evaluar la solvencia real.
-// Tono: amable, claro y orientativo
-// =============================================================================
-rule "R_DEUDA_DECLARADA_REQUERIDA"
-    salience 45
-    when
-        $res : ResultadoEvaluacion(estado == "EN_PROCESO")
-        $du : DatosUsuario(cantidadSolicitada != null, plazoMeses != null,
-                           proposito != null, gastosFijosMensuales != null,
-                           deudaDeclarada == null)
-        $bde : DatosExternosBde(consultado == true)
-    then
-        $res.setEstado("REQUIERE_DATOS");
-        $res.getReglasDisparadas().add("R_DEUDA_DECLARADA_REQUERIDA");
-        $res.setDatoFaltante("deuda_declarada");
-        $res.setArticuloNormativo("Obligación de computar los compromisos ineludibles para evaluar la solvencia real");
-        $res.setTextoLegal("Para completar el análisis de solvencia, necesitamos que nos indique el importe total de sus deudas o préstamos activos con otras entidades. Esta información es necesaria para una evaluación rigurosa de su capacidad de pago.");
-        $res.setTono("amable, claro y orientativo");
-        update($res);
-end
-
-// =============================================================================
-// REGLA 11: R_DISCREPANCIA_DECLARADA
+// REGLA 10: R_DISCREPANCIA_DECLARADA
 // Salience: 40 | Estado: REQUIERE_SUPERVISION_HUMANA
 // Condición: La deuda total CIRBE supera en más de un 35% la deuda declarada por el usuario.
 // Normativa: Art. 14 EU AI Act - supervisión humana ante anomalías no resueltas.
@@ -291,7 +265,7 @@ rule "R_DISCREPANCIA_DECLARADA"
 end
 
 // =============================================================================
-// REGLA 12: R_RATIO_ENDEUDAMIENTO
+// REGLA 11: R_RATIO_ENDEUDAMIENTO
 // Salience: 92 | Estado: DENEGADO
 // Condición: El ratio de endeudamiento supera el 40% de los ingresos netos.
 // Normativa: Directiva 2014/17/UE y Banco de España - límite máximo del 40%.

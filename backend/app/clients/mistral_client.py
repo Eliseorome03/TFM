@@ -34,8 +34,8 @@ _NLU_SYSTEM_PROMPT = """Eres un extractor de entidades financieras para un siste
 Tu única función es analizar el mensaje del usuario y extraer de forma precisa y estructurada los campos del esquema JSON definido.
 
 REGLAS ESTRICTAS:
-1. Extrae SOLO lo que el usuario menciona explícitamente o puedes inferir con certeza absoluta.
-2. Si un campo no se menciona ni se puede inferir, devuelve null para ese campo.
+1. Extrae SOLO lo que el usuario menciona explícitamente en su ÚLTIMO MENSAJE. Si se te proporciona historial, úsalo ÚNICAMENTE para entender el contexto (por ejemplo, saber que un número suelto responde a la pregunta de plazo o cantidad).
+2. Si un campo no se menciona en el último mensaje ni se puede inferir claramente de la respuesta del usuario a la última pregunta del sistema, devuelve null para ese campo. NUNCA extraigas ni dupliques datos que el usuario ya dio en turnos anteriores del historial.
 3. Convierte cantidades coloquiales: "doce mil" → 12000.0, "12k" → 12000.0, "un millón" → 1000000.0.
 4. Convierte plazos en años a meses: "3 años" → 36, "año y medio" → 18.
 5. Para `proposito`, mapea solo si hay suficiente certeza: coche/moto/vehículo → VEHICULO, casa/piso/reforma → REFORMA, estudios/universidad/máster → ESTUDIOS, salud/operación/médico → SALUD, cripto/bitcoin → CRIPTOMONEDAS, apuestas/juego → APUESTAS, pagar deudas de prestamistas/refinanciar informalmente → REFINANCIACION_INFORMAL. Si no encaja en ninguno con certeza → OTRO. Si no se menciona → null.
@@ -108,7 +108,7 @@ class MistralClient:
             self._model,
         )
 
-    def extraer_nlu(self, mensaje: str) -> EsquemaNLU:
+    def extraer_nlu(self, mensaje: str, historial: str = "") -> EsquemaNLU:
         """
         Extrae entidades financieras del mensaje del usuario mediante structured output.
 
@@ -118,6 +118,7 @@ class MistralClient:
 
         Args:
             mensaje: Texto libre introducido por el usuario.
+            historial: Historial reciente de la conversación (opcional) para dar contexto.
 
         Returns:
             EsquemaNLU: Objeto Pydantic con los campos extraídos.
@@ -127,11 +128,16 @@ class MistralClient:
         """
         logger.info("NLU: Procesando mensaje del usuario (longitud: %d chars)", len(mensaje))
 
+        if historial:
+            content = f"--- HISTORIAL DE CONVERSACIÓN RECIENTE ---\n{historial}\n\n--- ÚLTIMO MENSAJE DEL USUARIO ---\nUsuario: {mensaje}"
+        else:
+            content = f"Usuario: {mensaje}"
+
         response = self._client.chat.parse(
             model=self._model,
             messages=[
                 SystemMessage(content=_NLU_SYSTEM_PROMPT),
-                UserMessage(content=mensaje),
+                UserMessage(content=content),
             ],
             response_format=EsquemaNLU,
             temperature=0.0,  # Determinismo máximo para extracción de entidades

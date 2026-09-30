@@ -234,14 +234,25 @@ class PipelineOrchestrator:
             acciones_ejecutadas.append(action_type)
             step_order += 1
 
+        # ── Construir historial de contexto para Mistral NLU ──────────────────
+        trazas = tracker.obtener_trazas_sesion(session_id)
+        historico_mensajes = []
+        for t in trazas:
+            if t.action_type == "EXTRACT_NLU" and isinstance(t.step_input, dict) and "mensaje" in t.step_input:
+                historico_mensajes.append(f"Usuario: {t.step_input['mensaje']}")
+            elif t.action_type == "GENERATE_NATURAL_RESPONSE" and isinstance(t.step_output, dict) and "respuesta" in t.step_output:
+                historico_mensajes.append(f"Sistema: {t.step_output['respuesta']}")
+                
+        historial_str = "\n".join(historico_mensajes[-4:]) if historico_mensajes else ""
+
         # ═══════════════════════════════════════════════════════════════════════
         # ACCIÓN 1: EXTRACT_NLU
         # Mistral analiza el mensaje y extrae entidades financieras estructuradas
         # ═══════════════════════════════════════════════════════════════════════
         logger.info("[Acción] EXTRACT_NLU — sesión=%s turno=%d", session_id[:8], turn_id)
 
-        step1_input = {"mensaje": mensaje}
-        nlu_resultado = self._mistral.extraer_nlu(mensaje)
+        step1_input = {"mensaje": mensaje, "contexto": historial_str}
+        nlu_resultado = self._mistral.extraer_nlu(mensaje, historial=historial_str)
         step1_output = nlu_resultado.model_dump()
 
         # Fusionar datos NLU en el estado (acumulativo)

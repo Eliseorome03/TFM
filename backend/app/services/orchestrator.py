@@ -38,17 +38,13 @@ from app.services.bde_mock_service import BdeMockService
 
 logger = logging.getLogger(__name__)
 
-# Cache en memoria de estados por session_id
-# En producción se reemplazaría por Redis u otro almacén persistente
-_session_states: dict[str, dict] = {}
-
-
 class PipelineOrchestrator:
     """
     Orquestador del pipeline conversacional neurosimbólico.
 
     Ejecuta las 5 acciones secuenciales del ciclo por cada turno del usuario,
-    manteniendo el InformationState entre turnos mediante caché en memoria.
+    manteniendo el InformationState mediante Rehidratación de Estado (Event Sourcing)
+    leyendo la base de datos de auditoría, haciéndolo 100% Stateless.
 
     Cada micro-acción se registra de forma atómica en la tabla de auditoría
     antes de continuar al siguiente paso, garantizando trazabilidad total
@@ -78,25 +74,25 @@ class PipelineOrchestrator:
         logger.info("PipelineOrchestrator inicializado")
 
     def _obtener_o_crear_estado(
-        self, session_id: str, cliente_id: str
+        self, session_id: str, tracker: AuditTracker
     ) -> tuple[InformationState, int]:
         """
-        Recupera el estado existente o crea uno nuevo para la sesión.
+        Recupera el estado existente desde la BD (trazas) o crea uno nuevo para la sesión.
 
         Args:
             session_id: UUID de la sesión conversacional.
-            cliente_id: ID del cliente para el nuevo estado.
+            tracker: Instancia de AuditTracker para leer la tabla.
 
         Returns:
             tuple: (InformationState, turn_id) con el estado y el número de turno.
         """
-        if session_id in _session_states:
-            estado_dict = _session_states[session_id]
+        estado_dict = tracker.obtener_ultimo_estado(session_id)
+        if estado_dict:
             estado = InformationState.model_validate(estado_dict)
             estado.turn_id += 1
             turn_id = estado.turn_id
             logger.info(
-                "Estado existente recuperado para sesión %s — Turno %d",
+                "Estado existente recuperado desde BD para sesión %s — Turno %d",
                 session_id[:8],
                 turn_id,
             )
@@ -108,10 +104,6 @@ class PipelineOrchestrator:
                 session_id[:8],
             )
         return estado, turn_id
-
-    def _persistir_estado(self, session_id: str, estado: InformationState) -> None:
-        """Persiste el estado actualizado en la caché de sesiones."""
-        _session_states[session_id] = estado.as_dict()
 
     def _actualizar_datos_usuario(
         self, estado: InformationState, nlu_resultado
@@ -218,7 +210,7 @@ class PipelineOrchestrator:
         tracker = AuditTracker(db=db)
 
         # ── Recuperar o crear el Information State ────────────────────────────
-        estado, turn_id = self._obtener_o_crear_estado(session_id, cliente_id)
+        estado, turn_id = self._obtener_o_crear_estado(session_id, tracker)
         estado.turn_id = turn_id
         
         # Reseteamos las reglas disparadas al inicio del turno para que acumulen solo las iteraciones actuales
@@ -386,9 +378,6 @@ class PipelineOrchestrator:
         step6_output = {"respuesta": respuesta_texto}
 
         registrar_accion("GENERATE_NATURAL_RESPONSE", step6_input, step6_output)
-
-        # ── Persistir el estado actualizado en caché ──────────────────────────
-        self._persistir_estado(session_id, estado)
 
         logger.info(
             "Pipeline completado — sesión=%s turno=%d estado=%s",

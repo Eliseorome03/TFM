@@ -129,3 +129,23 @@ class AuditTracker:
             .order_by(TrazaAuditoria.turn_id.asc(), TrazaAuditoria.step_order.asc())
             .all()
         )
+
+    def obtener_ultimo_estado(self, session_id: str) -> dict | None:
+        """
+        Recupera el último information_state registrado para una sesión.
+        
+        Args:
+            session_id: UUID de la sesión conversacional.
+            
+        Returns:
+            dict: El último estado registrado, o None si no existe.
+        """
+        ultima_traza = (
+            self._db.query(TrazaAuditoria)
+            .filter(TrazaAuditoria.session_id == session_id)
+            .order_by(TrazaAuditoria.turn_id.desc(), TrazaAuditoria.step_order.desc())
+            .first()
+        )
+        if ultima_traza:
+            return ultima_traza.information_state
+        return None

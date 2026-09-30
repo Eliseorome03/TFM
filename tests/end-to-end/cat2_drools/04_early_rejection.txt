@@ -1,0 +1,85 @@
+=== TEST: 04_early_rejection ===
+Cliente ID: CLI-001
+Session ID: a6b053d7-b818-41c2-ac6e-9feb29a16f63
+
+[Turno 1] Usuario: Quiero 1000000 euros para reformar un castillo
+[Turno 1] Sistema: Para poder ayudarle a evaluar su solicitud de **1.000.000 €** destinados a la reforma de su castillo, necesitaríamos conocer **el plazo de devolución que tendría en mente** (por ejemplo, en meses o años).
+
+Con esta información, podremos analizar mejor cómo se ajusta este préstamo a su situación financiera. ¿Podría indicárnoslo? Estamos aquí para guiarle en el proceso.
+[Turno 2] Usuario: En 12 meses
+[Turno 2] Sistema: Lamentamos informarle que, tras evaluar su solicitud de préstamo para reforma, **no podemos aprobarla en las condiciones solicitadas**.
+
+Su ratio de endeudamiento actual, junto con la cuota estimada de este préstamo, supera los límites recomendados por normativa financiera. Esto significa que, tras asumir este compromiso, podría tener dificultades para cubrir sus gastos esenciales.
+
+Entendemos su proyecto y le recomendamos revisar su situación financiera o explorar alternativas que se ajusten mejor a su capacidad de pago actual. Si lo desea, puede contactar con nuestro departamento de asesoramiento para analizar opciones.
+
+Quedamos a su disposición para cualquier otra consulta.
+[Turno 3] Usuario: No tengo gastos fijos
+[Turno 3] Sistema: **Asunto:** Evaluación de su solicitud de préstamo
+
+Estimado/a [Nombre del cliente],
+
+Lamentamos informarle que, tras revisar su solicitud para un préstamo de **1.000.000 €** a 12 meses, no podemos aprobarla en este momento.
+
+La cuota mensual propuesta, junto con sus compromisos financieros actuales, supera el límite recomendado por las normativas de protección al consumidor. Esto podría afectar su capacidad para cumplir con sus obligaciones económicas sin riesgo.
+
+Entendemos su interés en llevar a cabo su proyecto de **reforma**, y le recomendamos evaluar opciones alternativas que se ajusten mejor a su situación financiera actual.
+
+Si lo desea, puede contactar con nuestro departamento de asesoramiento para explorar otras soluciones.
+
+Quedamos a su disposición para cualquier consulta.
+
+Atentamente,
+[Nombre del banco]
+Equipo de Atención
+
+=== ESTADO FINAL (INFORMATION STATE) ===
+{
+  "session_id": "a6b053d7-b818-41c2-ac6e-9feb29a16f63",
+  "turn_id": 3,
+  "datos_usuario": {
+    "intencion_principal": "OTRA",
+    "cantidad_solicitada": 1000000.0,
+    "plazo_meses": 12,
+    "proposito": "REFORMA",
+    "gastos_fijos_mensuales": null,
+    "deuda_declarada": null,
+    "duda_catch_all": "NINGUNA"
+  },
+  "datos_core_bancario": {
+    "cliente_id": "CLI-001",
+    "nombre": "Laura Martínez Gil",
+    "dni": "55443322E",
+    "edad": 35,
+    "ingresos_netos_mensuales": 3200.0,
+    "antiguedad_meses": 48,
+    "deuda_interna_banco_mensual": 0.0,
+    "es_avalista": false,
+    "empresa_avalada_cif": null
+  },
+  "datos_externos_bde": {
+    "consultado": false,
+    "tiene_impagos_activos": false,
+    "importe_morosidad_asnef": 0.0,
+    "empresa_avalada_concurso": null,
+    "deuda_cirbe_mensual": 0.0,
+    "deuda_cirbe_total": 0.0
+  },
+  "calculos_derivados": {
+    "cuota_estimada": 83333.33333333333,
+    "ratio_endeudamiento": 26.041666666666664,
+    "remanente_subsistencia": -80133.33333333333,
+    "edad_al_vencimiento": 36
+  },
+  "evaluacion_drools": {
+    "estado": "DENEGADO",
+    "reglas_disparadas": [
+      "R_RATIO_ENDEUDAMIENTO"
+    ],
+    "accion_requerida": null,
+    "dato_faltante": null,
+    "articulo_normativo": "Art. 18 Directiva 2014/17/UE y criterios del Banco de España",
+    "texto_legal": "El ratio máximo de endeudamiento no debe exceder el 40% de los ingresos netos mensuales del solicitante. La cuota de este préstamo, sumada a sus compromisos de pago actuales, supera dicho umbral, lo que indica que la carga financiera resultante podría comprometer su capacidad de hacer frente a las obligaciones de pago.",
+    "tono_mensaje": "firme, claro y respetuoso"
+  }
+}

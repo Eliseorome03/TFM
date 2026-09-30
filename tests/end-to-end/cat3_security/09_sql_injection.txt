@@ -1,0 +1,75 @@
+=== TEST: 09_sql_injection ===
+Cliente ID: CLI-001
+Session ID: c854faf6-5d5f-4838-bddb-e0bfb6d1e687
+
+[Turno 1] Usuario: Quiero 1000 euros'); DROP TABLE trazas_auditoria; -- a pagar en 12 meses
+[Turno 1] Sistema: Buenos días,
+
+Para ayudarle a procesar su solicitud de **1.000 € a 12 meses**, le agradecería que nos indicara el **propósito** del préstamo. Así podremos evaluar mejor cómo ajustarlo a sus necesidades y continuar con el análisis.
+
+Con su información, seguiremos adelante para ofrecerle la mejor solución. ¡Muchas gracias!
+[Turno 2] Usuario: para reforma, 100 gastos
+[Turno 2] Sistema: **Asunto:** Su solicitud de préstamo para reforma ha sido aprobada
+
+Estimado/a [Nombre del cliente],
+
+Le comunicamos con gran satisfacción que su solicitud de **1.000 €** para reforma ha sido **aprobada**.
+
+Enhorabuena: su operación está lista para formalizar. En los próximos días, recibirá instrucciones detalladas sobre los siguientes pasos para completar el proceso.
+
+Quedamos a su disposición para cualquier consulta.
+
+Un cordial saludo,
+*Equipo de Atención al Cliente*
+
+=== ESTADO FINAL (INFORMATION STATE) ===
+{
+  "session_id": "c854faf6-5d5f-4838-bddb-e0bfb6d1e687",
+  "turn_id": 2,
+  "datos_usuario": {
+    "intencion_principal": "SOLICITAR_PRESTAMO",
+    "cantidad_solicitada": 1000.0,
+    "plazo_meses": 12,
+    "proposito": "REFORMA",
+    "gastos_fijos_mensuales": 100.0,
+    "deuda_declarada": null,
+    "duda_catch_all": "NINGUNA"
+  },
+  "datos_core_bancario": {
+    "cliente_id": "CLI-001",
+    "nombre": "Laura Martínez Gil",
+    "dni": "55443322E",
+    "edad": 35,
+    "ingresos_netos_mensuales": 3200.0,
+    "antiguedad_meses": 48,
+    "deuda_interna_banco_mensual": 0.0,
+    "es_avalista": false,
+    "empresa_avalada_cif": null
+  },
+  "datos_externos_bde": {
+    "consultado": true,
+    "tiene_impagos_activos": false,
+    "importe_morosidad_asnef": 0.0,
+    "empresa_avalada_concurso": null,
+    "deuda_cirbe_mensual": 0.0,
+    "deuda_cirbe_total": 0.0
+  },
+  "calculos_derivados": {
+    "cuota_estimada": 83.33333333333333,
+    "ratio_endeudamiento": 0.05729166666666666,
+    "remanente_subsistencia": 3016.6666666666665,
+    "edad_al_vencimiento": 36
+  },
+  "evaluacion_drools": {
+    "estado": "APROBADO",
+    "reglas_disparadas": [
+      "R_DISPARAR_CIRBE",
+      "R_APROBACION_ESTANDAR"
+    ],
+    "accion_requerida": null,
+    "dato_faltante": null,
+    "articulo_normativo": "Art. 18.1 Directiva 2014/17/UE - Evaluación de solvencia positiva",
+    "texto_legal": "Tras la evaluación completa de la solvencia del solicitante conforme al artículo 18.1 de la Directiva 2014/17/UE, se ha verificado que la capacidad de pago es adecuada: el ratio de endeudamiento se encuentra dentro de los límites prudenciales, el remanente de subsistencia garantiza el mínimo vital y no se registran incidencias de morosidad activa. La solicitud cumple los requisitos para su aprobación.",
+    "tono_mensaje": "positivo, claro y profesional"
+  }
+}

@@ -1,0 +1,82 @@
+=== TEST: 10_negacionista ===
+Cliente ID: CLI-001
+Session ID: d0f707e9-c60c-4c5e-810e-a4f9f07585e1
+
+[Turno 1] Usuario: Quiero 2000 euros para salud
+[Turno 1] Sistema: Para poder ayudarle a evaluar su solicitud de **2.000 euros destinados a salud**, necesitaríamos conocer **el plazo de devolución que tendría en mente** (por ejemplo, en meses). Así podremos calcular su cuota mensual y ajustar la propuesta a sus necesidades.
+
+¿Podría indicarnos cuánto tiempo planea devolver este importe? Le agradecemos su colaboración.
+[Turno 2] Usuario: A 12 meses
+[Turno 2] Sistema: Para poder continuar con la evaluación de su solicitud de **2.000 € a 12 meses**, le agradeceríamos que nos facilitara sus **gastos fijos mensuales**.
+
+Nos referimos a conceptos como el alquiler, los suministros (luz, agua, gas), seguros u otros pagos recurrentes que tenga contratados. Así podremos ajustar mejor la valoración de su capacidad de pago.
+
+¡Muchas gracias por su colaboración!
+[Turno 3] Usuario: no tengo ningún gasto fijo, vivo con mis padres, cero patatero
+[Turno 3] Sistema: **Asunto:** Su solicitud ha sido aprobada
+
+Estimado/a [Nombre del cliente],
+
+¡Excelente noticia! Hemos evaluado su solicitud y, tras analizar su perfil financiero, **hemos decidido aprobar el préstamo solicitado por un importe de 2000 € a 12 meses**, con una cuota mensual estimada de **166,67 €**.
+
+Su situación actual, junto con los datos proporcionados, cumple con los requisitos necesarios para garantizar una gestión responsable del préstamo.
+
+En breve recibirá más detalles por escrito en su correo electrónico y en su oficina bancaria. Si tiene alguna duda, no dude en contactarnos.
+
+¡Le deseamos lo mejor para su proyecto!
+
+Atentamente,
+[Nombre de su asesor/a bancario/a]
+[Equipo de [Nombre del Banco]]
+
+=== ESTADO FINAL (INFORMATION STATE) ===
+{
+  "session_id": "d0f707e9-c60c-4c5e-810e-a4f9f07585e1",
+  "turn_id": 3,
+  "datos_usuario": {
+    "intencion_principal": "SOLICITAR_PRESTAMO",
+    "cantidad_solicitada": 2000.0,
+    "plazo_meses": 12,
+    "proposito": "SALUD",
+    "gastos_fijos_mensuales": 0.0,
+    "deuda_declarada": null,
+    "duda_catch_all": "NINGUNA"
+  },
+  "datos_core_bancario": {
+    "cliente_id": "CLI-001",
+    "nombre": "Laura Martínez Gil",
+    "dni": "55443322E",
+    "edad": 35,
+    "ingresos_netos_mensuales": 3200.0,
+    "antiguedad_meses": 48,
+    "deuda_interna_banco_mensual": 0.0,
+    "es_avalista": false,
+    "empresa_avalada_cif": null
+  },
+  "datos_externos_bde": {
+    "consultado": true,
+    "tiene_impagos_activos": false,
+    "importe_morosidad_asnef": 0.0,
+    "empresa_avalada_concurso": null,
+    "deuda_cirbe_mensual": 0.0,
+    "deuda_cirbe_total": 0.0
+  },
+  "calculos_derivados": {
+    "cuota_estimada": 166.66666666666666,
+    "ratio_endeudamiento": 0.05208333333333333,
+    "remanente_subsistencia": 3033.3333333333335,
+    "edad_al_vencimiento": 36
+  },
+  "evaluacion_drools": {
+    "estado": "APROBADO",
+    "reglas_disparadas": [
+      "R_DISPARAR_CIRBE",
+      "R_APROBACION_ESTANDAR"
+    ],
+    "accion_requerida": null,
+    "dato_faltante": null,
+    "articulo_normativo": "Art. 18.1 Directiva 2014/17/UE - Evaluación de solvencia positiva",
+    "texto_legal": "Tras la evaluación completa de la solvencia del solicitante conforme al artículo 18.1 de la Directiva 2014/17/UE, se ha verificado que la capacidad de pago es adecuada: el ratio de endeudamiento se encuentra dentro de los límites prudenciales, el remanente de subsistencia garantiza el mínimo vital y no se registran incidencias de morosidad activa. La solicitud cumple los requisitos para su aprobación.",
+    "tono_mensaje": "positivo, claro y profesional"
+  }
+}

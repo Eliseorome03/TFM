@@ -135,7 +135,6 @@ Output:
 | `R_DISPARAR_CIRBE` | 70 | `datos_externos_bde.consultado == false` | `REQUIERE_ACCION`<br>`accion_requerida: "CONSULTAR_CIRBE_ASNEF"` | Obligación regulatoria de consulta previa a ficheros de solvencia patrimonial |  |
 | `R_MOROSIDAD_ASNEF` | 60 | `datos_externos_bde.tiene_impagos_activos == true \|\| datos_externos_bde.importe_morosidad_asnef > 0` | `DENEGADO` | Criterios prudenciales de morosidad crediticia | `firme, profesional y especialmente cuidadoso`|
 | `R_ALERTA_QUIEBRA_AVAL` | 50 | `es_avalista == true && datos_externos_bde.empresa_avalada_concurso == true` | `DENEGADO` | Riesgo concursal indirecto exigible a corto plazo (Criterios EBA) | `serio, prudente y respetuoso`|
-| `R_DEUDA_DECLARADA_REQUERIDA` | 45 | `deuda_declarada == null`   | `REQUIERE_DATOS`<br>`dato_faltante: "deuda_declarada"` | Obligación de computar los compromisos ineludibles para evaluar la solvencia real |`amable, claro y orientativo`|
 | `R_DISCREPANCIA_DECLARADA` | 40 | `datos_externos_bde.deuda_cirbe_total > (deuda_declarada * 1.35)` | `REQUIERE_SUPERVISION_HUMANA` | Art. 14 EU AI Act (Supervisión humana ante anomalías no resueltas) |`neutral, prudente y no acusatorio`|
 | `R_APROBACION_ESTANDAR` | 10 | Sin alertas morosas, `ratio <= 0.35`, `remanente >= 700` | `APROBADO` | Art. 18.1 Directiva 2014/17/UE (Capacidad positiva comprobada) |`positivo, claro y profesional`|
 
@@ -146,11 +145,11 @@ $$
 $$
 
 $$
-\text{ratio\_endeudamiento} = \frac{\text{cuota\_estimada} + \text{gastos\_fijos\_mensuales (as 0 if null)} + \text{deuda\_banco} + \text{deuda\_cirbe (as 0 if null)}}{\text{ingresos\_netos\_mensuales}}
+\text{ratio\_endeudamiento} = \frac{\text{cuota\_estimada} + \text{gastos\_fijos\_mensuales (as 0 if null)} + \text{deuda\_banco} + \text{deuda\_cirbe\_mensual (as 0 if null)}}{\text{ingresos\_netos\_mensuales}}
 $$
 
 $$
-\text{remanente\_subsistencia} = \text{ingresos\_netos\_mensuales} - (\text{cuota\_estimada} + \text{gastos\_fijos\_mensuales (as 0 if null)} + \text{deuda\_banco} + \text{deuda\_cirbe (as 0 if null)})
+\text{remanente\_subsistencia} = \text{ingresos\_netos\_mensuales} - (\text{cuota\_estimada} + \text{gastos\_fijos\_mensuales (as 0 if null)} + \text{deuda\_banco} + \text{deuda\_cirbe\_mensual (as 0 if null)})
 $$
 
 $$

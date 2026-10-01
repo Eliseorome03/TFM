@@ -1,0 +1,61 @@
+=== TEST: 23_condicional ===
+Cliente ID: CLI-001
+Session ID: 58fb3c30-161e-40c7-82d1-61fd0c2b6137
+
+[Turno 1] Usuario: Quiero 4000 euros para un coche, 0 gastos fijos.
+[Turno 1] Sistema: Para poder ayudarle a evaluar su solicitud de **4.000 euros** destinados a la compra de un vehículo, necesitaríamos conocer el plazo de devolución que tendría en mente (por ejemplo, en meses).
+
+Con esa información, podremos calcular su cuota mensual y analizar su viabilidad de forma precisa. ¿Podría indicarnos cuántos meses planea para devolver el préstamo? Estamos aquí para orientarle.
+[Turno 2] Usuario: A pagar en 12 meses si me dais un buen interés, o en 36 meses si es alto.
+[Turno 2] Sistema: Para poder analizar su solicitud y ofrecerle la mejor opción, ¿podría indicarme cuántos meses desea financiar el vehículo? Así podremos calcular su cuota y evaluar las condiciones más adecuadas para usted.
+
+=== ESTADO FINAL (INFORMATION STATE) ===
+{
+  "session_id": "58fb3c30-161e-40c7-82d1-61fd0c2b6137",
+  "turn_id": 2,
+  "datos_usuario": {
+    "intencion_principal": "SOLICITAR_PRESTAMO",
+    "cantidad_solicitada": 4000.0,
+    "plazo_meses": null,
+    "proposito": "VEHICULO",
+    "gastos_fijos_mensuales": 0.0,
+    "deuda_declarada": null,
+    "duda_catch_all": "NINGUNA"
+  },
+  "datos_core_bancario": {
+    "cliente_id": "CLI-001",
+    "nombre": "Laura Martínez Gil",
+    "dni": "55443322E",
+    "edad": 35,
+    "ingresos_netos_mensuales": 3200.0,
+    "antiguedad_meses": 48,
+    "deuda_interna_banco_mensual": 0.0,
+    "es_avalista": false,
+    "empresa_avalada_cif": null
+  },
+  "datos_externos_bde": {
+    "consultado": false,
+    "tiene_impagos_activos": false,
+    "importe_morosidad_asnef": 0.0,
+    "empresa_avalada_concurso": null,
+    "deuda_cirbe_mensual": 0.0,
+    "deuda_cirbe_total": 0.0
+  },
+  "calculos_derivados": {
+    "cuota_estimada": null,
+    "ratio_endeudamiento": null,
+    "remanente_subsistencia": null,
+    "edad_al_vencimiento": null
+  },
+  "evaluacion_drools": {
+    "estado": "REQUIERE_DATOS",
+    "reglas_disparadas": [
+      "R_CANTIDAD_Y_PLAZO_REQUERIDOS"
+    ],
+    "accion_requerida": null,
+    "dato_faltante": "plazo_meses",
+    "articulo_normativo": "Obligación de evaluación de riesgos crediticios",
+    "texto_legal": "Para poder evaluar correctamente su solicitud es imprescindible conocer tanto el importe total del préstamo como el plazo de devolución en meses. Sin estos datos no es posible realizar el análisis de solvencia requerido por la normativa.",
+    "tono_mensaje": "amable, orientativo y conciso"
+  }
+}

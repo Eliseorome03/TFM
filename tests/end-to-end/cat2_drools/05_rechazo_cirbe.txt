@@ -1,46 +1,40 @@
 === TEST: 05_rechazo_cirbe ===
 Cliente ID: CLI-003
-Session ID: 9550d2e0-29be-4fdd-96a7-7dde7a9bad9b
+Session ID: c136227e-c49b-452d-9ac9-4fc6b179aca2
 
 [Turno 1] Usuario: Necesito 2000 euros
-[Turno 1] Sistema: Para poder ayudarle a evaluar su solicitud de **2.000 euros**, necesitaría conocer el plazo de devolución que tendría en mente. ¿Podría indicarme en cuántos meses planea devolver este importe? Así podremos ajustar la propuesta a sus necesidades.
+[Turno 1] Sistema: Para poder ayudarle a evaluar su solicitud de **2.000 euros**, necesitaría que me indicara el plazo de devolución que tendría en mente (por ejemplo, en meses). Así podremos calcular la cuota mensual y analizar la mejor opción para usted.
+
+¿Podría confirmarme ese detalle? Estamos aquí para orientarle.
 [Turno 2] Usuario: A pagar en 2 años
-[Turno 2] Sistema: Para poder ayudarle a avanzar en su solicitud de préstamo, ¿podría indicarnos **para qué destino** planea utilizar los 2.000 € solicitados? Así podremos ajustar mejor la evaluación a sus necesidades.
-
-¡Gracias por su colaboración!
+[Turno 2] Sistema: Para poder ayudarle a avanzar en su solicitud de préstamo, ¿podría indicarme con qué finalidad planea utilizar los **2.000 €** solicitados? Así podremos ajustar mejor la evaluación a sus necesidades. ¡Gracias por su colaboración!
 [Turno 3] Usuario: Para salud
-[Turno 3] Sistema: **Asunto:** Información adicional para continuar con su solicitud
+[Turno 3] Sistema: **Asunto:** Necesitamos un pequeño detalle para continuar
 
-Estimado/a [Nombre del cliente],
+¡Buenos días!
 
-Para ayudarle a avanzar en el proceso de su solicitud de **2.000 € a 24 meses**, nos gustaría conocer el **propósito principal** del préstamo que desea financiar. Así podremos ajustar mejor la evaluación a sus necesidades y garantizarle un análisis personalizado.
+Para ayudarle a avanzar con su solicitud de **2.000 € a 24 meses**, solo nos falta conocer **el propósito del préstamo** (¿para qué lo necesita?). Así podremos ajustar mejor la evaluación a sus necesidades.
 
-¿Podría indicarnos brevemente a qué destino está dirigido este préstamo? Su colaboración es muy importante para seguir adelante.
+¿Podría indicárnoslo? Estamos aquí para lo que necesite.
 
-Quedamos a su disposición para cualquier duda.
-
-Un saludo cordial,
-[Nombre del equipo de atención al cliente]
-[Banco]
+¡Muchas gracias por su paciencia!
 [Turno 4] Usuario: Gasto 200 euros fijos
-[Turno 4] Sistema: **Asunto:** Evaluación de su solicitud de préstamo
+[Turno 4] Sistema: **Asunto:** Evaluación de su solicitud de crédito
 
 Estimado/a [Nombre del cliente],
 
-Lamentamos informarle que, tras revisar su solicitud, **no podemos aprobar el préstamo solicitado** en las condiciones actuales.
+Lamentamos informarle que, tras revisar su solicitud de un préstamo de **2.000 €** para el propósito de salud, no podemos proceder con la aprobación en este momento.
 
-El análisis muestra que, tras asumir la cuota mensual propuesta junto a sus compromisos financieros, el remanente disponible quedaría por debajo del mínimo vital necesario para su sustento, según lo establecido en la normativa legal.
+La decisión se basa en que, según los registros consultados, existen obligaciones de pago pendientes o situaciones de morosidad que, conforme a nuestros criterios prudenciales, impiden conceder nueva financiación.
 
-Entendemos su necesidad y agradecemos su confianza en nuestra entidad. Si desea explorar alternativas o ajustar su solicitud, no dude en ponerse en contacto con nuestro equipo para analizar opciones que se adapten mejor a su situación.
-
-Quedamos a su disposición para cualquier aclaración.
+Agradecemos su comprensión y quedamos a su disposición para cualquier aclaración adicional que pueda necesitar.
 
 Atentamente,
-[Nombre de la entidad]
+[Nombre del banco]
 
 === ESTADO FINAL (INFORMATION STATE) ===
 {
-  "session_id": "9550d2e0-29be-4fdd-96a7-7dde7a9bad9b",
+  "session_id": "c136227e-c49b-452d-9ac9-4fc6b179aca2",
   "turn_id": 4,
   "datos_usuario": {
     "intencion_principal": "SOLICITAR_PRESTAMO",
@@ -56,35 +50,36 @@ Atentamente,
     "nombre": "Carlos Ruiz Fernández",
     "dni": "87654321B",
     "edad": 45,
-    "ingresos_netos_mensuales": 1100.0,
+    "ingresos_netos_mensuales": 2500.0,
     "antiguedad_meses": 12,
     "deuda_interna_banco_mensual": 120.0,
     "es_avalista": false,
     "empresa_avalada_cif": null
   },
   "datos_externos_bde": {
-    "consultado": false,
-    "tiene_impagos_activos": false,
-    "importe_morosidad_asnef": 0.0,
+    "consultado": true,
+    "tiene_impagos_activos": true,
+    "importe_morosidad_asnef": 2300.5,
     "empresa_avalada_concurso": null,
-    "deuda_cirbe_mensual": 0.0,
-    "deuda_cirbe_total": 0.0
+    "deuda_cirbe_mensual": 320.0,
+    "deuda_cirbe_total": 11520.0
   },
   "calculos_derivados": {
     "cuota_estimada": 83.33333333333333,
-    "ratio_endeudamiento": 0.36666666666666664,
-    "remanente_subsistencia": 696.6666666666667,
+    "ratio_endeudamiento": 0.2893333333333333,
+    "remanente_subsistencia": 1776.6666666666667,
     "edad_al_vencimiento": 47
   },
   "evaluacion_drools": {
     "estado": "DENEGADO",
     "reglas_disparadas": [
-      "R_MINIMO_SUBSISTENCIA"
+      "R_DISPARAR_CIRBE",
+      "R_MOROSIDAD_ASNEF"
     ],
     "accion_requerida": null,
     "dato_faltante": null,
-    "articulo_normativo": "Art. 607 LEC - Mínimo vital inembargable derivado del Salario Mínimo Interprofesional",
-    "texto_legal": "Tras asumir la cuota del préstamo solicitado y el resto de compromisos financieros activos, el remanente mensual disponible quedaría por debajo del mínimo de subsistencia establecido en el artículo 607 de la Ley de Enjuiciamiento Civil, derivado del Salario Mínimo Interprofesional. Esta entidad no puede conceder financiación que comprometa el mínimo vital necesario para el sustento del solicitante.",
-    "tono_mensaje": "serio, prudente y respetuoso"
+    "articulo_normativo": "Criterios prudenciales de morosidad crediticia",
+    "texto_legal": "Los registros consultados en los ficheros de solvencia patrimonial reflejan la existencia de obligaciones de pago impagadas o situaciones de morosidad activa. De conformidad con los criterios prudenciales de riesgo crediticio, no es posible conceder nueva financiación en esta situación.",
+    "tono_mensaje": "firme, profesional y especialmente cuidadoso"
   }
 }

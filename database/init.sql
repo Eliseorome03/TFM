@@ -209,7 +209,7 @@ INSERT INTO clientes (
     'Carlos Ruiz Fernández',
     '87654321B',
     45,
-    1100.00,
+    2500.00,
     12,
     120.00,
     FALSE,

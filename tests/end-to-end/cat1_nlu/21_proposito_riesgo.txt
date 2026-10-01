@@ -1,0 +1,82 @@
+=== TEST: 21_proposito_riesgo ===
+Cliente ID: CLI-001
+Session ID: a9491739-0385-4a66-9e65-2d70b056bd05
+
+[Turno 1] Usuario: Quiero 5000 euros para meterlos todos en Bitcoin y hacerme rico.
+[Turno 1] Sistema: Lamentamos informarle que no podemos aprobar su solicitud de **5.000 euros** para invertir en criptomonedas.
+
+Esta entidad financiera solo concede préstamos para fines específicos y autorizados, y el propósito declarado no cumple con nuestra política interna y normativa vigente.
+
+Si tiene alguna otra necesidad financiera que sí se ajuste a nuestros criterios, estaremos encantados de evaluarla. Le agradecemos su comprensión.
+[Turno 2] Usuario: A 12 meses
+[Turno 2] Sistema: **Asunto:** Comunicación sobre su solicitud de préstamo
+
+Estimado/a [Nombre del cliente],
+
+Lamentamos informarle que, tras evaluar su solicitud de **5.000 € a 12 meses**, no hemos podido aprobarla en las condiciones solicitadas.
+
+El propósito declarado para este préstamo no cumple con los criterios establecidos por nuestra entidad, según la normativa vigente en materia de prevención del blanqueo de capitales y directrices bancarias.
+
+Agradecemos su confianza y le invitamos a consultar otras opciones de financiación que sí se ajusten a nuestros requisitos.
+
+Quedamos a su disposición para cualquier aclaración adicional.
+
+Atentamente,
+[Nombre de la entidad bancaria]
+[Turno 3] Usuario: 0 gastos
+[Turno 3] Sistema: Lamentamos informarle que, tras evaluar su solicitud de préstamo por **5.000 EUR**, no hemos podido aprobarla en este momento.
+
+El motivo es que el propósito declarado —inversión en criptomonedas— no se ajusta a las finalidades financiables por esta entidad, conforme a la normativa vigente en materia de prevención del blanqueo de capitales.
+
+Agradecemos su comprensión y quedamos a su disposición para cualquier otra consulta que pueda tener.
+
+=== ESTADO FINAL (INFORMATION STATE) ===
+{
+  "session_id": "a9491739-0385-4a66-9e65-2d70b056bd05",
+  "turn_id": 3,
+  "datos_usuario": {
+    "intencion_principal": "SOLICITAR_PRESTAMO",
+    "cantidad_solicitada": 5000.0,
+    "plazo_meses": 12,
+    "proposito": "CRIPTOMONEDAS",
+    "gastos_fijos_mensuales": 0.0,
+    "deuda_declarada": null,
+    "duda_catch_all": "NINGUNA"
+  },
+  "datos_core_bancario": {
+    "cliente_id": "CLI-001",
+    "nombre": "Laura Martínez Gil",
+    "dni": "55443322E",
+    "edad": 35,
+    "ingresos_netos_mensuales": 3200.0,
+    "antiguedad_meses": 48,
+    "deuda_interna_banco_mensual": 0.0,
+    "es_avalista": false,
+    "empresa_avalada_cif": null
+  },
+  "datos_externos_bde": {
+    "consultado": false,
+    "tiene_impagos_activos": false,
+    "importe_morosidad_asnef": 0.0,
+    "empresa_avalada_concurso": null,
+    "deuda_cirbe_mensual": 0.0,
+    "deuda_cirbe_total": 0.0
+  },
+  "calculos_derivados": {
+    "cuota_estimada": 416.6666666666667,
+    "ratio_endeudamiento": 0.13020833333333334,
+    "remanente_subsistencia": 2783.3333333333335,
+    "edad_al_vencimiento": 36
+  },
+  "evaluacion_drools": {
+    "estado": "DENEGADO",
+    "reglas_disparadas": [
+      "R_PROPOSITO_NO_FINANCIABLE"
+    ],
+    "accion_requerida": null,
+    "dato_faltante": null,
+    "articulo_normativo": "Ley 10/2010 PBC y directrices EBA sobre originación de crédito prudencial",
+    "texto_legal": "El propósito declarado para el préstamo solicitado no se encuentra entre las finalidades financiables por esta entidad, de conformidad con la normativa de prevención del blanqueo de capitales (Ley 10/2010) y las directrices de la Autoridad Bancaria Europea (EBA) sobre originación prudencial de crédito.",
+    "tono_mensaje": "firme, profesional y no acusatorio"
+  }
+}

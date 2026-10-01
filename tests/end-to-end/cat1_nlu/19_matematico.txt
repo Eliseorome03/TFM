@@ -1,0 +1,61 @@
+=== TEST: 19_matematico ===
+Cliente ID: CLI-001
+Session ID: f58ac7e7-e7b0-409a-9ba4-59a0099fa1fa
+
+[Turno 1] Usuario: Quiero pagar una cuota de 130 euros en los próximos 12 meses para reformar la casa.
+[Turno 1] Sistema: Para poder ayudarle con su solicitud de financiación para la reforma de su vivienda, ¿podría indicarme el **importe total** que desea solicitar? Así podremos evaluar su caso de manera precisa y ajustada a sus necesidades.
+[Turno 2] Usuario: No tengo ningún gasto fijo
+[Turno 2] Sistema: Para poder ayudarle a evaluar su solicitud de préstamo para la reforma, necesitaría confirmar el **importe total que desea financiar**. Así podremos calcular su cuota mensual y ajustar la propuesta a sus necesidades.
+
+¿Podría indicarme cuánto asciende la cantidad que solicita? Estamos aquí para facilitarle el proceso.
+
+=== ESTADO FINAL (INFORMATION STATE) ===
+{
+  "session_id": "f58ac7e7-e7b0-409a-9ba4-59a0099fa1fa",
+  "turn_id": 2,
+  "datos_usuario": {
+    "intencion_principal": "SOLICITAR_PRESTAMO",
+    "cantidad_solicitada": null,
+    "plazo_meses": 12,
+    "proposito": "REFORMA",
+    "gastos_fijos_mensuales": null,
+    "deuda_declarada": null,
+    "duda_catch_all": "NINGUNA"
+  },
+  "datos_core_bancario": {
+    "cliente_id": "CLI-001",
+    "nombre": "Laura Martínez Gil",
+    "dni": "55443322E",
+    "edad": 35,
+    "ingresos_netos_mensuales": 3200.0,
+    "antiguedad_meses": 48,
+    "deuda_interna_banco_mensual": 0.0,
+    "es_avalista": false,
+    "empresa_avalada_cif": null
+  },
+  "datos_externos_bde": {
+    "consultado": false,
+    "tiene_impagos_activos": false,
+    "importe_morosidad_asnef": 0.0,
+    "empresa_avalada_concurso": null,
+    "deuda_cirbe_mensual": 0.0,
+    "deuda_cirbe_total": 0.0
+  },
+  "calculos_derivados": {
+    "cuota_estimada": null,
+    "ratio_endeudamiento": null,
+    "remanente_subsistencia": null,
+    "edad_al_vencimiento": 36
+  },
+  "evaluacion_drools": {
+    "estado": "REQUIERE_DATOS",
+    "reglas_disparadas": [
+      "R_CANTIDAD_Y_PLAZO_REQUERIDOS"
+    ],
+    "accion_requerida": null,
+    "dato_faltante": "cantidad_solicitada",
+    "articulo_normativo": "Obligación de evaluación de riesgos crediticios",
+    "texto_legal": "Para poder evaluar correctamente su solicitud es imprescindible conocer tanto el importe total del préstamo como el plazo de devolución en meses. Sin estos datos no es posible realizar el análisis de solvencia requerido por la normativa.",
+    "tono_mensaje": "amable, orientativo y conciso"
+  }
+}

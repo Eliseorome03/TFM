@@ -1,0 +1,73 @@
+=== TEST: 22_multi_intencion ===
+Cliente ID: CLI-001
+Session ID: 262dd24d-84d2-47f5-9dc0-9c0fa072041b
+
+[Turno 1] Usuario: ¿Cómo cambio la contraseña de la app? Ah, y también quiero solicitar 3000 euros a 12 meses para salud, 0 gastos fijos.
+[Turno 1] Sistema: **Asunto:** Su solicitud ha sido aprobada y detalles sobre su contraseña
+
+Estimado/a [Nombre del cliente],
+
+En primer lugar, le informamos que **su solicitud de 3.000 € a 12 meses para salud ha sido aprobada**. La cuota mensual estimada será de **250 €**, y el proceso está en marcha.
+
+Respecto a su consulta sobre cambiar la contraseña de la app, puede hacerlo fácilmente desde la sección **"Seguridad"** de la aplicación móvil o web, siguiendo estos pasos:
+1. Inicie sesión con sus credenciales actuales.
+2. Vaya a **"Configuración"** > **"Seguridad"**.
+3. Seleccione **"Cambiar contraseña"** y siga las instruencias.
+
+Si necesita ayuda, no dude en contactarnos. ¡Estamos aquí para asistirle!
+
+Quedamos a su disposición para cualquier otra duda.
+
+Atentamente
+
+=== ESTADO FINAL (INFORMATION STATE) ===
+{
+  "session_id": "262dd24d-84d2-47f5-9dc0-9c0fa072041b",
+  "turn_id": 1,
+  "datos_usuario": {
+    "intencion_principal": "OTRA",
+    "cantidad_solicitada": 3000.0,
+    "plazo_meses": 12,
+    "proposito": "SALUD",
+    "gastos_fijos_mensuales": 0.0,
+    "deuda_declarada": null,
+    "duda_catch_all": "NINGUNA"
+  },
+  "datos_core_bancario": {
+    "cliente_id": "CLI-001",
+    "nombre": "Laura Martínez Gil",
+    "dni": "55443322E",
+    "edad": 35,
+    "ingresos_netos_mensuales": 3200.0,
+    "antiguedad_meses": 48,
+    "deuda_interna_banco_mensual": 0.0,
+    "es_avalista": false,
+    "empresa_avalada_cif": null
+  },
+  "datos_externos_bde": {
+    "consultado": true,
+    "tiene_impagos_activos": false,
+    "importe_morosidad_asnef": 0.0,
+    "empresa_avalada_concurso": null,
+    "deuda_cirbe_mensual": 0.0,
+    "deuda_cirbe_total": 0.0
+  },
+  "calculos_derivados": {
+    "cuota_estimada": 250.0,
+    "ratio_endeudamiento": 0.078125,
+    "remanente_subsistencia": 2950.0,
+    "edad_al_vencimiento": 36
+  },
+  "evaluacion_drools": {
+    "estado": "APROBADO",
+    "reglas_disparadas": [
+      "R_DISPARAR_CIRBE",
+      "R_APROBACION_ESTANDAR"
+    ],
+    "accion_requerida": null,
+    "dato_faltante": null,
+    "articulo_normativo": "Art. 18.1 Directiva 2014/17/UE - Evaluación de solvencia positiva",
+    "texto_legal": "Tras la evaluación completa de la solvencia del solicitante conforme al artículo 18.1 de la Directiva 2014/17/UE, se ha verificado que la capacidad de pago es adecuada: el ratio de endeudamiento se encuentra dentro de los límites prudenciales, el remanente de subsistencia garantiza el mínimo vital y no se registran incidencias de morosidad activa. La solicitud cumple los requisitos para su aprobación.",
+    "tono_mensaje": "positivo, claro y profesional"
+  }
+}

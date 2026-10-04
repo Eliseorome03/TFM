@@ -232,4 +232,268 @@ Los enfoques que integran la lógica dentro de la red neuronal (como \textit{Neu
 
 Por consiguiente, desde el punto de vista de la ingeniería del conocimiento, resulta especialmente interesante utilizar arquitecturas en las que el componente simbólico tenga un papel central en el control de la decisión, como ocurre en los patrones \textbf{\textit{Symbolic[Neuro]}} y en determinados flujos \textbf{\textit{Neuro | Symbolic}}. En estos esquemas, el modelo de lenguaje se encarga principalmente de comprender y procesar la información, mientras que el motor simbólico aplica las reglas y restricciones definidas y participa en la determinación de la respuesta final. De esta forma, se combina la capacidad de los modelos neuronales para interpretar lenguaje natural con la posibilidad de representar de forma explícita las reglas que deben respetarse, facilitando así la trazabilidad, la supervisión y la justificación del comportamiento del sistema.
 
+\chapter{Definición del Dominio: Originación de Crédito Bancario}
+
+Hasta este punto de la investigación, hemos explorado el problema de la falta de accountability y la opacidad de los LLMs desde una perspectiva fundamentalmente teórica. Hemos analizado cómo la naturaleza probabilística dificulta la trazabilidad de sus decisiones, creando escenarios donde la responsabilidad se diluye entre la máquina, el desarrollador y el usuario. Sin embargo, para comprender la verdadera magnitud de este desafío, es imprescindible trasladar el debate hacia un entorno de aplicación real, donde las decisiones automatizadas generen un impacto tangible y cuantificable en la vida de las personas.
+
+Este capítulo establece dicho puente al definir el dominio de aplicación de nuestro estudio: el sector financiero. En concreto, presentamos como caso de uso central el diseño de un asistente conversacional automatizado para la evaluación y concesión de préstamos personales. Este ámbito representa un entorno altamente regulado, complejo y de máxima exigencia técnica y ética. A lo largo de las siguientes secciones, detallaremos por qué este escenario constituye el campo idóneo para evaluar los límites de la responsabilidad algorítmica y los retos de extraer información crítica a través de interacciones en lenguaje natural.
+
+\section{Justificación del Escenario}
+
+La industria bancaria se encuentra en un dilema. Por un lado, existe una corriente que opta por digitalizar, agilizar y personalizar la experiencia del cliente mediante el uso de Inteligencia Artificial. Por otro, el sector está sujeto a estrictos marcos regulatorios diseñados para proteger la estabilidad económica y los derechos de los consumidores. En este contexto, la originación de crédito bancario se erige como el escenario perfecto para auditar un sistema conversacional, ya que cualquier fallo en la interpretación de los datos o toma de decisiones no se traduce en un simple error de interfaz, sino en consecuencias jurídicas, financieras y sociales.
+
+\subsection{El Crédito como Sistema de Alto Riesgo}
+
+La evaluación y concesión de crédito está catalogada, tanto por la literatura académica como por marcos regulatorios emergentes como la Ley de Inteligencia Artificial de la Unión Europea (AI Act), como un sistema de alto riesgo. Esto se debe a que el acceso a la financiación es un pilar fundamental para el desarrollo socioeconómico de los individuos. Denegar o conceder un préstamo altera de manera directa la trayectoria vital y financiera del solicitante.
+
+Al delegar este proceso en un agente conversacional, los riesgos inherentes al crédito se juntan con las vulnerabilidades de la IA. El impacto de una decisión automatizada errónea en este dominio opera en dos direcciones, ambas con consecuencias importantes si no existe una correcta trazabilidad:
+
+\begin{itemize}
+    \item \textbf{El impacto de los falsos positivos}: Consiste en conceder crédito a un perfil que, en realidad, no cuenta con la capacidad de pago necesaria. Si el asistente conversacional malinterpreta los ingresos del usuario, o es incapaz de cruzar la información verbalizada con los datos históricos de manera rigurosa, el banco asume un riesgo de impago. Más allá de la pérdida económica directa para la entidad financiera, un falso positivo fomenta el sobreendeudamiento del cliente, empujándolo hacia una espiral de vulnerabilidad económica, un resultado que incumple los principios de préstamo responsable.
+
+    \item \textbf{El impacto de los falsos negativos}: Ocurre cuando el sistema deniega el crédito a un usuario que sí era solvente. Si esta denegación proviene de un sesgo algorítmico (por ejemplo, su nivel educativo inferido a través del lenguaje, o variables demográficas), nos enfrentamos a un caso de discriminación automatizada. La falta de *accountability* adquiere aquí una relevancia crítica: cuando una denegación no puede vincularse de forma clara con los datos utilizados y los criterios que la justifican, resulta difícil determinar si el resultado responde realmente a una evaluación legítima del riesgo o a un error, una inconsistencia o un sesgo introducido durante el proceso.
+\end{itemize}
+
+\subsection{El Reto Conversacional en la Banca}
+
+Históricamente, la originación de crédito ha dependido de interfaces gráficas y formularios estructurados. El usuario introduce un número exacto en una casilla específica (ej. «Ingresos: 2000»), y el sistema de evaluación de riesgos procesa esa variable determinista sin ambigüedades. El cambio de paradigma hacia una interfaz conversacional introduce un nuevo nivel de fricción interpretativa.
+
+El gran reto radica en la colisión entre dos mundos incompatibles por defecto: la naturaleza intrínsecamente desestructurada, abierta y ambigua del diálogo humano, frente a la exigencia estricta y tipada de las fórmulas financieras. Un agente conversacional en este dominio no se enfrenta simplemente a un problema de procesamiento de lenguaje (NLP), sino a un desafío de extracción de conocimiento crítico bajo incertidumbre.
+
+El sistema debe ser capaz de transformar la variabilidad del lenguaje humano en un conjunto discreto de variables que puedan someterse a auditoría. Como se detallará en posteriores secciones al analizar los perfiles de usuario, el diálogo natural implica convivir con información incompleta, datos irrelevantes y reformulaciones constantes. Salvar esta brecha es el principal requerimiento que justifica la investigación y el diseño del presente trabajo.
+
+\section{Marco Regulatorio Específico del Sector Financiero}
+
+Los requisitos generales de transparencia, trazabilidad, supervisión y gestión del riesgo aplicables a los sistemas de inteligencia artificial han sido analizados en el capítulo anterior. En el contexto de la concesión de crédito, estos principios adquieren una dimensión adicional debido a la naturaleza regulada de la actividad financiera y, especialmente, a las obligaciones relativas a la evaluación de la solvencia del solicitante.
+
+En consecuencia, el problema no consiste únicamente en garantizar que el sistema conversacional sea trazable o supervisable, sino en asegurar que la información obtenida durante la interacción permita realizar una evaluación de crédito conforme a criterios financieros verificables y a las fuentes de información que resulten aplicables. Esto introduce requisitos específicos que condicionan directamente el diseño del sistema.
+
+\subsection{Evaluación de la solvencia}
+
+La normativa europea sobre crédito establece la obligación de realizar una evaluación adecuada de la solvencia antes de formalizar determinadas operaciones de crédito. En particular, la Directiva 2014/17/UE, aplicable al crédito relativo a bienes inmuebles de uso residencial, exige que la evaluación se realice sobre procedimientos e información establecidos y documentados. Por su parte, la Directiva (UE) 2023/2225, relativa a los contratos de crédito al consumo, establece que la evaluación debe realizarse en interés del consumidor y sobre información pertinente y exacta relativa a sus ingresos, gastos y demás circunstancias económicas relevantes.
+
+Esta exigencia tiene una consecuencia directa para un sistema conversacional de concesión de crédito: los datos proporcionados durante el diálogo no pueden considerarse automáticamente equivalentes a datos financieros validados. El asistente puede encargarse de obtener y estructurar información como ingresos, gastos, deudas, importe solicitado o plazo, pero dicha información debe someterse a los mecanismos de validación y comprobación que correspondan antes de utilizarse como base de una decisión crediticia.
+
+La normativa contempla además el uso de información procedente de fuentes internas y externas y, cuando resulte aplicable, de bases de datos relevantes para la evaluación de la solvencia. La Directiva (UE) 2023/2225 establece asimismo requisitos relativos a estas bases de datos y a la información que debe facilitarse al consumidor cuando una solicitud es rechazada como consecuencia de una consulta a dichas fuentes. Por tanto, el sistema debe ser capaz de distinguir entre la información declarada directamente por el solicitante, la información obtenida de fuentes externas y el resultado de las comprobaciones realizadas sobre ambas.
+
+La decisión crediticia no debe depender exclusivamente de la interpretación probabilística de la conversación, sino de un conjunto estructurado de datos cuyo origen, estado de validación y utilización en la evaluación puedan determinarse de forma explícita.
+
+\subsection{Resiliencia operativa (DORA)}
+
+El Reglamento (UE) 2022/2554, conocido como Digital Operational Resilience Act (DORA), establece requisitos específicos para la gestión del riesgo asociado a las tecnologías de la información. Entre otros aspectos, exige disponer de un marco documentado de gestión del riesgo TIC y de mecanismos destinados a garantizar la resiliencia de los sistemas, la detección y gestión de incidentes y la capacidad de mantener las operaciones ante situaciones adversas.
+
+En un sistema de concesión de crédito basado en un agente conversacional, estas obligaciones adquieren relevancia porque el componente de inteligencia artificial forma parte de un proceso financiero que no puede quedar condicionado exclusivamente por el comportamiento probabilístico del modelo generativo. El modelo puede participar en la comprensión de las respuestas del usuario y en la generación del diálogo, pero no debería constituir por sí mismo la autoridad sobre los datos financieros, las reglas de evaluación o el resultado final de la solicitud.
+
+Esta separación no constituye una prohibición normativa de utilizar modelos generativos ni implica que DORA exija una arquitectura determinista. Se trata de una decisión derivada de la necesidad de controlar el riesgo tecnológico: las funciones críticas del proceso deben permanecer sometidas a mecanismos verificables y controlados, de manera que un error de interpretación, una respuesta generada incorrectamente o una entrada maliciosa no pueda modificar por sí misma los criterios financieros utilizados para evaluar la solicitud.
+
+\subsection{Implicaciones del EU AI Act para el crédito}
+
+El Reglamento (UE) 2024/1689, conocido como EU AI Act, establece un régimen específico para determinados sistemas de IA utilizados en la evaluación de la solvencia o en la determinación de la calificación crediticia de personas físicas. Estos sistemas aparecen incluidos entre los usos de alto riesgo recogidos en el Anexo III, con las condiciones y excepciones previstas por el propio Reglamento.
+
+Por ello, el sistema desarrollado en este trabajo no debe limitar el registro a la respuesta final proporcionada al usuario. Debe conservar un estado estructurado de la solicitud y los eventos relevantes del proceso: datos proporcionados, datos validados, consultas a fuentes externas cuando procedan, resultados obtenidos, reglas de negocio aplicadas y resultado de la evaluación. El Reglamento exige capacidades de registro y establece requisitos de trazabilidad que permitan supervisar su funcionamiento.
+
+En conjunto, la regulación específica del crédito desplaza el problema desde la simple interacción conversacional hacia la fiabilidad de la información utilizada para evaluar la solicitud. El asistente debe ser capaz de recopilar información de forma estructurada, distinguir su procedencia y grado de validación, incorporar fuentes externas cuando corresponda y someter el resultado a reglas financieras explícitas.
+
+\section{Modelado del Dominio y Ontología Financiera}
+
+Para que un sistema automatizado cumpla con las exigencias expuestas, el diálogo conversacional debe actuar exclusivamente como la interfaz para poblar un modelo de datos estructurado y determinista. Este modelo, conocido en la ingeniería del conocimiento como ontología, proporciona la arquitectura semántica que permite al sistema ``comprender'' el entorno bancario.
+
+El modelado del dominio define los conceptos formales que componen el proceso de originación de crédito, sus atributos y las dependencias lógicas entre ellos. Esta estructura establece un estado canónico que actúa como única fuente de verdad durante el análisis de riesgo.
+
+\subsection{Entidades del Ecosistema Bancario}
+
+La ontología de un proceso de concesión de crédito requiere la conceptualización de múltiples entidades abstractas:
+
+\begin{itemize}
+    \item \textbf{Cliente (Titular):} Representa a la persona física que inicia el proceso. El cliente es el nodo central del que dependen entidades subordinadas como su \textit{Situación Económica} y sus \textit{Obligaciones Financieras}.
+    \item \textbf{Solicitud:} Actúa como la entidad contenedora (el expediente). Agrupa al titular, el producto deseado y el estado temporal de la operación (en curso, pendiente de validación, aprobada o denegada), garantizando la integridad transaccional.
+    \item \textbf{Producto Financiero:} Define las características exactas del crédito que se está negociando. Sus parámetros definitorios incluyen el importe, la finalidad de la financiación, el plazo de amortización y el tipo de interés aplicable.
+    \item \textbf{Situación Económica:} Entidad que modela la capacidad de generación de recursos del titular. Separa conceptualmente los ingresos recurrentes (nóminas, pensiones) de los esporádicos, y categoriza la estabilidad del vínculo laboral (tipo de contrato, antigüedad).
+    \item \textbf{Obligaciones Financieras:} Representa el pasivo del cliente. Incluye préstamos vigentes, límites de tarjetas de crédito y otras cargas estructurales que impactan directamente en la liquidez disponible.
+    \item \textbf{Avalista (Garante):} Entidad opcional que mitiga el riesgo de la operación. Replica la estructura del \textit{Cliente}, requiriendo una instanciación paralela de su propia situación económica para evaluar su capacidad de respaldo.
+    \item \textbf{Evaluación de Riesgo:} Es la entidad resultante. Almacena la resolución algorítmica, los umbrales financieros calculados y la traza de auditoría que justifica legalmente la decisión final.
+\end{itemize}
+
+\subsection{Variables y Atributos de Riesgo}
+
+De cada una de las entidades descritas emana un conjunto de variables granulares que nutren los algoritmos de \textit{scoring}. Estas variables se clasifican en cuatro dimensiones fundamentales de riesgo:
+
+\begin{enumerate}
+    \item \textbf{Factores Personales y Sociodemográficos:} Atributos como la edad del solicitante y el número de personas a cargo, indispensables para calcular el umbral de subsistencia o mínimo inembargable.
+    \item \textbf{Capacidad de Pago:} Variables que cuantifican la liquidez, como los ingresos netos recurrentes. A nivel de riesgo bancario, un mismo volumen de ingresos recibe ponderaciones radicalmente distintas dependiendo de la categoría laboral (funcionario, trabajador indefinido o autónomo).
+    \item \textbf{Endeudamiento y Cargas:} Cifras necesarias para calcular el ratio de endeudamiento. Se compone de la suma de todas las cuotas mensuales vigentes más una estimación paramétrica de los gastos estructurales.
+    \item \textbf{Garantías:} Atributos de los activos o respaldos patrimoniales que aseguran la operación en caso de insolvencia.
+\end{enumerate}
+
+El mayor desafío sistémico en este nivel es la \textbf{normalización de la información}. El lenguaje humano es inherentemente difuso. Si un solicitante declara ``\textit{gano unos mil quinientos, pero en catorce pagas}'', el sistema no puede almacenar una transcripción literal. Debe poseer la capacidad de realizar una normalización semántica, traduciendo la expresión a variables tipadas y estrictas (ej. ingresos anualizados, divididos en doce meses). Sin esta cristalización de conceptos abstractos en tipos de datos estructurados, la evaluación matemática del riesgo resulta inviable.
+
+\subsection{Fuentes de Información}
+
+En cumplimiento de los principios de préstamo responsable, la información verbalizada por el solicitante carece de validez ejecutiva hasta ser contrastada. Todo sistema de evaluación debe basar su decisión en información verificada. Para ello, el modelado del dominio contempla la integración con repositorios externos e internos:
+
+\begin{itemize}
+    \item \textbf{Central de Información de Riesgos (CIRBE):} Inventario público que acumula el historial crediticio y la exposición total al riesgo de las personas físicas. Su consulta permite aflorar pasivos vigentes que el usuario haya podido omitir involuntaria o deliberadamente.
+    \item \textbf{Ficheros de Morosidad (ASNEF, BADEXCUG):} Registros de incumplimientos de obligaciones dinerarias. En el ámbito bancario, una coincidencia positiva en estos registros suele constituir un criterio de exclusión automática, invalidando cualquier capacidad de pago teórica demostrada previamente.
+    \item \textbf{Bases de Datos Internas y Agregación Financiera:} Información transaccional histórica del banco o datos extraídos mediante normativas de \textit{Open Banking} (PSD2), que permiten certificar la veracidad de los ingresos y gastos declarados.
+\end{itemize}
+
+El modelo de datos debe mantener un estatus de procedencia estricto, diferenciando siempre si un atributo (como la cuota de un préstamo existente) es un dato ``declarado'' por el usuario o un dato ``verificado'' por una de estas fuentes, garantizando la trazabilidad ante futuras auditorías.
+
+\subsection{Gestión de la Incertidumbre}
+
+Una diferencia relevante entre la originación de crédito mediante formularios tradicionales y las interfaces conversacionales reside en la forma en que se recopila y actualiza la información. Mientras que los formularios organizan los datos en campos explícitos, las interfaces conversacionales los obtienen progresivamente a lo largo de múltiples turnos. En consecuencia, durante buena parte de la interacción, el sistema debe operar con un expediente cuya información todavía puede estar incompleta, ser ambigua o presentar inconsistencias.
+
+Esta característica exige que la arquitectura gestione el conocimiento parcial y evite que la ausencia de información se interprete como un valor válido o como evidencia suficiente para tomar una decisión. El tratamiento del conocimiento parcial en el dominio crediticio exige distinguir tres situaciones principales:
+
+\begin{enumerate}
+	\item \textbf{Información ausente:} Se produce cuando una variable requerida todavía no ha sido proporcionada ni obtenida mediante una fuente válida. Por ejemplo, si se desconocen los gastos mensuales del solicitante y estos son necesarios para evaluar su capacidad de pago, el sistema no debe sustituirlos por estimaciones. En su lugar, debe identificar el dato pendiente y solicitarlo al usuario o activar el mecanismo alternativo de obtención de información previsto por el proceso. La evaluación podrá continuar cuando se cumplan los requisitos de información establecidos para esa etapa.
+
+	\item \textbf{Información ambigua:} Aparece cuando una declaración no permite determinar de forma suficientemente precisa el valor o la categoría de una variable. Por ejemplo, afirmar que se tiene un ``contrato normal'' no permite establecer con certeza la modalidad contractual. El sistema debe identificar la ambigüedad y solicitar una aclaración cuando el dato sea relevante para la evaluación, hasta obtener un valor que pueda normalizarse y validarse conforme al modelo de dominio.
+
+	\item \textbf{Información inconsistente:} Se produce cuando existen contradicciones entre distintas declaraciones del usuario o discrepancias entre la información declarada y la obtenida de fuentes externas. Por ejemplo, el importe de las obligaciones financieras comunicado durante la conversación puede diferir del que consta en una fuente consultada, como la CIRBE, cuando dicha consulta resulte procedente. El sistema debe registrar la discrepancia y aplicar reglas explícitas para su tratamiento. Cuando la discrepancia sea relevante y no pueda resolverse mediante reglas previamente definidas, deberá solicitarse una aclaración o derivarse el expediente a revisión.
+\end{enumerate}
+
+En síntesis, la gestión del conocimiento parcial convierte la evaluación crediticia conversacional en un proceso iterativo. A medida que avanza el diálogo, el sistema actualiza el expediente y comprueba si la información disponible satisface los requisitos de completitud, validez y coherencia establecidos para la siguiente etapa. Cuando estos requisitos se cumplen, el expediente puede pasar al catálogo de reglas de negocio de la entidad. En caso contrario, el sistema debe identificar qué información o validación sigue pendiente y determinar la acción correspondiente, sin confundir la ausencia de datos con el cumplimiento de los criterios de concesión.
+
+\section{Catálogo de Reglas en la Concesión de Crédito}
+
+Una vez definido el modelo de información necesario para representar una solicitud de crédito, es necesario establecer cómo dicha información se transforma en una decisión. En una entidad financiera, esta transformación no depende exclusivamente de un modelo estadístico o de la interpretación realizada por el sistema conversacional, sino de un conjunto de políticas, restricciones y criterios de decisión que determinan las condiciones bajo las cuales una operación puede ser concedida, rechazada o sometida a revisión.
+
+Estas reglas constituyen el catálogo de reglas de negocio de la concesión de crédito. Su finalidad es formalizar los criterios aplicables a una solicitud de manera explícita y reproducible, separándolos de la lógica encargada de comprender el lenguaje natural del usuario.
+
+Aunque las reglas concretas dependen de la entidad, del producto financiero y de su política de riesgos, conceptualmente pueden organizarse en diferentes capas de evaluación. En este trabajo se distinguen cuatro categorías:
+
+\subsection{Reglas de Elegibilidad Básica}
+
+Las reglas de elegibilidad determinan si una solicitud cumple las condiciones mínimas necesarias para continuar con el proceso de evaluación. Constituyen una primera capa de filtrado y suelen estar relacionadas con requisitos legales, características del producto o políticas generales de la entidad.
+
+Entre los criterios que pueden formar parte de esta categoría se encuentran la edad del solicitante, las condiciones aplicables al plazo y vencimiento de la operación, el tipo de producto solicitado o determinadas restricciones relativas al destino de la financiación. También pueden existir condiciones relacionadas con la documentación o con la posibilidad de contratar el producto bajo unas determinadas circunstancias.
+
+Su característica principal es que evalúan si la operación puede entrar o continuar en el proceso, antes de analizar en profundidad la capacidad económica y el perfil de riesgo del solicitante. Por tanto, una condición de elegibilidad incumplida puede impedir que tenga sentido continuar con las etapas posteriores de evaluación.
+
+\subsection{Reglas de Viabilidad Financiera}
+
+Superados los criterios básicos de elegibilidad, las reglas de viabilidad financiera permiten determinar si la situación económica del solicitante es compatible con las obligaciones derivadas de la nueva operación. El objetivo no es establecer todavía el riesgo global del cliente, sino evaluar su capacidad económica para asumir la financiación solicitada.
+
+Estas reglas pueden combinar diferentes variables relacionadas con los ingresos, gastos, obligaciones financieras existentes, importe solicitado y condiciones de la nueva operación. Entre las métricas habituales se encuentran los ratios de endeudamiento, la relación entre ingresos y obligaciones financieras y el importe de renta disponible después de atender los compromisos previstos.
+
+Una regla de este tipo puede, por ejemplo, comprobar que la cuota resultante de la nueva financiación, junto con las obligaciones financieras existentes, se mantiene dentro de los límites establecidos por la política de riesgos de la entidad. De forma complementaria, pueden establecerse umbrales mínimos de renta disponible que permitan evitar que el pago de las obligaciones financieras comprometa excesivamente la capacidad económica del solicitante.
+
+Los valores concretos de estos límites no son universales, sino que dependen del producto, de la entidad y de su política de riesgos.
+
+\subsection{Reglas de Riesgo}
+
+La capacidad económica constituye una dimensión necesaria, pero no suficiente, para determinar la conveniencia de conceder una operación. Las reglas de riesgo incorporan información adicional relacionada con el historial de cumplimiento, la exposición crediticia y otras circunstancias que pueden modificar la valoración de una solicitud incluso cuando su capacidad de pago aparente ser suficiente.
+
+Dentro de esta categoría pueden encontrarse reglas relacionadas con la existencia de obligaciones impagadas o incidencias registradas en fuentes de información crediticia. También pueden establecerse reglas para tratar situaciones en las que exista una discrepancia significativa entre la información declarada y la información obtenida mediante fuentes verificadas. Estas discrepancias no implican necesariamente una intención fraudulenta, ya que pueden deberse a errores de comunicación, información desactualizada o diferencias entre las definiciones utilizadas por distintas fuentes. Por este motivo, su tratamiento puede consistir en solicitar aclaraciones, requerir documentación adicional o derivar el expediente a revisión, en función de la política definida por la entidad.
+
+La principal diferencia respecto a las reglas de viabilidad es, por tanto, que estas reglas no se limitan a responder si el cliente \textit{puede} asumir matemáticamente la operación, sino que incorporan otros elementos relevantes para determinar si el nivel de riesgo asociado a dicha operación resulta aceptable para la entidad.
+
+\subsection{Reglas de Decisión y Resultados}
+
+Las reglas anteriores producen resultados parciales que deben ser consolidados para determinar el estado final de la solicitud. Esta última categoría establece cómo se combinan las diferentes evaluaciones y qué resultado corresponde a cada situación.
+
+De forma general, pueden distinguirse tres resultados principales:
+
+\begin{enumerate}
+\item \textbf{Aprobación:} se produce cuando la solicitud satisface los criterios de elegibilidad y los resultados de las evaluaciones de capacidad y riesgo se encuentran dentro de los límites establecidos para la operación. En determinados productos y bajo las condiciones definidas por la entidad, este resultado puede producirse de forma automatizada.
+
+\item \textbf{Denegación:} se produce cuando se incumple una condición que, de acuerdo con la política de la entidad, impide la concesión de la operación. El resultado debe estar asociado a los criterios que han conducido a dicha decisión, permitiendo reconstruir qué condiciones del expediente fueron determinantes.
+
+\item \textbf{Revisión o intervención humana:} determinados expedientes pueden no encajar de forma inequívoca en las condiciones de aprobación o denegación automática. Esto puede ocurrir ante discrepancias relevantes, situaciones próximas a determinados umbrales o circunstancias que requieren una valoración adicional.
+\end{enumerate}
+
+Esta separación permite distinguir entre las reglas que evalúan una determinada dimensión del expediente y las reglas que determinan cómo se consolida el resultado de dichas evaluaciones. El catálogo no constituye, por tanto, una única regla de concesión, sino un conjunto estructurado de criterios que, aplicados sobre un expediente suficientemente completo y validado, permiten obtener un resultado reproducible.
+
+Desde la perspectiva de un sistema conversacional, esta separación resulta especialmente relevante. El modelo de lenguaje no debe determinar por sí mismo qué condiciones financieras son aceptables ni modificar los criterios de decisión en función de la conversación. Su función consiste en facilitar la adquisición y estructuración de información, mientras que la aplicación de las reglas de negocio debe permanecer bajo mecanismos explícitos y controlables.
+
+\section{Perfiles de Usuario}
+
+La naturaleza conversacional introduce una alta variabilidad en la interacción, ya que puede recibir información completa y estructurada, datos incompletos o contradictorios, o incluso entradas diseñadas deliberadamente para alterar el comportamiento del sistema.
+
+Por este motivo, el diseño del asistente no debe considerar únicamente el caso nominal de un usuario que proporciona correctamente toda la información solicitada. Es necesario contemplar diferentes perfiles de interacción que permitan identificar las situaciones que el sistema deberá gestionar durante la originación. Estos perfiles no representan necesariamente categorías de clientes reales, sino escenarios de interacción utilizados para analizar los requisitos funcionales y de seguridad del sistema.
+
+\subsection{Cliente con Información Completa}
+
+Representa el escenario nominal del proceso. El usuario conoce el producto que desea contratar, responde de forma coherente a las preguntas planteadas y proporciona la información necesaria para completar el expediente.
+
+En este escenario, los datos relevantes pueden obtenerse progresivamente sin que aparezcan contradicciones significativas ni ambigüedades que requieran ciclos adicionales de aclaración.
+
+Este escenario constituye el caso de referencia del sistema, pero no debe interpretarse como una garantía de aprobación. Que la interacción sea completa y fluida únicamente significa que no existen incidencias conversacionales que impidan realizar la evaluación. El resultado final seguirá dependiendo de los criterios de elegibilidad, capacidad financiera y riesgo definidos para la operación.
+
+\subsection{Cliente con Información No Declarada}
+
+En este escenario, la información proporcionada durante la conversación puede presentar inicialmente un perfil aparentemente compatible con la operación solicitada. Sin embargo, durante las fases posteriores de validación pueden aparecer circunstancias que no estaban presentes en la información declarada inicialmente.
+
+Estas circunstancias pueden incluir obligaciones financieras no mencionadas durante la conversación, exposición crediticia indirecta o información procedente de fuentes externas que modifique la valoración de la solicitud. Por ejemplo, el solicitante puede declarar unos determinados niveles de endeudamiento mientras una fuente de información crediticia, cuando su consulta resulte procedente, revela obligaciones adicionales.
+
+El escenario pone de manifiesto que la información conversacional no constituye necesariamente una representación completa del expediente. El sistema debe ser capaz de incorporar nueva información a medida que avanza el proceso y reevaluar el estado de la solicitud cuando aparecen datos que modifican las condiciones previamente consideradas.
+
+La relevancia de este perfil no reside en asumir que la omisión de información sea deliberada. Una discrepancia puede deberse a desconocimiento, errores del usuario, diferencias temporales entre fuentes o una declaración intencionadamente incompleta. El sistema debe, por tanto, detectar y gestionar la discrepancia sin atribuir automáticamente una intención al solicitante.
+
+\subsection{Usuario Ambiguo o Errático}
+
+Este perfil representa una de las situaciones características de la interacción conversacional: el usuario no proporciona necesariamente la información requerida de manera ordenada ni en una única respuesta. Puede aportar datos fragmentados a lo largo de varios turnos, corregir respuestas anteriores, cambiar las condiciones de la operación o introducir información que no resulta relevante para la evaluación.
+
+También pueden producirse contradicciones entre diferentes momentos de la conversación. Por ejemplo, el usuario puede declarar inicialmente unos ingresos y posteriormente proporcionar una cifra diferente, o modificar el importe solicitado después de que ya se hayan realizado determinados cálculos.
+
+Este comportamiento impide tratar la conversación como una secuencia lineal de preguntas y respuestas independientes. El sistema debe mantener una representación persistente del estado de la solicitud y determinar en cada momento qué información se encuentra disponible, cuál ha sido corregida y qué datos continúan pendientes de validación.
+
+\subsection{Usuario Adversarial}
+
+El último escenario contempla interacciones en las que el usuario intenta deliberadamente modificar el comportamiento previsto del sistema o acceder a un resultado que no le correspondería según las reglas establecidas. A diferencia de los perfiles anteriores, el problema no procede de una interacción imperfecta, sino de una posible intención de manipulación.
+
+Estas amenazas pueden adoptar diferentes formas. En el plano social, un usuario podría intentar utilizar presión emocional, información falsa o técnicas de ingeniería social para conseguir que el sistema ignore determinadas restricciones o interprete favorablemente una situación de riesgo. En el plano técnico, pueden aparecer intentos de \textit{prompt injection}, instrucciones introducidas dentro de la conversación para alterar las instrucciones operativas del sistema, modificar su comportamiento o conseguir que revele información que no debería proporcionar.
+
+El sistema debe, por tanto, mantener una separación clara entre la interpretación de las entradas del usuario y la aplicación de las reglas que determinan la evaluación crediticia. La capacidad del modelo para comprender lenguaje natural no debe implicar que pueda modificar los criterios de decisión ni conceder al usuario control sobre el estado interno de la solicitud.
+
+En conjunto, estos cuatro escenarios muestran que la dificultad del proceso conversacional no reside únicamente en obtener los datos necesarios para evaluar una solicitud, sino en mantener una representación coherente y controlada de dicha solicitud ante diferentes patrones de interacción. Desde el flujo nominal hasta las situaciones de inconsistencia o manipulación, el sistema debe preservar la integridad del proceso de evaluación independientemente de la forma en que el usuario interactúe con él.
+
+\section{Requisitos de Diseño Derivados del Dominio}
+
+El análisis del dominio financiero, sus restricciones regulatorias y los diferentes escenarios de interacción identificados en las secciones anteriores permiten derivar un conjunto de requisitos arquitectónicos específicos. El objetivo es determinar qué propiedades debe satisfacer cualquier solución que pretenda integrar un agente conversacional en un proceso de concesión de crédito sin delegar en el modelo generativo el control de la lógica financiera.
+
+Estos requisitos se centran en tres aspectos fundamentales:
+
+\subsection{Necesidad de un Estado Canónico de la Solicitud}
+
+Como se ha observado al analizar los escenarios de interacción, la comunicación mediante lenguaje natural es incremental, fragmentada y susceptible de rectificaciones. Una misma variable puede aparecer en diferentes momentos de la conversación, ser modificada posteriormente o requerir validación mediante una fuente externa. Por este motivo, el historial de mensajes no constituye por sí mismo una representación adecuada del estado financiero de la solicitud.
+
+Se requiere una representación estructurada y persistente del estado de la solicitud que sea independiente del historial conversacional. En este trabajo, esta representación se denomina \textbf{Information State Update (ISU)} y se construye a partir del modelo de dominio definido anteriormente.
+
+El ISU actúa como la fuente de verdad del proceso de evaluación, en él se almacenan los datos relevantes de la solicitud. De este modo, es posible distinguir entre un dato que todavía no ha sido proporcionado, uno declarado por el usuario y uno que ha sido posteriormente verificado mediante una fuente adicional.
+
+Esto permite aplicar los mecanismos de gestión del conocimiento parcial descritos anteriormente y evita que la continuidad del proceso dependa exclusivamente de la capacidad del modelo de lenguaje para recuperar información del historial conversacional. Asimismo, permite que los diferentes componentes del sistema trabajen sobre una representación común y estructurada de la solicitud.
+
+\subsection{Separación entre Comprensión y Lógica}
+
+La necesidad de mantener bajo control las reglas que determinan la evaluación crediticia conduce a una segunda propiedad fundamental: la separación entre el procesamiento del lenguaje natural y la lógica de negocio.
+
+El modelo generativo puede desempeñar funciones de comprensión y generación lingüística, como interpretar las respuestas del usuario, extraer información relevante o formular preguntas de seguimiento. Esta participación no supone que el modelo deba quedar excluido del tratamiento de los datos estructurados. Por ejemplo, ante una expresión como ``quiero solicitar 1000 euros'', el modelo puede identificar el importe solicitado y producir una representación estructurada como \texttt{importe\_solicitado = 1000}. El dato puede incorporarse al estado de la solicitud como información declarada por el usuario, manteniendo su procedencia y naturaleza.
+
+La separación de responsabilidades se establece en un nivel diferente: el modelo generativo no debe constituir la autoridad sobre la utilización financiera de esos datos. A partir del importe extraído, por ejemplo, no corresponde al modelo determinar si la cantidad es viable, calcular por sí mismo la capacidad de pago, consultar arbitrariamente una fuente de riesgo o decidir el resultado de la solicitud. Estas operaciones deben realizarse mediante componentes explícitos del sistema, de acuerdo con las reglas y procedimientos definidos para el dominio.
+
+Las reglas de negocio, los cálculos financieros y las condiciones de decisión deben permanecer, por tanto, en componentes cuya ejecución sea reproducible. Esto permite que un error de interpretación, una respuesta incorrecta o una instrucción de manipulación del lenguaje no pueda modificar directamente los criterios de concesión ni determinar por sí misma el resultado financiero. En particular, un intento de \textit{prompt injection} no debería poder alterar una regla de negocio, modificar arbitrariamente el estado de la solicitud o convertir una instrucción proporcionada por el usuario en una decisión de concesión.
+
+La frontera relevante no consiste, por tanto, en impedir que el modelo generativo participe en el tratamiento de la información, sino en delimitar sus responsabilidades. De este modo, la interpretación probabilística del lenguaje no constituye la autoridad final sobre la evaluación crediticia.
+
+\subsection{Trazabilidad y Auditabilidad de las Decisiones}
+
+El último requisito deriva de la necesidad de poder reconstruir el proceso mediante el cual una solicitud alcanza un determinado resultado. En un sistema de concesión de crédito, no resulta suficiente conservar únicamente la respuesta final mostrada al usuario. También debe ser posible determinar qué información estaba disponible, qué validaciones se realizaron y qué reglas intervinieron en la evaluación.
+
+Por ello, el sistema debe disponer de mecanismos de registro que permitan conservar los eventos relevantes del proceso y protegerlos frente a modificaciones no autorizadas. Este registro debe complementar al estado actual de la solicitud, manteniendo el historial necesario para reconstruir la evolución del expediente.
+
+Para cada decisión relevante, la traza debería permitir relacionar, al menos, tres dimensiones:
+
+\begin{enumerate}
+	\item \textbf{Datos utilizados:} valores empleados durante la evaluación, junto con su procedencia y estado de validación.
+	\item \textbf{Reglas y operaciones aplicadas:} criterios de negocio, cálculos y validaciones que intervinieron en la evaluación, incluyendo la versión de las reglas cuando resulte necesario para reproducir el resultado.
+	\item \textbf{Resultado y causa de la decisión:} estado alcanzado por la solicitud y condiciones que determinaron dicho resultado.
+\end{enumerate}
+
+Esta estructura permite que la explicación de una decisión se construya a partir de información efectivamente registrada durante la ejecución, en lugar de solicitar al modelo generativo una justificación retrospectiva de un resultado cuyo proceso interno no ha quedado documentado. La trazabilidad se convierte así en una propiedad del proceso de decisión y no únicamente de la respuesta conversacional.
+
+En conjunto, los tres requisitos definidos delimitan las propiedades fundamentales que debe satisfacer la arquitectura propuesta. Estos requisitos permiten trasladar las características específicas del dominio crediticio a decisiones concretas de diseño, cuya implementación se desarrolla en los capítulos posteriores.
+
+
 \end{document}

@@ -71,7 +71,14 @@ rule "R_CANTIDAD_Y_PLAZO_REQUERIDOS"
     then
         $res.setEstado("REQUIERE_DATOS");
         $res.getReglasDisparadas().add("R_CANTIDAD_Y_PLAZO_REQUERIDOS");
-        String faltante = ($du.getCantidadSolicitada() == null) ? "cantidad_solicitada" : "plazo_meses";
+        String faltante = "";
+        if ($du.getCantidadSolicitada() == null && $du.getPlazoMeses() == null) {
+            faltante = "cantidad_solicitada y plazo_meses";
+        } else if ($du.getCantidadSolicitada() == null) {
+            faltante = "cantidad_solicitada";
+        } else {
+            faltante = "plazo_meses";
+        }
         $res.setDatoFaltante(faltante);
         $res.setArticuloNormativo("Obligación de evaluación de riesgos crediticios");
         $res.setTextoLegal("Para poder evaluar correctamente su solicitud es imprescindible conocer tanto el importe total del préstamo como el plazo de devolución en meses. Sin estos datos no es posible realizar el análisis de solvencia requerido por la normativa.");

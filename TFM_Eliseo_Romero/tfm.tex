@@ -1,8 +1,58 @@
 \documentclass[12pt,a4paper]{report}
 
+% ==============================================================================
+% PAQUETES ESENCIALES (Codificación, Idioma y Matemáticas)
+% ==============================================================================
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage[spanish]{babel}
+\usepackage[spanish,es-tabla]{babel} % Idioma español
+\usepackage{amsmath} % Para las fórmulas matemáticas (vital para el Cap 4)
+
+% ==============================================================================
+% GEOMETRÍA (Márgenes para encuadernar)
+% ==============================================================================
+\usepackage{geometry}
+\geometry{
+    top=3.2cm, 
+    bottom=3cm, 
+    left=3.5cm, % 3cm es ideal para la encuadernación del TFM
+    right=3cm,
+    headheight=15pt
+}
+
+% ==============================================================================
+% TIPOGRAFÍA Y FORMATO VISUAL
+% ==============================================================================
+\usepackage{lmodern} % Fuente vectorizada limpia
+\usepackage{microtype} % Ajusta mágicamente los espacios para que no se salgan las palabras
+\usepackage{titlesec}
+\titleformat{\section}{\Large\bfseries}{\thesection.}{0.5em}{} % Pone un punto tras el número de sección
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{} 
+\fancyhead[L]{Trabajo Fin de Máster}
+\fancyhead[R]{Eliseo Romero Marín}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% ==============================================================================
+% TABLAS, IMÁGENES, LISTAS Y CÓDIGO
+% ==============================================================================
+\usepackage{graphicx} % Imprescindible para meter imágenes
+\usepackage{booktabs} % Para tablas más bonitas
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{float}
+\usepackage{xcolor}
+
+% Profundidad del índice (1 = solo Capítulos y Secciones, 2 = incluye subsecciones)
+\setcounter{tocdepth}{1} 
+
+% ==============================================================================
+% ENLACES (Siempre se carga al final)
+% ==============================================================================
+\usepackage[hidelinks]{hyperref}
 
 \begin{document}
 
@@ -495,5 +545,584 @@ Esta estructura permite que la explicación de una decisión se construya a part
 
 En conjunto, los tres requisitos definidos delimitan las propiedades fundamentales que debe satisfacer la arquitectura propuesta. Estos requisitos permiten trasladar las características específicas del dominio crediticio a decisiones concretas de diseño, cuya implementación se desarrolla en los capítulos posteriores.
 
+\chapter{Implementación de la arquitectura propuesta}
+\sloppy
+
+El capítulo anterior definió los requisitos que debe satisfacer el sistema: una representación estructurada del estado de la solicitud independiente del historial conversacional, separación entre la interacción en lenguaje natural y la lógica de evaluación crediticia, y un mecanismo de trazabilidad que permita auditar cada decisión. Este capítulo describe cómo esos tres requisitos se materializan en un prototipo funcional.
+
+\section{Visión general de la arquitectura}
+
+La implementación concreta el paradigma \textit{Symbolic[Neuro]} mediante una arquitectura en la que las capacidades de procesamiento del lenguaje se mantienen separadas de la lógica de decisión del proceso de evaluación crediticia. El sistema recibe la solicitud del usuario en lenguaje natural, la transforma en una representación estructurada y somete dicha representación a una evaluación basada en reglas explícitas.
+
+El núcleo simbólico de la arquitectura está constituido por el motor de reglas. A partir del estado estructurado de la solicitud, este componente determina el resultado de la evaluación y establece la siguiente acción que debe realizarse. De esta forma, el control funcional del proceso reside en las reglas de negocio y no en el modelo de lenguaje.
+
+La ejecución técnica de las acciones determinadas por el motor se realiza mediante el backend de la aplicación. Este componente actúa como intermediario entre los distintos servicios: recibe la información de la interacción, mantiene el estado necesario durante el procesamiento, ejecuta las acciones indicadas por el motor de reglas y vuelve a someter el estado actualizado a evaluación cuando corresponde.
+
+El modelo de lenguaje interviene únicamente en las tareas relacionadas con el lenguaje natural. La información obtenida de la conversación se incorpora al estado estructurado de la solicitud y, una vez finalizada la evaluación, el resultado obtenido se utiliza para generar la respuesta dirigida al usuario. La decisión crediticia se mantiene, por tanto, fuera de la generación textual del modelo.
+
+Además, el sistema incorpora mecanismos de persistencia que permiten conservar el estado utilizado durante la evaluación y registrar las operaciones realizadas a lo largo del proceso. Por otro lado, cuando la evaluación requiere información procedente de fuentes externas, el backend puede ejecutar la acción correspondiente sobre un servicio simulado que representa dichas fuentes.
+
+\subsection{Organización de los componentes}
+
+Para el despliegue de la arquitectura descrita, hemos elegido varios servicios y tecnologías que se comunican entre sí durante el procesamiento de una solicitud. La tabla siguiente recoge la correspondencia entre los componentes y las tecnologías utilizadas en el prototipo.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|p{3.2cm}|p{4cm}|p{6.8cm}|}
+\hline
+\textbf{Componente} & \textbf{Tecnología} & \textbf{Materialización en el prototipo} \\
+\hline
+Backend y coordinador técnico & Python 3.11 / FastAPI & Expone la API de la aplicación, mantiene la comunicación entre servicios y ejecuta técnicamente las acciones determinadas por el motor de reglas. \\
+\hline
+Procesamiento del lenguaje & Mistral AI API & Proporciona las funciones de comprensión del lenguaje natural y generación de respuestas mediante llamadas a la API del modelo. \\
+\hline
+Motor de reglas & Java 17 / Spring Boot / Drools KIE & Ejecuta las reglas de negocio sobre el estado estructurado de la solicitud y devuelve el resultado de la evaluación y, cuando corresponde, la acción que debe ejecutarse a continuación. \\
+\hline
+Persistencia & MariaDB 11.2 & Almacena los datos utilizados por el prototipo y las trazas generadas durante el procesamiento de las solicitudes. \\
+\hline
+Servicio de solvencia & Python & Simula el acceso a fuentes externas de información de riesgo, proporcionando los datos necesarios para determinadas reevaluaciones. \\
+\hline
+\end{tabular}
+\caption{Componentes tecnológicos de la arquitectura implementada.}
+\end{table}
+
+La implementación se despliega como un conjunto de servicios independientes, lo que permite mantener separadas las responsabilidades definidas en la arquitectura. Los detalles de configuración, comunicación y ejecución de cada componente se desarrollan en las secciones posteriores.
+
+\subsection{Paradigma neuro-simbólico}
+
+La distribución anterior se corresponde con el paradigma \textbf{Symbolic[Neuro]}. \textbf{Drools} es el único componente que determina si una solicitud debe aprobarse, denegarse o derivarse a supervisión humana. \textbf{Mistral} desempeña exclusivamente funciones lingüísticas: transforma el texto del usuario en datos estructurados (NLU) y convierte el resultado de Drools en lenguaje natural (NLG). En ninguno de los dos casos puede modificar el estado canónico de la solicitud. \textbf{FastAPI} coordina técnicamente la secuencia de acciones, sin implementar lógica de negocio.
+
+Esta separación tiene una consecuencia de seguridad relevante: un error de interpretación de Mistral o un intento de \textit{prompt injection} puede afectar a los campos extraídos por NLU, pero la decisión crediticia se produce sobre el estado estructurado mediante reglas deterministas e independientes del modelo de lenguaje.
+
+\subsection{Flujo general de una solicitud}
+
+A partir de esta distribución de responsabilidades, una solicitud atraviesa una secuencia de etapas. El detalle de la implementación de cada componente se desarrolla en las secciones posteriores, en esta sección se presenta únicamente el flujo global.
+
+\begin{enumerate}
+\item \textbf{Recepción y comprensión del mensaje}: el usuario proporciona una petición en lenguaje natural. El backend la envía al componente de procesamiento del lenguaje, que extrae la información relevante y la representa mediante una estructura de datos preestablecida.
+
+\item \textbf{Incorporación de información bancaria}: el sistema recupera, cuando corresponde, los datos disponibles en el entorno bancario simulado y los incorpora a la información de la solicitud.
+
+\item \textbf{Evaluación mediante reglas}: el backend envía el estado estructurado al motor de reglas. Este aplica las condiciones definidas para el prototipo y devuelve las reglas aplicadas junto con el resultado de la evaluación o la información necesaria para determinar el siguiente paso del proceso.
+
+\item \textbf{Consulta de información externa}: cuando la evaluación determina que es necesaria información adicional, el backend solicita los datos correspondientes al servicio simulado de solvencia. La nueva información se incorpora al estado y se realiza una nueva evaluación.
+
+\item \textbf{Generación de la respuesta}: una vez obtenido el resultado final de la evaluación, el sistema proporciona la información resultante al componente de procesamiento del lenguaje para generar la respuesta que se presenta al usuario.
+
+
+\end{enumerate}
+
+La Figura muestra de manera clara el recorrido general de una solicitud, desde su recepción hasta la obtención del resultado y la generación de la respuesta.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.1\linewidth]{imagenes/Natural Language Processing-2026-10-06-225633.png}
+\end{figure}
+
+Las distintas etapas del proceso se registran en la base de datos junto con la información de estado necesaria para mantener la continuidad de la solicitud y proporcionar trazabilidad sobre su procesamiento.
+
+\section{Decisiones tecnológicas}
+
+\subsection{Por qué Drools como motor de reglas}
+
+La elección de un motor de reglas basado en lógica de producción, frente a codificar la lógica en Python o delegarla en el modelo de lenguaje, responde a tres propiedades fundamentales del dominio crediticio: determinismo, auditabilidad y separación entre política y código.
+
+Frente a alternativas orientadas a la definición determinista de flujos de ejecución, como Camunda, Drools permite trabajar con un estado de hechos sobre el que las reglas pueden evaluarse de forma incremental. El motor mantiene este estado en memoria y, cuando se incorporan nuevos datos o se modifica alguno de los existentes, puede volver a evaluar las reglas que dependen de ellos. Esta característica, habitualmente denominada \textit{stateful}, permite que una decisión no tenga que definirse como una secuencia fija de pasos, sino que pueda obtenerse a partir de las condiciones que se cumplen en cada momento.
+
+En el contexto del prototipo, esta capacidad permite que la incorporación progresiva de información al \textit{InformationState} desencadene nuevas evaluaciones. Por ejemplo, la disponibilidad de los datos económicos del cliente puede permitir calcular determinados indicadores y, a partir de estos valores, activar reglas adicionales de evaluación de solvencia.
+
+Asimismo, Drools proporciona el lenguaje DRL (\textit{Drools Rule Language}), diseñado para expresar reglas de negocio mediante una separación entre las condiciones que deben cumplirse y las acciones que se ejecutan cuando estas se satisfacen. Por ejemplo, una condición como la superación del umbral de endeudamiento puede expresarse directamente como una regla que modifica el estado de la solicitud y establece el resultado correspondiente. Esta separación permite mantener las reglas de decisión crediticia fuera de la lógica general de la aplicación y facilita su revisión y mantenimiento. Esto resulta especialmente adecuado para un sistema en el que las decisiones de negocio deben poder revisarse y modificarse sin alterar el resto de los componentes.
+
+Otra característica relevante para el prototipo es el mecanismo de priorización de reglas mediante el atributo \textit{salience}. Cuando varias reglas son aplicables simultáneamente, \textit{salience} permite establecer explícitamente cuál debe evaluarse primero. En este caso, las reglas que representan condiciones de denegación inmediata se configuran con una prioridad superior a las reglas que conducen a estados posteriores, como la aprobación. Por ejemplo, una solicitud que incumple el requisito de edad mínima debe ser tratada antes de que pueda activarse una regla de aprobación estándar.
+
+\subsection{Por qué Mistral como modelo de lenguaje}
+
+Para la implementación del componente de procesamiento del lenguaje se evaluaron modelos de lenguaje de distintas familias, entre ellas Mistral y Llama. La selección de Mistral estuvo condicionada principalmente por su adecuación a las tareas requeridas por el prototipo y por la facilidad de integración mediante su API. Al tratarse de un prototipo académico, también se tuvo en consideración la disponibilidad de modelos y servicios con un coste reducido para facilitar las pruebas y el desarrollo experimental.
+
+La principal razón técnica para seleccionar Mistral fue su integración con mecanismos de salida estructurada. En la implementación, esta funcionalidad se utiliza mediante el SDK de Mistral y el método \texttt{chat.parse()}, al que se proporciona un esquema Pydantic mediante el parámetro \texttt{response\_format}. De esta forma, la respuesta del modelo se obtiene directamente en una estructura que puede ser validada y utilizada por el backend, reduciendo la necesidad de realizar procesamiento adicional sobre texto libre.
+
+Finalmente, la integración se ha diseñado de forma desacoplada del modelo concreto. La identificación del modelo utilizado se realiza mediante la variable de entorno \texttt{MISTRAL\_MODEL}, de modo que su sustitución o actualización puede realizarse sin modificar la lógica principal del backend. Esta separación permite mantener estable la arquitectura, aunque se sustituya el modelo de lenguaje empleado en futuras versiones.
+
+\subsection{Por qué Pydantic para el esquema de datos}
+
+Pydantic actúa como capa de validación tipada en todos los puntos del \textit{pipeline}. Primero, el objeto \texttt{InformationState} es la fuente de verdad del contrato de datos: cualquier campo que no exista en el modelo Pydantic no puede propagarse al motor de reglas por diseño. Segundo, la integración con el SDK de Mistral es directa: al ejecutar \texttt{chat.parse(response\_format=EsquemaNLU)}, Pydantic se emplea como la especificación estricta del JSON esperado.
+
+\subsection{Por qué FastAPI como backend}
+
+El sistema requiere un componente backend que actúe como punto de integración entre el modelo de lenguaje, el motor de reglas, la capa de persistencia y los servicios externos utilizados durante la evaluación. En lugar de delegar esta coordinación en un \textit{framework} específico de agentes, se optó por implementar un flujo explícito en Python, de forma que las operaciones realizadas entre los distintos componentes quedasen definidas directamente en la aplicación.
+
+FastAPI se utilizó como base para este backend debido a su soporte para la definición de APIs HTTP y su integración con Pydantic para la validación de los datos intercambiados entre los servicios. Estas características permiten definir interfaces estructuradas entre los distintos componentes y mantener separadas las responsabilidades de comunicación, gestión del estado y ejecución de las operaciones.
+
+Finalmente, FastAPI proporciona documentación interactiva de las interfaces HTTP mediante OpenAPI, accesible durante el desarrollo a través de \texttt{/docs}. Esta funcionalidad facilitó la comprobación y depuración de las interfaces entre los servicios que forman parte del prototipo.
+
+
+\section{Arquitectura e infraestructura del sistema}
+
+Esta sección detalla la materialización técnica del prototipo. El sistema se ha construido bajo una arquitectura orientada a microservicios, lo que garantiza un acoplamiento débil entre las distintas tecnologías empleadas (Python, Java y SQL) y facilita la escalabilidad independiente de la capa de orquestación frente a la capa de inferencia simbólica.
+
+
+\subsection{Arquitectura física y despliegue con Docker Compose}
+
+El entorno de ejecución se orquesta mediante Docker Compose, encapsulando los servicios en contenedores aislados que se comunican a través de una red virtual privada interna denominada \textit{banca\_neurosimbolico\_net}. Esta topología aísla los componentes del exterior, exponiendo únicamente los puertos necesarios. El despliegue consta de tres contenedores principales:
+
+\begin{itemize}
+\item \textbf{Capa de Persistencia (\textit{banca\_mariadb}):} Basado en la imagen oficial de MariaDB 11.2. Se inicializa de forma automatizada ejecutando el \textit{script} \texttt{database/init.sql} durante el primer arranque. Los datos persisten en el volumen local \textit{banca\_neurosimbolico\_db}, garantizando la inmutabilidad de los datos y, por tanto, de la auditoría ante reinicios del contenedor. Incorpora un \textit{healthcheck} que verifica la disponibilidad del motor antes de permitir el arranque de los servicios dependientes.
+
+\item \textbf{Motor Simbólico (\textit{banca\_drools}):} Implementado como un microservicio Spring Boot. Su construcción emplea un enfoque \textit{multi-stage build}: una primera fase con Maven compila el artefacto JAR y sus dependencias (ecosistema KIE de Drools), y una segunda fase con Eclipse Temurin JRE 17 lo ejecuta. Para optimizar el rendimiento del motor de reglas, la configuración del servicio limita la memoria disponible para la máquina virtual de Java a un máximo de 512 MB. Su disponibilidad se monitoriza mediante el \textit{endpoint} \texttt{/actuator/health} de Spring Boot Actuator.
+
+\item \textbf{Orquestador Backend (\textit{banca\_backend}):} Basado en la imagen oficial de Python 3.11. Actúa como el único punto de entrada del sistema, sirviendo además los archivos estáticos del \textit{frontend} bancario desde el directorio \texttt{/static/}. Para prevenir condiciones de carrera durante el despliegue, el arranque de este contenedor está supeditado a los \textit{healthchecks} exitosos de MariaDB y Drools.
+\end{itemize}
+
+\subsection{Comunicación entre servicios e interfaces}
+
+La separación tecnológica de los servicios exige protocolos de comunicación estandarizados. El diseño de las interfaces y el flujo de datos se ha resuelto de la siguiente manera:
+\begin{itemize}
+    \item \textbf{Backend (FastAPI) $\leftrightarrow$ motor de reglas (Drools):} La comunicación se realiza mediante peticiones HTTP POST síncronas utilizando la biblioteca \textit{httpx} en Python. FastAPI estructura los datos que envía mediante el modelo Pydantic \texttt{DroolsRequest}. Estos datos se serializan en formato JSON y se envían al microservicio Java, donde Spring Boot los deserializa en un objeto de tipo \texttt{SolicitudEvaluacion}. El servicio utiliza los datos recibidos para alimentar una sesión de Drools, ejecutar las reglas mediante \texttt{fireAllRules()} y devolver el resultado de la evaluación a FastAPI.
+    \item \textbf{Orquestador (FastAPI) $\leftrightarrow$ Modelo de Lenguaje (Mistral):} El sistema se comunica con la API de Mistral mediante su SDK oficial utilizando una api key declarada en el \texttt{.env}. Para las tareas de extracción (NLU), se invoca el método \texttt{chat.parse()}. Para la tarea de generación (NLG), se utiliza \texttt{chat.complete()}.
+    \item \textbf{Orquestador (FastAPI) $\leftrightarrow$ Persistencia (MariaDB):} El acceso a la base de datos se realiza mediante SQLAlchemy, una biblioteca de Python que permite interactuar con las tablas relacionales mediante objetos y operaciones de Python sin necesidad de escribir manualmente todas las consultas SQL, siguiendo el enfoque conocido como ORM (\textit{Object-Relational Mapper}). Para establecer la conexión con MariaDB se utiliza el dialecto \texttt{mysql+pymysql}, que especifica el sistema gestor de bases de datos y el controlador empleado.
+    \item \textbf{Orquestador (FastAPI) $\leftrightarrow$ Mock de Solvencia (Datos Externos):} En lugar de introducir latencia de red adicional, la simulación de servicios externos (CIRBE/ASNEF) se ha integrado en la capa de servicios de FastAPI. La clase \texttt{BdeMockService} carga el archivo \texttt{bde.json} en memoria durante la inicialización y sirve los datos financieros mediante búsquedas en diccionarios locales (por DNI), simulando el comportamiento de un sistema \textit{core} bancario.
+\end{itemize}
+
+La figura siguiente sintetiza visualmente este esquema de interacciones:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=0.6\textheight]{imagenes/Capa de Orquestación y-2026-10-10-112614.png}
+\end{figure}
+
+\subsection{Estructura y organización del proyecto}
+
+El código del prototipo se ha organizado siguiendo patrones de diseño de separación de responsabilidades, dividiendo el repositorio en los siguientes bloques:
+
+\begin{itemize}
+    \item \textbf{\texttt{backend/}}: Contiene la lógica del orquestador en FastAPI. El subdirectorio \texttt{app/} incluye \texttt{main.py} y agrupa la lógica de negocio en capas: \texttt{services/} para el orquestador principal y servicios auxiliares, \texttt{clients/} para las integraciones con Mistral y Drools, \texttt{schemas/} para los modelos de datos (Pydantic), \texttt{models/} para el mapeo ORM (SQLAlchemy), y \texttt{routers/} para la exposición de los \textit{endpoints}. Adicionalmente, incluye el \textit{frontend} en \texttt{static/}, una práctica no muy profesional, pero suficiente para el foco principal del tfm.
+    \item \textbf{\texttt{drools-app/}}: Contiene el microservicio en Spring Boot. Las reglas de negocio DRL, elemento central de la lógica simbólica, residen en \texttt{src/main/resources/rules/prestamos.drl}. Los modelos de datos Java se agrupan en el paquete \texttt{model/}.
+    \item \textbf{\texttt{database/}}: Agrupa el \textit{script} de inicialización (\texttt{init.sql}) que definen el esquema DDL y los datos de prueba poblados durante el despliegue.
+    \item \textbf{\texttt{tests/}}: Contiene la batería de pruebas automatizadas. Comentaremos esto en el siguiente capítulo más en profundidad.
+\end{itemize}
+
+
+\section{El \textit{Information State Update} (ISU)}
+
+El \texttt{InformationState} constituye el contrato de datos central del sistema, implementado como un modelo Pydantic en \texttt{schemas/state.py}. Este objeto actúa como la única fuente de verdad durante la evaluación. Se compone de cinco bloques de información, cada uno con un ciclo de poblamiento y procedencia definidos. Además, para garantizar la integridad de la solicitud, la arquitectura restringe cómo y cuándo muta la información dentro de cada bloque del esquema:
+
+\begin{itemize}
+    \item \textbf{\texttt{datos\_usuario}:} Contiene las entidades extraídas por el modelo de lenguaje. En particular, extrae la intención principal, la cantidad solicitada, el plazo en meses, el propósito, los gastos fijos mensuales y la deuda declarada. Incluye también un campo para recoger dudas o consultas del cliente que no encajen en los campos estructurados anteriores. Se actualiza turno a turno mediante un proceso de \textit{fusión acumulativa}: si el componente NLU extrae un valor válido, este sobrescribe el campo; si no extrae información (devuelve \texttt{null}), se preserva intacto el valor del turno anterior.
+    
+    \item \textbf{\texttt{datos\_core\_bancario}:} Representa el perfil financiero estático del cliente dentro del banco. De aquí se obtienen los siguientes datos: identificador, nombre, DNI, edad, ingresos netos mensuales, antigüedad en meses del cliente, la deuda interna dentro del banco y si el usuario es avalista de alguna empresa. Para optimizar el rendimiento, esta información se recupera de la base de datos (\texttt{clientes}) una única vez durante el primer turno. En interacciones posteriores, el orquestador recupera esta información directamente desde el último estado persistido.
+    
+    \item \textbf{\texttt{datos\_externos\_bde}:} Alberga la información de solvencia simulada (CIRBE y ASNEF). Su poblamiento es condicional: el campo \texttt{consultado} se inicializa en \texttt{false} y, si es necesario, Drools dispara la regla específica para su consulta. Una vez realizada la llamada al servicio externo y obtenidos los datos de deuda y morosidad, la bandera pasa a \texttt{true}, bloqueando ejecuciones redundantes en turnos posteriores. Contiene los siguientes datos: si tiene impagos activos, el importe de morosidad, la deuda mensual y total, y si la empresa avalada está en concurso.
+    
+    \item \textbf{\texttt{evaluacion\_drools}:} Almacena el resultado emitido por el motor simbólico tras cada iteración. Incluye el estado de la solicitud, las reglas disparadas, la siguiente acción requerida, el dato faltante, el artículo normativo, el texto legal aplicable y el tono recomendado para la generación de la respuesta.
+    
+    \item \textbf{\texttt{calculos\_derivados}:} Agrupa las métricas financieras necesarias para evaluar la viabilidad de la operación.
+\end{itemize}
+
+Estos cálculos derivados son realizados por el microservicio Java (\texttt{DroolsService}, mediante el método \texttt{calcularDerivados()}) antes de insertar los \textit{facts} en la memoria de trabajo de Drools. Su función es transformar los datos disponibles en indicadores financieros que puedan utilizar las reglas de negocio. Las fórmulas implementadas son:
+
+\begin{align}
+\text{cuota\_estimada} &= \frac{\text{cantidad\_solicitada}}{\text{plazo\_meses}} \\[2mm]
+\text{total\_compromisos} &= \text{cuota\_estimada} + \text{gastos\_fijos\_mens} \nonumber \\
+&\quad + \text{deuda\_interna\_mens} + \text{deuda\_cirbe\_mens} \\[2mm]
+\text{ratio\_endeudamiento} &= \frac{\text{total\_compromisos}}{\text{ingresos\_netos\_mens}} \\[2mm]
+\text{remanente\_subsistencia} &= \text{ingresos\_netos\_mens} - \text{total\_compromisos} \\[2mm]
+\text{edad\_al\_vencimiento} &= \text{edad} + \left\lfloor \frac{\text{plazo\_meses}}{12} \right\rfloor
+\end{align}
+
+La implementación adopta una estrategia de cálculo parcial que permite evaluar la solicitud con la información disponible en cada momento. La cuota estimada solo se calcula si se conocen la cantidad solicitada y el plazo, y este último es distinto de cero. A partir de esa cuota, el total de compromisos se calcula sumando los gastos fijos y las deudas mensuales cuyos valores están disponibles. Los conceptos todavía desconocidos no se incorporan al total y, por tanto, contribuyen como cero a efectos de este cálculo provisional. El ratio de endeudamiento y el remanente se obtienen cuando, además, se dispone de los ingresos netos mensuales. La edad al vencimiento se calcula mediante división entera, considerando únicamente los años completos incluidos en el plazo.
+
+Esta estrategia permite que Drools identifique determinadas condiciones de inviabilidad antes de realizar consultas externas. Por ejemplo, si los compromisos ya conocidos superan el umbral de endeudamiento establecido, la solicitud puede evaluarse sin consultar previamente la información de CIRBE, ya que esta solo empeoraría la situación económica del cliente. Esta decisión reduce consultas que no aportarían valor a la evaluación en ese escenario, aunque implica que los indicadores calculados antes de completar las consultas externas son provisionales y pueden cambiar cuando se incorpora nueva información.
+
+Por último, debe delimitarse el alcance del modelo financiero implementado. Las fórmulas y los datos empleados constituyen una simplificación deliberada del proceso de concesión de crédito, desarrollada en un entorno académico. La cuota estimada se obtiene mediante una división lineal del capital entre el número de meses, sin incorporar intereses, comisiones ni otras condiciones contractuales. Asimismo, conceptos como las deudas mensuales o la información relativa a avalistas se representan de forma simplificada y no abarcan toda la casuística de un entorno bancario real. La consulta de CIRBE y ASNEF se simula mediante un servicio externo independiente de la base de datos de clientes, con el propósito de representar la incorporación de información procedente de otros sistemas. Una integración bancaria real requeriría modelos de datos más detallados, criterios financieros adicionales y mecanismos de interoperabilidad y validación que quedan fuera del alcance de este trabajo. Estas simplificaciones permiten concentrar el análisis en el objetivo principal del proyecto: estudiar la interacción entre la interpretación neuronal del lenguaje natural y la evaluación simbólica mediante reglas de negocio.
+
+\section{Orquestación del flujo conversacional}
+
+La clase \texttt{PipelineOrchestrator} coordina la ejecución de cada turno conversacional mediante el método \texttt{procesar\_turno\_conversacional()}. Su responsabilidad principal es ejecutar las acciones requeridas por los componentes del sistema y gestionar las iteraciones necesarias hasta obtener un resultado para el turno.
+
+\subsection{Ciclo de ejecución y coordinación de acciones}
+
+En cada turno, el orquestador procesa la entrada del usuario mediante la extracción NLU y actualiza el \texttt{InformationState}. Cuando corresponde (solamente durante el primer turno de la conversación), incorpora los datos del core bancario y envía el estado disponible al motor Drools para su evaluación.
+
+A partir del estado de la solicitud y de las reglas de negocio, Drools determina el siguiente paso del proceso, que puede implicar solicitar información adicional, consultar CIRBE/ASNEF o establecer un resultado de evaluación. El orquestador interpreta la acción indicada y ejecuta las operaciones técnicas necesarias para llevarla a cabo.
+
+Finalmente, Mistral genera la respuesta en lenguaje natural a partir del estado resultante y de las indicaciones de la evaluación. De este modo, la interpretación lingüística y la formulación de respuestas se delegan en el componente neuronal, mientras que el control funcional del proceso permanece en Drools.
+
+Esta separación permite distinguir entre la decisión funcional y su ejecución: el motor simbólico determina \textit{qué debe ocurrir}, mientras que el orquestador se encarga de ejecutar técnicamente la acción correspondiente. Aunque la implementación actual contempla un conjunto limitado de acciones (únicamente la consulta de CIRBE/ASNEF), el diseño podría ampliarse incorporando nuevas operaciones y definiendo, mediante reglas en el motor simbólico, las condiciones para activarlas.
+
+Asimismo, podría haberse incorporado una regla inicial que evaluase si la información de entrada cumplía las condiciones necesarias a nivel estructural para proceder a la evaluación simbólica y, en caso contrario, solicitase la intervención del componente neuronal para realizar la extracción NLU. Sin embargo, dado que esta extracción se realiza en cada turno conversacional antes de evaluar la solicitud, introducir una regla específica para decidir si debe ejecutarse habría añadido complejidad sin aportar una ventaja funcional significativa en el escenario implementado. Esta alternativa ilustra, no obstante, cómo el motor simbólico podría asumir un papel más amplio en la determinación de las acciones que componen el flujo de procesamiento.
+
+\subsection{Gestión del contexto conversacional}
+
+Para mantener la coherencia a lo largo de las interacciones, la arquitectura no almacena el estado en la memoria de la aplicación. En su lugar, el orquestador persiste en la base de datos el estado actualizado de la solicitud, lo que permite recuperarlo al inicio de cada nuevo turno conversacional.
+
+FastAPI reconstruye el contexto leyendo el último \texttt{InformationState} persistido en la base de datos mediante el método \texttt{AuditTracker.obtener\_ultimo\_estado()}. Tras aplicar las acciones correspondientes (extracción NLU, evaluación en Drools o consulta a los \textit{mocks}), el nuevo estado consolidado se persiste como un registro independiente. Este diseño permite que el orquestador backend opere de forma completamente \textit{stateless}, delegando la persistencia de la sesión a MariaDB y facilitando la reconstrucción íntegra de la auditoría paso a paso.
+
+Por otro lado, para construir el contexto enviado a Mistral en la tarea de NLU, el sistema recupera de la tabla de auditoría los últimos cuatro intercambios conversacionales, identificando las acciones \texttt{EXTRACT\_NLU} y \texttt{GENERATE\_NATURAL\_RESPONSE}. De ellas obtiene, respectivamente, los mensajes del usuario almacenados en \texttt{step\_input} y las respuestas del sistema registradas en \texttt{step\_output}.
+
+\section{Componente neuronal: Mistral}
+
+Como se ha descrito en la arquitectura general, el modelo de lenguaje se utiliza para interpretar las entradas en lenguaje natural y formular las respuestas del sistema, sin asumir la responsabilidad de evaluar las reglas de negocio. La clase \texttt{MistralClient} define estas funcionalidades mediante dos métodos principales: \texttt{extraer\_nlu()} y \texttt{generar\_nlg()}, configurados mediante \textit{system prompts} específicos para cada tarea.
+
+\subsection{Extracción estructurada (NLU)}
+
+La extracción de información se realiza mediante una llamada a \texttt{chat.parse()} con \texttt{temperature = 0.0}, una configuración orientada a reducir la variabilidad de las respuestas, tratando de evitar alucinaciones. La salida se estructura conforme al esquema \texttt{EsquemaNLU}, definido para restringir los tipos y los campos admitidos.
+
+El principal elemento de control de esta fase es la ingeniería del \textit{system prompt}, que combina instrucciones explícitas con una estrategia de \textit{few-shot prompting}. Esta última consiste en proporcionar al modelo ejemplos de mensajes de usuario junto con sus correspondientes salidas estructuradas, ilustrando el comportamiento esperado ante distintos tipos de entrada.
+
+Las instrucciones establecen una política de extracción conservadora: el modelo debe identificar la información aportada en el último mensaje del usuario y utilizar el historial únicamente para interpretar respuestas vinculadas al contexto inmediato, sin volver a extraer datos proporcionados en turnos anteriores. Asimismo, el \textit{prompt} define criterios de normalización para convertir expresiones coloquiales en valores estructurados, por ejemplo, transformar una cantidad expresada como ``doce mil'' en \texttt{12000.0} o un plazo de tres años en 36 meses. La posterior fusión acumulativa de los datos extraídos con el \texttt{InformationState} permite conservar la información obtenida en turnos anteriores cuando el mensaje actual no aporta un nuevo valor.
+
+Los ejemplos incluidos en el \textit{prompt} cubren distintos escenarios, como saludos, solicitudes de préstamo, declaración de gastos y deudas, y consultas informativas. De este modo, el \textit{few-shot prompting} ayuda a ilustrar tanto el formato de salida esperado como los criterios de extracción y clasificación aplicables.
+
+Por ejemplo se incluye el siguiente caso, en el que el modelo debe identificar la intención de solicitar un préstamo y extraer tanto sus características como la información financiera declarada:
+
+\begin{verbatim}
+Usuario: "Necesito 8000 euros a 2 años para hacer una reforma. 
+Pago 650 de alquiler y tengo una deuda de 5000 euros en otro banco."
+
+JSON: {
+  "intencion_principal": "SOLICITAR_PRESTAMO",
+  "cantidad_solicitada": 8000.0,
+  "plazo_meses": 24,
+  "proposito": "REFORMA",
+  "gastos_fijos_mensuales": 650.0,
+  "deuda_declarada": 5000.0,
+  "duda_catch_all": "NINGUNA"
+}
+\end{verbatim}
+
+El ejemplo muestra cómo las instrucciones del \textit{prompt} guían la normalización del plazo, la clasificación del propósito y la distinción entre gastos fijos y deudas externas, proporcionando una referencia concreta del comportamiento esperado.
+
+\subsection{Generación de respuestas (NLG)}
+
+Una vez disponible el resultado de la evaluación simbólica, el orquestador solicita a Mistral la redacción de la respuesta mediante \texttt{chat.complete()}. La configuración utiliza \texttt{temperature = 0.2} y un límite de \texttt{max\_tokens = 200}, con el objetivo de favorecer respuestas breves y reducir la generación de contenido innecesario.
+
+Para contextualizar esta generación, el modelo recibe información estructurada sobre el resultado de la evaluación. Este contexto incluye, según corresponda, el estado de la solicitud, los datos pendientes, la referencia normativa, la justificación de la decisión y el tono requerido.
+
+El \textit{system prompt} de esta fase establece las siguientes restricciones de comportamiento:
+
+\begin{itemize}
+    \item \textbf{Fidelidad a la evaluación:} no debe tomar decisiones crediticias por su cuenta, inventar información ni introducir cálculos que no estén respaldados por los datos proporcionados.
+    
+    \item \textbf{Protección de los detalles internos:} no debe revelar al usuario nombres de variables internas, identificadores de reglas ni estructuras JSON de implementación.
+    
+    \item \textbf{Adecuación del tono:} debe ajustar la respuesta al valor de \texttt{tono\_mensaje} indicado por el motor de reglas, por ejemplo, \textit{``firme, claro y respetuoso''} o \textit{``amable y orientativo''}.
+    
+    \item \textbf{Continuidad conversacional:} debe evitar volver a solicitar información que ya conste como disponible en el contexto proporcionado.
+\end{itemize}
+
+Estas instrucciones actúan como mecanismos preventivos para orientar la generación y mantener la coherencia entre la evaluación simbólica y la respuesta comunicada. No constituyen, por sí solas, una garantía absoluta de cumplimiento, por lo que la separación de responsabilidades entre el modelo neuronal y el motor simbólico sigue siendo un principio central del diseño.
+
+
+
+\section{Componente simbólico (Drools)}
+
+El componente simbólico se implementa mediante Drools, un motor de reglas que permite expresar las políticas de crédito de forma declarativa. La integración se realiza a través del controlador \texttt{RuleController}, que expone el \textit{endpoint} \texttt{POST /api/evaluate}, utilizado por el cliente Python.
+
+Por cada petición, el servicio \texttt{DroolsService} crea una nueva \texttt{KieSession}, inserta los bloques de datos del \texttt{InformationState} como hechos independientes y ejecuta las reglas mediante \texttt{fireAllRules()}. Una vez obtenida la evaluación, la sesión se cierra en un bloque \texttt{finally}. La creación de una sesión por petición permite aislar la memoria de trabajo de cada evaluación, evitando compartir los hechos entre solicitudes concurrentes.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{imagenes/Capa de Orquestación y-2026-10-11-214747.png}
+    \caption{Ciclo de vida completo de una petición de evaluación a través del componente simbólico}
+\end{figure}
+
+\subsection{Priorización de activaciones}
+
+Drools permite que varias reglas sean candidatas a ejecutarse cuando sus condiciones se satisfacen simultáneamente. Para controlar qué decisión prevalece, la implementación combina el atributo \texttt{salience}, que establece la prioridad relativa de las activaciones, con una condición de exclusión basada en el estado de la evaluación.
+
+El motor utiliza el objeto \texttt{ResultadoEvaluacion}, inicializado con \texttt{estado = ``EN\_PROCESO''}. Todas las reglas decisorias incluyen la siguiente condición:
+
+\begin{verbatim}
+$res : ResultadoEvaluacion(estado == "EN_PROCESO")
+\end{verbatim}
+
+Cuando una regla toma una decisión, actualiza el estado del objeto y notifica el cambio al motor mediante \texttt{update(\$res)}. De este modo, las reglas que requieren que el estado sea \texttt{EN\_PROCESO} dejan de satisfacer esa condición una vez que el estado cambia. Este mecanismo reduce el riesgo de que varias reglas decisorias sobrescriban el resultado de una misma evaluación.
+
+El atributo \texttt{salience} establece la prioridad relativa de las activaciones disponibles: cuanto mayor es su valor, mayor es su prioridad. No obstante, la prioridad no garantiza por sí sola la corrección del resultado, ya que este también depende de las condiciones definidas en cada regla y de las actualizaciones realizadas durante la ejecución.
+
+Como ejemplo, la regla \texttt{R\_RATIO\_ENDEUDAMIENTO} deniega la solicitud cuando el ratio de endeudamiento calculado supera el 40\,\% de los ingresos netos mensuales:
+
+\begin{verbatim}
+rule "R_RATIO_ENDEUDAMIENTO"
+    salience 92
+    when
+        $res : ResultadoEvaluacion(estado == "EN_PROCESO")
+        $calc : CalculosDerivados(
+            ratioEndeudamiento != null,
+            ratioEndeudamiento > 0.40
+        )
+    then
+        $res.setEstado("DENEGADO");
+        $res.getReglasDisparadas().add("R_RATIO_ENDEUDAMIENTO");
+        $res.setArticuloNormativo("Art. 18 Directiva 2014/17/UE");
+        $res.setTono("firme, claro y respetuoso");
+        update($res);
+end
+\end{verbatim}
+
+La regla establece una prioridad de 92 y comprueba tanto que la evaluación siga en curso como que el ratio calculado supere el umbral definido. Si ambas condiciones se cumplen, modifica el estado de la evaluación, registra la regla ejecutada y añade metadatos que permiten contextualizar la decisión y orientar su comunicación.
+
+La siguiente tabla recoge las prioridades asignadas a las reglas del prototipo y el estado que establece cada una al ejecutarse. Se incluyen estados de denegación, solicitud de información, ejecución de acciones externas, supervisión humana y aprobación.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{|l|c|l|}
+\hline
+\textbf{Regla} & \textbf{Salience} & \textbf{Estado resultante} \\
+\hline
+\texttt{R\_EDAD\_MINIMA} & 100 & \texttt{DENEGADO} \\
+\texttt{R\_EDAD\_MAXIMA} & 95 & \texttt{DENEGADO} \\
+\texttt{R\_RATIO\_ENDEUDAMIENTO} & 92 & \texttt{DENEGADO} \\
+\texttt{R\_MINIMO\_SUBSISTENCIA} & 91 & \texttt{DENEGADO} \\
+\texttt{R\_PROPOSITO\_NO\_FINANCIABLE} & 90 & \texttt{DENEGADO} \\
+\texttt{R\_CANTIDAD\_Y\_PLAZO\_REQUERIDOS} & 85 & \texttt{REQUIERE\_DATOS} \\
+\texttt{R\_PROPOSITO\_REQUERIDO} & 80 & \texttt{REQUIERE\_DATOS} \\
+\texttt{R\_GASTOS\_FIJOS\_REQUERIDOS} & 75 & \texttt{REQUIERE\_DATOS} \\
+\texttt{R\_DISPARAR\_CIRBE} & 70 & \texttt{REQUIERE\_ACCION} \\
+\texttt{R\_MOROSIDAD\_ASNEF} & 60 & \texttt{DENEGADO} \\
+\texttt{R\_ALERTA\_QUIEBRA\_AVAL} & 50 & \texttt{DENEGADO} \\
+\texttt{R\_DISCREPANCIA\_DECLARADA} & 40 & \texttt{REQUIERE\_SUPERVISION\_HUMANA} \\
+\texttt{R\_APROBACION\_ESTANDAR} & 10 & \texttt{APROBADO} \\
+\hline
+\end{tabular}
+\caption{Catálogo de reglas implementadas por \textit{salience} descendente.}
+\end{table}
+
+\section{Implementación de las reglas de negocio}
+
+El archivo \texttt{prestamos.drl} contiene las 14 reglas que definen el comportamiento decisorio del prototipo. Las agrupamos según su función: elegibilidad y viabilidad financiera, recopilación de información, consulta de fuentes externas, gestión de discrepancias y aprobación.
+
+\subsection{Elegibilidad y viabilidad financiera}
+
+Las reglas de elegibilidad comprueban condiciones básicas de acceso al producto. \texttt{R\_EDAD\_MINIMA} deniega las solicitudes de usuarios menores de 18 años, mientras que \texttt{R\_EDAD\_MAXIMA} deniega aquellas cuyo titular superaría los 75 años al vencimiento previsto del préstamo. Por su parte, \texttt{R\_PROPOSITO\_NO\_FINANCIABLE} excluye los propósitos clasificados como \texttt{CRIPTOMONEDAS}, \texttt{APUESTAS} o \texttt{REFINANCIACION\_INFORMAL}.
+
+La viabilidad financiera se evalúa mediante indicadores calculados a partir de la información disponible. \texttt{R\_RATIO\_ENDEUDAMIENTO} deniega la solicitud cuando el ratio de endeudamiento supera el 40\,\% de los ingresos netos mensuales. Por su parte, \texttt{R\_MINIMO\_SUBSISTENCIA} deniega cuando el remanente mensual calculado es inferior a 700 euros.
+
+Los umbrales de edad máxima, endeudamiento y remanente corresponden a políticas de diseño del prototipo, definidas en las reglas DRL, y no deben interpretarse como límites legales universales.
+
+\subsection{Recopilación de información y consulta externa}
+
+Las reglas de información pendiente comprueban si están disponibles los datos necesarios para continuar la evaluación. \texttt{R\_CANTIDAD\_Y\_PLAZO\_REQUERIDOS} identifica la ausencia de la cantidad solicitada o del plazo. \texttt{R\_PROPOSITO\_REQUERIDO} solicita el propósito cuando los datos anteriores están disponibles. \texttt{R\_GASTOS\_FIJOS\_REQUERIDOS} señala la ausencia de los gastos fijos mensuales, tales como los gastos por el alquiler de la vivienda, suministros, seguros, etc. Estas reglas producen el estado \texttt{REQUIERE\_DATOS} e identifican mediante \texttt{dato\_faltante} la información que debe completarse, permitiendo una recopilación progresiva de los datos.
+
+Cuando se dispone de la información necesaria y todavía no se ha realizado la consulta externa, \texttt{R\_DISPARAR\_CIRBE} establece el estado \texttt{REQUIERE\_ACCION} y asigna a \texttt{accion\_requerida} el valor \texttt{CONSULTAR\_CIRBE\_ASNEF}. El orquestador ejecuta entonces la operación correspondiente contra el servicio simulado e incorpora los resultados al estado de la solicitud antes de continuar con la evaluación.
+
+\subsection{Riesgo externo, discrepancias y supervisión humana}
+
+Las reglas basadas en información externa permiten evaluar circunstancias que no pueden determinarse únicamente a partir de los datos proporcionados por el usuario. \texttt{R\_MOROSIDAD\_ASNEF} deniega la solicitud cuando, tras realizarse la consulta, se detectan impagos activos o un valor de morosidad ASNEF superior a cero. \texttt{R\_ALERTA\_QUIEBRA\_AVAL} deniega cuando el usuario figura como avalista de una empresa en concurso de acreedores.
+
+La regla \texttt{R\_DISCREPANCIA\_DECLARADA} detecta diferencias entre la deuda declarada por el usuario y la deuda total registrada en CIRBE. La condición implementada comprueba si la deuda registrada supera en más de un 35\,\% la declarada:
+
+\begin{verbatim}
+eval($bde.getDeudaCirbeTotal() >
+     ($du.getDeudaDeclarada() * 1.35))
+\end{verbatim}
+
+Cuando se cumple esta condición, el motor establece el estado \texttt{REQUIERE\_SUPERVISION\_HUMANA} en lugar de denegar automáticamente la solicitud. Esta decisión de diseño permite derivar a revisión las discrepancias que requieren comprobación adicional, en lugar de tratarlas directamente como evidencia concluyente de riesgo.
+
+\subsection{Aprobación y justificación de las decisiones}
+
+\texttt{R\_APROBACION\_ESTANDAR} es la regla que produce el estado \texttt{APROBADO}. Entre sus condiciones se encuentran un ratio de endeudamiento no superior al 40\,\%, un remanente mensual de al menos 700 euros, la consulta externa realizada, la ausencia de impagos activos y una morosidad ASNEF igual a cero. La aprobación representa, por tanto, el cumplimiento de los criterios codificados en el prototipo.
+
+Las reglas incorporan metadatos que permiten contextualizar la decisión del motor simbólico:
+
+\begin{itemize}
+    \item \texttt{articuloNormativo}: almacena la referencia normativa o el criterio regulatorio asociado a la decisión. Su contenido sirve como contexto para explicar el fundamento de la regla aplicada, aunque no siempre corresponde a un artículo concreto de una disposición legal.
+    
+    \item \texttt{textoLegal}: contiene la justificación asociada a la decisión, preparada durante la definición de la regla. Explica el motivo de la decisión o la información que se necesita para continuar la evaluación y proporciona al modelo neuronal una base de contenido para formular la respuesta.
+    
+    \item \texttt{tono}: especifica las características comunicativas esperadas de la respuesta, mediante indicaciones como \textit{amable, orientativo y conciso} o \textit{claro, respetuoso y transparente}. Su finalidad es orientar la forma de expresar la decisión, sin modificar el estado establecido por el motor simbólico ni los criterios que han determinado el resultado.
+\end{itemize}
+
+ Estos elementos se proporcionan a Mistral para que formule la explicación dirigida al usuario a partir de información determinada por el motor de reglas, evitando que el modelo genere por su cuenta los fundamentos de la decisión.
+
+\subsection{Verificación del motor de reglas}
+
+La verificación del comportamiento del motor simbólico se articula mediante dos baterías de pruebas complementarias ubicadas en el directorio \texttt{tests/}:
+
+\begin{itemize}
+    \item \textbf{Verificación unitaria del catálogo (\texttt{test\_drools\_rules.py}):} Esta batería comprueba la correcta implementación y activación individual de cada regla de negocio. La estrategia parte de un perfil base que cumple todos los criterios de concesión estándar (\texttt{R\_APROBACION\_ESTANDAR}) y altera de forma aislada los datos pertinentes para evaluar la respuesta ante cada condición específica. De este modo, se comprueba que cada regla se dispare ante sus premisas específicas y asigne el estado, fundamentación jurídica y tono requeridos.
+
+    \item \textbf{Verificación de prioridades y resolución de conflictos (\texttt{test\_drools\_salience.py}):} Dado que en un escenario real una solicitud puede activar múltiples reglas a la vez, esta batería valida el comportamiento del motor ante condiciones concurrentes. Las pruebas configuran casos en los que se satisfacen simultáneamente las premisas de dos o más reglas en distintos escalones de prioridad (por ejemplo, minoría de edad frente a ratio financiero, propósito no financiable frente a consulta de CIRBE, o morosidad en ASNEF frente a discrepancia declarada). La batería verifica que la regla de mayor \textit{salience} resuelva el conflicto y que la guarda (\texttt{estado == ``EN\_PROCESO''}), unida a la actualización del hecho (\texttt{update(\$res)}), inhiba la ejecución de las reglas de menor prioridad, garantizando que no se sobreescriba la decisión.
+\end{itemize}
+
+La combinación de ambas baterías permite certificar tanto la validez de las reglas aisladas como el determinismo y la robustez del motor ante conflictos normativos.
+
+
+\section{Entorno bancario simulado}
+
+El prototipo utiliza un entorno bancario simulado que permite representar tanto la información interna de los clientes como las consultas a fuentes externas de solvencia. Este entorno se compone de una base de datos que representa el \textit{core} bancario y un servicio que simula las consultas a CIRBE y ASNEF.
+
+\subsection{Simulación del \textit{core}}
+
+La información interna se almacena en la tabla relacional \texttt{clientes}, cuyo esquema se define en \texttt{database/init.sql}. Esta tabla contiene los datos identificativos y financieros necesarios para la evaluación, entre ellos \texttt{cliente\_id}, \texttt{dni}, \texttt{edad}, \texttt{ingresos\_netos\_mensuales} y \texttt{antiguedad\_meses}, así como los campos \texttt{es\_avalista} y \texttt{empresa\_avalada\_cif}, relacionados con posibles avales. El campo \texttt{deuda\_interna\_banco\_mensual} representa las cuotas mensuales de préstamos activos con la propia entidad y se incorpora al cálculo de los compromisos financieros del solicitante.
+
+La base de datos se inicializa con cuatro perfiles de prueba que permiten comprobar distintos escenarios del motor de reglas:
+
+\begin{itemize}
+    \item \textbf{CLI-001}: perfil sin incidencias, utilizado para comprobar el flujo de aprobación estándar.
+    \item \textbf{CLI-002}: cliente que actúa como avalista de una empresa en concurso de acreedores.
+    \item \textbf{CLI-003}: perfil con morosidad activa registrada en fuentes externas.
+    \item \textbf{CLI-004}: solicitante próximo al límite de edad máxima establecido en el prototipo.
+\end{itemize}
+
+\subsection{Simulación de consultas externas de solvencia}
+
+Las consultas a CIRBE y ASNEF se simulan mediante la clase \texttt{BdeMockService}, que utiliza el archivo \texttt{bde.json} para recuperar la información asociada a cada DNI. Los datos incluyen la existencia de impagos activos, el importe de la morosidad en ASNEF, la situación concursal de la empresa avalada y los importes de deuda mensual y total registrados en CIRBE. El servicio también contempla una entrada \texttt{\_default}, sin incidencias, que se utiliza cuando el DNI consultado no está incluido explícitamente en el archivo.
+
+Además, las operaciones de consulta simuladas se exponen mediante \textit{endpoints} REST que pueden inspeccionarse y ejecutarse desde la documentación interactiva de Swagger, disponible en la ruta \texttt{/docs} de FastAPI. Esto permite comprobar las respuestas del servicio para distintos DNI sin tener que recorrer todo el flujo conversacional.
+
+\section{Persistencia y trazabilidad}
+
+El sistema utiliza MariaDB como capa de persistencia relacional para registrar las interacciones y los pasos de procesamiento de cada evaluación. Este registro permite relacionar las entradas, salidas y estados a las operaciones del sistema, facilitando el seguimiento y el análisis retrospectivo de las decisiones.
+
+\subsection{Esquema de la tabla \texttt{trazas\_auditoria}}
+
+La tabla \texttt{trazas\_auditoria} centraliza los registros de auditoría de la aplicación. Su estructura permite identificar cada operación, situarla dentro de una sesión y un turno conversacional y conservar información sobre su ejecución. Las principales columnas son:
+
+\begin{itemize}
+    \item \textbf{\texttt{id}}: Clave primaria autoincremental de tipo \texttt{BIGINT}, que identifica de forma única cada registro y permite establecer un orden de referencia entre ellos.
+    \item \textbf{\texttt{session\_id}}: Identificador de la sesión conversacional, almacenado como \texttt{VARCHAR(64)}. Permite agrupar los registros correspondientes a una misma sesión.
+    \item \textbf{\texttt{turn\_id}}: Número de turno (\texttt{INT}), que identifica la interacción dentro de la sesión.
+    \item \textbf{\texttt{step\_order}}: Orden del paso dentro de un turno (\texttt{INT}), que permite reconstruir la secuencia de operaciones registradas.
+    \item \textbf{\texttt{action\_type}}: Tipo de operación ejecutada (\texttt{VARCHAR(64)}), como \texttt{EXTRACT\_NLU} o \texttt{EVALUATE\_DROOLS}.
+    \item \textbf{\texttt{step\_input}}: Campo de tipo \texttt{JSON} que almacena los datos de entrada registrados para la operación.
+    \item \textbf{\texttt{step\_output}}: Campo de tipo \texttt{JSON} que conserva la salida registrada de la operación, antes de las transformaciones posteriores que puedan producirse en el flujo.
+    \item \textbf{\texttt{information\_state}}: Campo de tipo \texttt{JSON} que almacena una copia del estado de la solicitud asociado al paso registrado, lo que permite consultar qué información se encontraba disponible en ese punto del procesamiento.
+    \item \textbf{\texttt{created\_at}}: Marca temporal de tipo \texttt{TIMESTAMP}, generada por la base de datos, que indica cuándo se creó el registro.
+\end{itemize}
+
+Además, para agilizar las consultas de auditoría, la tabla dispone de índices sobre \texttt{session\_id}, la combinación de \texttt{session\_id} y \texttt{turn\_id}, \texttt{action\_type} y \texttt{created\_at}.
+
+\subsection{Registro de las operaciones}
+
+La escritura de los registros corresponde a la clase \texttt{AuditTracker}, ubicada en \texttt{services/audit\_tracker.py}. Desde la aplicación, el registro sigue un enfoque \textit{append-only}: los registros históricos se conservan sin actualizaciones ni eliminaciones durante el funcionamiento ordinario del sistema.
+
+La persistencia se realiza de forma síncrona después de cada paso del orquestador. La utilización de \texttt{db.add()} y \texttt{db.commit()} permite guardar y confirmar cada registro antes de continuar con la siguiente operación. De este modo, cada paso dispone de su propio registro confirmado.
+
+\subsection{Reconstrucción de la evaluación}
+
+Los registros permiten analizar retrospectivamente una evaluación a partir de la información conservada en cada paso. En particular, pueden utilizarse para examinar los siguientes aspectos:
+
+\begin{enumerate}
+    \item \textbf{Información disponible:} el campo \texttt{information\_state} permite consultar el estado de la solicitud en un determinado instante.
+    \item \textbf{Entrada y salida de la evaluación:} los campos \texttt{step\_input} y \texttt{step\_output} permiten inspeccionar, respectivamente, los datos registrados como entrada y el resultado devuelto por la operación.
+    \item \textbf{Secuencia de operaciones:} la combinación de \texttt{session\_id}, \texttt{turn\_id}, \texttt{step\_order} y \texttt{action\_type} permite reconstruir la secuencia de pasos registrados durante el procesamiento de la solicitud.
+    \item \textbf{Respuesta dirigida al usuario:} si la salida de \texttt{GENERATE\_NATURAL\_RESPONSE} conserva el texto generado, es posible recuperar la respuesta registrada y compararla con la decisión y las instrucciones proporcionadas por el componente simbólico.
+\end{enumerate}
+
+En conjunto, este mecanismo proporciona trazabilidad sobre las operaciones registradas y facilita la revisión de las decisiones del prototipo.
+
+\section{Interfaz de usuario y consola de auditoría}
+
+La interfaz web del prototipo se ha desarrollado con el objetivo de permitir la interacción conversacional con el sistema y facilitar la inspección de su funcionamiento interno. Su finalidad principal es proporcionar un entorno de demostración en el que puedan observarse tanto el desarrollo de la conversación como el procesamiento de la solicitud por los componentes neuronal y simbólico.
+
+Para ello, la aplicación combina un panel conversacional con una consola que muestra información sobre las fases de procesamiento, los resultados de la evaluación de las reglas y el estado de la solicitud. Esta disposición permite relacionar las respuestas visibles en la conversación con los datos y resultados que intervienen en su generación, facilitando el análisis experimental de la trazabilidad del prototipo.
+
+\subsection{Diseño de la interfaz y distribución de los paneles}
+
+La interfaz utiliza una disposición de pantalla dividida, con dos paneles complementarios y un divisor redimensionable:
+
+\begin{itemize}
+    \item \textbf{Panel izquierdo: interacción conversacional.} Permite simular la conversación de una solicitud de crédito con el perfil de un cliente. Incluye un selector de clientes de prueba que permite cargar perfiles previamente definidos en el repositorio de datos del prototipo. Estos elementos facilitan la reproducción de distintos escenarios durante las pruebas, pero no implementan un proceso real de autenticación bancaria. Además, con la selección de cada cliente, se muestran en el frontal su id, nombre completo y sus ingresos y edad.
+
+    \item \textbf{Panel derecho: consola de inspección y auditoría.} Presenta información técnica sobre el procesamiento de la solicitud, incluido el estado del flujo de ejecución, los resultados de la evaluación simbólica y los datos estructurados que componen el estado de la solicitud (\textit{Information State}). Su finalidad es facilitar la observación del comportamiento del sistema durante las interacciones y relacionar los resultados mostrados con las operaciones realizadas.
+\end{itemize}
+
+El divisor situado entre ambos paneles permite ajustar la anchura relativa de las áreas de conversación e inspección. De este modo, la distribución puede adaptarse a las necesidades de cada prueba, dando mayor espacio al diálogo o a la información técnica, según corresponda.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{imagenes/Captura de pantalla 2026-10-12 185227.png}
+    \caption{Vista general de la interfaz experimental, con el panel conversacional y la consola de inspección del sistema.}
+\end{figure}
+
+
+\subsection{Implementación técnica y comunicación con el backend}
+
+La capa de presentación, por simplicidad, se ha implementado mediante tecnologías web nativas, sin recurrir a tecnologías de frontend como React o Angular. La solución utiliza HTML para definir la estructura de la página, CSS para su presentación visual y JavaScript para gestionar las interacciones y las comunicaciones con el backend. Esta elección mantiene sencilla la implementación del prototipo y evita introducir dependencias adicionales para las funcionalidades requeridas.
+
+Los archivos estáticos se encuentran en el directorio \texttt{backend/app/static/} y se sirven desde FastAPI a través de la ruta \texttt{/static}. La implementación se distribuye en los siguientes archivos:
+
+\begin{itemize}
+    \item \texttt{index.html}: define la estructura de la interfaz y los elementos que componen los paneles conversacional y técnico.
+
+    \item \texttt{styles.css}: contiene los estilos visuales, las variables CSS, la distribución de los paneles y los estados visuales de los componentes. Incluye también los estilos asociados a la presentación de los datos y a los elementos interactivos.
+
+    \item \texttt{app.js}: gestiona las interacciones del navegador, el redimensionamiento de los paneles, el comportamiento de los acordeones y las peticiones asíncronas a la API REST.
+\end{itemize}
+
+La comunicación con el backend se realiza mediante peticiones HTTP. Al iniciar la interfaz, el archivo \texttt{app.js} consulta el endpoint \texttt{/api/clientes}, expuesto a través de \texttt{clientes\_router.py}, para obtener los perfiles de prueba disponibles. Cuando se selecciona un cliente o se envía un mensaje, el frontend realiza una petición \texttt{POST} a \texttt{/api/chat}, que incluye el identificador del cliente, el mensaje y el identificador de sesión (\texttt{session\_id}).
+
+La respuesta del backend contiene la información que necesita la interfaz para actualizar la conversación y los elementos de inspección. A partir de ella, el frontend incorpora la respuesta textual del asistente al historial y actualiza los componentes que representan el estado de la solicitud y los resultados del procesamiento.
+
+\subsection{Consola de inspección}
+
+La consola técnica permite observar distintos aspectos del procesamiento de cada interacción. Su función es hacer visible la información relevante para analizar el comportamiento del prototipo y distinguir las responsabilidades de los componentes que intervienen en la conversación.
+
+Entre los elementos principales se encuentran los siguientes:
+
+\begin{enumerate}
+    \item \textbf{Identificador de la sesión.} En la cabecera superior se expone el identificador único de la sesión (\texttt{session\_id}). Esta clave es fundamental, ya que es el nexo que permite relacionar la interacción que se está visualizando en la interfaz con los registros almacenados en la base de datos MariaDB.
+
+    \item \textbf{Monitorización del Pipeline del Turno.} Inmediatamente debajo, el sistema representa visualmente la secuencia de micro-acciones ejecutadas por el orquestador para el turno conversacional en curso. Este diagrama dinámico demuestra que la orquestación es modular y que la ejecución sigue los pasos discretos del paradigma \textit{Symbolic[Neuro]}, reflejando únicamente las acciones que se han invocado en esa iteración.
+
+    \item \textbf{Resultados de la Evaluación Drools.} Este bloque expone el veredicto del motor de reglas de negocio. Incluye:
+    \begin{itemize}
+        \item \textit{Estado:} El dictamen final de la iteración.
+        \item \textit{Reglas disparadas:} El identificador exacto de la regla DRL que ha forzado dicho estado.
+        \item \textit{Justificación normativa:} Desglosada en la referencia legal aplicable y el texto explicativo asociado. Al mostrarse en este bloque, se evidencia que la justificación legal es un metadato inyectado por Drools, y no una alucinación generada por el LLM.
+    \end{itemize}
+\end{enumerate}
+
+La consola permite, por tanto, examinar el resultado de Drools junto con parte de la información utilizada para contextualizarlo.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{imagenes/Captura de pantalla 2026-10-12 194805.png}
+    \caption{Detalle de la consola de inspección: fases del procesamiento y resultado de la evaluación mediante Drools.}
+\end{figure}
+
+Además, la parte inferior de la consola presenta el estado estructurado de la solicitud (\textit{Information State}). Su visualización hace transparente el contexto del sistema, permitiendo examinar qué información está disponible y cómo evoluciona a medida que avanza la interacción, sin necesidad de consultar el registro de la base de datos.
+
+En la zona superior de esta sección se muestran indicadores resumidos que ofrecen una vista rápida de los datos más importantes de la operación, como el importe solicitado, el plazo y el estado de la consulta a CIRBE. A continuación, cuatro paneles desplegables permiten inspeccionar la información agrupada por su procedencia: datos declarados por el usuario, información del \textit{core} bancario, datos de fuentes externas y cálculos financieros derivados. 
+
+Esta agrupación visual facilita la distinción entre la información aportada por el usuario y los valores validados o calculados por el sistema.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{imagenes/Captura de pantalla 2026-10-12 210012.png}
+    \caption{Detalle del estado estructurado de la solicitud: indicadores resumidos y datos agrupados por procedencia.}
+\end{figure}
+
+En conjunto, la interfaz constituye una herramienta de apoyo a la demostración y evaluación del prototipo neuro-simbólico. Al combinar la interacción conversacional con la visualización de los resultados simbólicos y del estado estructurado de la solicitud, facilita el análisis de la relación entre la información procesada, las reglas aplicadas y las respuestas generadas. Su alcance es experimental y se centra en hacer observable el funcionamiento interno del sistema, sin pretender sustituir a una interfaz de producción ni a los mecanismos formales de auditoría de un despliegue real.
+
+\section{Flujo de ejecución: ciclo de vida de un turno}
+
+Para ilustrar cómo interactúan los componentes de la arquitectura, se describe a continuación el procesamiento de un turno conversacional que requiere una consulta a fuentes externas de solvencia. El flujo comienza cuando el mensaje del usuario llega al endpoint \texttt{POST /api/chat} y continúa mediante las siguientes etapas:
+
+\begin{enumerate}
+    \item \textbf{Recuperación del estado y comprensión del mensaje (NLU).} El backend recupera el estado de la solicitud mediante \texttt{obtener\_ultimo\_estado()}. Si se trata de una sesión nueva, inicializa un objeto \texttt{InformationState}; en caso contrario, recupera el estado previamente almacenado en MariaDB. A continuación, envía el mensaje actual y el contexto conversacional pertinente a Mistral, que devuelve los campos estructurados conforme al esquema \texttt{EsquemaNLU}. El backend incorpora la información extraída a \texttt{datos\_usuario}, de acuerdo con las reglas de actualización del estado. Esta operación queda registrada mediante una traza de tipo \texttt{EXTRACT\_NLU}, que recoge la entrada proporcionada al modelo y la salida estructurada obtenida.
+
+    \item \textbf{Recuperación de datos internos del cliente.} Cuando corresponde cargar los datos del cliente, el backend consulta la tabla \texttt{clientes} y actualiza \texttt{datos\_core\_bancario} con la información obtenida. Esta operación queda registrada mediante una traza \texttt{FETCH\_CORE\_DATA}, que recoge el identificador del cliente consultado, así como los datos devueltos por el repositorio. De este modo, es posible consultar qué información del entorno bancario simulado se incorporó al estado de la solicitud.
+
+    \item \textbf{Evaluación simbólica.} El backend construye un objeto \texttt{DroolsRequest} con el estado disponible y lo envía al motor de reglas para su evaluación. Esta operación queda registrada mediante una traza \texttt{EVALUATE\_DROOLS}, que recoge los datos utilizados y el resultado devuelto por el motor, incluidas las reglas registradas, el estado de la solicitud y las acciones requeridas. Si Drools determina que es necesario consultar las fuentes externas de solvencia, devuelve el estado \texttt{REQUIERE\_ACCION} y la operación \texttt{CONSULTAR\_CIRBE\_ASNEF}, que indica al backend qué acción debe ejecutar.
+    
+    \item \textbf{Consulta externa y reevaluación.} Cuando la evaluación requiere información adicional de solvencia, FastAPI ejecuta la consulta a través de \texttt{BdeMockService}. La operación queda registrada mediante una traza \texttt{FETCH\_CIRBE\_ASNEF}, que recoge los parámetros enviados al servicio y los datos obtenidos. A continuación, el backend actualiza \texttt{datos\_externos\_bde} con la información recibida y vuelve a enviar el estado actualizado a Drools para una nueva evaluación. Esta segunda evaluación genera otra traza \texttt{EVALUATE\_DROOLS}, que permite examinar el resultado obtenido tras incorporar la información externa.
+    
+    \item \textbf{Generación de la respuesta y registro de auditoría.} Una vez obtenido el resultado de la evaluación, el backend proporciona a Mistral la información necesaria para generar una respuesta en lenguaje natural. El modelo verbaliza el resultado y la explicación asociada a la evaluación, sin asumir la responsabilidad de decidir la concesión del préstamo. Esta operación queda registrada mediante una traza \texttt{GENERATE\_NATURAL\_RESPONSE}, que almacena la información proporcionada al modelo y la respuesta generada.
+\end{enumerate}
+
+La Figura~\ref{fig:flujo_secuencia} representa la secuencia de interacción entre los componentes durante este escenario.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{imagenes/Capa de Orquestación y-2026-10-12-201042.png}
+    \caption{Diagrama de secuencia del procesamiento de un turno conversacional que requiere una consulta externa de solvencia.}
+\end{figure}
+
+En conjunto, la arquitectura materializa el enfoque neuro-simbólico planteado en este trabajo mediante la separación entre comprensión lingüística, evaluación basada en reglas, ejecución técnica y persistencia. Esta organización permite mantener un estado estructurado independiente del historial textual de la conversación, centralizar los criterios de evaluación crediticia en el motor simbólico y registrar las operaciones necesarias para analizar el comportamiento del prototipo.
+
+\fussy
 
 \end{document}

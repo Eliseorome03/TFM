@@ -1113,7 +1113,7 @@ Para ilustrar cómo interactúan los componentes de la arquitectura, se describe
     \item \textbf{Generación de la respuesta y registro de auditoría.} Una vez obtenido el resultado de la evaluación, el backend proporciona a Mistral la información necesaria para generar una respuesta en lenguaje natural. El modelo verbaliza el resultado y la explicación asociada a la evaluación, sin asumir la responsabilidad de decidir la concesión del préstamo. Esta operación queda registrada mediante una traza \texttt{GENERATE\_NATURAL\_RESPONSE}, que almacena la información proporcionada al modelo y la respuesta generada.
 \end{enumerate}
 
-La Figura~\ref{fig:flujo_secuencia} representa la secuencia de interacción entre los componentes durante este escenario.
+La siguiente figura representa la secuencia de interacción entre los componentes durante este escenario.
 
 \begin{figure}[H]
     \centering

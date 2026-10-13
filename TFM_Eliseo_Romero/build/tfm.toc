@@ -70,33 +70,33 @@
 \contentsline {subsection}{\numberline {3.2.3}Por qué Pydantic para el esquema de datos}{37}{subsection.3.2.3}%
 \contentsline {subsection}{\numberline {3.2.4}Por qué FastAPI como backend}{37}{subsection.3.2.4}%
 \contentsline {section}{\numberline {3.3}Arquitectura e infraestructura del sistema}{37}{section.3.3}%
-\contentsline {subsection}{\numberline {3.3.1}Arquitectura física y despliegue con Docker Compose}{37}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.1}Arquitectura física y despliegue con Docker Compose}{38}{subsection.3.3.1}%
 \contentsline {subsection}{\numberline {3.3.2}Comunicación entre servicios e interfaces}{38}{subsection.3.3.2}%
-\contentsline {subsection}{\numberline {3.3.3}Estructura y organización del proyecto}{39}{subsection.3.3.3}%
-\contentsline {section}{\numberline {3.4}El \textit {Information State Update} (ISU)}{40}{section.3.4}%
-\contentsline {section}{\numberline {3.5}Orquestación del flujo conversacional}{42}{section.3.5}%
-\contentsline {subsection}{\numberline {3.5.1}Ciclo de ejecución y coordinación de acciones}{42}{subsection.3.5.1}%
-\contentsline {subsection}{\numberline {3.5.2}Gestión del contexto conversacional}{43}{subsection.3.5.2}%
-\contentsline {section}{\numberline {3.6}Componente neuronal: Mistral}{43}{section.3.6}%
+\contentsline {subsection}{\numberline {3.3.3}Estructura y organización del proyecto}{40}{subsection.3.3.3}%
+\contentsline {section}{\numberline {3.4}El \textit {Information State Update} (ISU)}{41}{section.3.4}%
+\contentsline {section}{\numberline {3.5}Orquestación del flujo conversacional}{43}{section.3.5}%
+\contentsline {subsection}{\numberline {3.5.1}Ciclo de ejecución y coordinación de acciones}{43}{subsection.3.5.1}%
+\contentsline {subsection}{\numberline {3.5.2}Gestión del contexto conversacional}{44}{subsection.3.5.2}%
+\contentsline {section}{\numberline {3.6}Componente neuronal: Mistral}{44}{section.3.6}%
 \contentsline {subsection}{\numberline {3.6.1}Extracción estructurada (NLU)}{44}{subsection.3.6.1}%
 \contentsline {subsection}{\numberline {3.6.2}Generación de respuestas (NLG)}{45}{subsection.3.6.2}%
-\contentsline {section}{\numberline {3.7}Componente simbólico (Drools)}{45}{section.3.7}%
-\contentsline {subsection}{\numberline {3.7.1}Priorización de activaciones}{46}{subsection.3.7.1}%
-\contentsline {section}{\numberline {3.8}Implementación de las reglas de negocio}{47}{section.3.8}%
-\contentsline {subsection}{\numberline {3.8.1}Elegibilidad y viabilidad financiera}{48}{subsection.3.8.1}%
-\contentsline {subsection}{\numberline {3.8.2}Recopilación de información y consulta externa}{48}{subsection.3.8.2}%
-\contentsline {subsection}{\numberline {3.8.3}Riesgo externo, discrepancias y supervisión humana}{48}{subsection.3.8.3}%
-\contentsline {subsection}{\numberline {3.8.4}Aprobación y justificación de las decisiones}{49}{subsection.3.8.4}%
-\contentsline {subsection}{\numberline {3.8.5}Verificación del motor de reglas}{49}{subsection.3.8.5}%
-\contentsline {section}{\numberline {3.9}Entorno bancario simulado}{50}{section.3.9}%
-\contentsline {subsection}{\numberline {3.9.1}Simulación del \textit {core}}{50}{subsection.3.9.1}%
-\contentsline {subsection}{\numberline {3.9.2}Simulación de consultas externas de solvencia}{51}{subsection.3.9.2}%
-\contentsline {section}{\numberline {3.10}Persistencia y trazabilidad}{51}{section.3.10}%
-\contentsline {subsection}{\numberline {3.10.1}Esquema de la tabla \texttt {trazas\_auditoria}}{51}{subsection.3.10.1}%
-\contentsline {subsection}{\numberline {3.10.2}Registro de las operaciones}{52}{subsection.3.10.2}%
-\contentsline {subsection}{\numberline {3.10.3}Reconstrucción de la evaluación}{52}{subsection.3.10.3}%
-\contentsline {section}{\numberline {3.11}Interfaz de usuario y consola de auditoría}{53}{section.3.11}%
-\contentsline {subsection}{\numberline {3.11.1}Diseño de la interfaz y distribución de los paneles}{53}{subsection.3.11.1}%
-\contentsline {subsection}{\numberline {3.11.2}Implementación técnica y comunicación con el backend}{54}{subsection.3.11.2}%
-\contentsline {subsection}{\numberline {3.11.3}Consola de inspección}{55}{subsection.3.11.3}%
-\contentsline {section}{\numberline {3.12}Flujo de ejecución: ciclo de vida de un turno}{57}{section.3.12}%
+\contentsline {section}{\numberline {3.7}Componente simbólico (Drools)}{46}{section.3.7}%
+\contentsline {subsection}{\numberline {3.7.1}Priorización de activaciones}{47}{subsection.3.7.1}%
+\contentsline {section}{\numberline {3.8}Implementación de las reglas de negocio}{48}{section.3.8}%
+\contentsline {subsection}{\numberline {3.8.1}Elegibilidad y viabilidad financiera}{49}{subsection.3.8.1}%
+\contentsline {subsection}{\numberline {3.8.2}Recopilación de información y consulta externa}{49}{subsection.3.8.2}%
+\contentsline {subsection}{\numberline {3.8.3}Riesgo externo, discrepancias y supervisión humana}{49}{subsection.3.8.3}%
+\contentsline {subsection}{\numberline {3.8.4}Aprobación y justificación de las decisiones}{50}{subsection.3.8.4}%
+\contentsline {subsection}{\numberline {3.8.5}Verificación del motor de reglas}{50}{subsection.3.8.5}%
+\contentsline {section}{\numberline {3.9}Entorno bancario simulado}{51}{section.3.9}%
+\contentsline {subsection}{\numberline {3.9.1}Simulación del \textit {core}}{51}{subsection.3.9.1}%
+\contentsline {subsection}{\numberline {3.9.2}Simulación de consultas externas de solvencia}{52}{subsection.3.9.2}%
+\contentsline {section}{\numberline {3.10}Persistencia y trazabilidad}{52}{section.3.10}%
+\contentsline {subsection}{\numberline {3.10.1}Esquema de la tabla \texttt {trazas\_auditoria}}{52}{subsection.3.10.1}%
+\contentsline {subsection}{\numberline {3.10.2}Registro de las operaciones}{53}{subsection.3.10.2}%
+\contentsline {subsection}{\numberline {3.10.3}Reconstrucción de la evaluación}{53}{subsection.3.10.3}%
+\contentsline {section}{\numberline {3.11}Interfaz de usuario y consola de auditoría}{54}{section.3.11}%
+\contentsline {subsection}{\numberline {3.11.1}Diseño de la interfaz y distribución de los paneles}{54}{subsection.3.11.1}%
+\contentsline {subsection}{\numberline {3.11.2}Implementación técnica y comunicación con el backend}{55}{subsection.3.11.2}%
+\contentsline {subsection}{\numberline {3.11.3}Consola de inspección}{56}{subsection.3.11.3}%
+\contentsline {section}{\numberline {3.12}Flujo de ejecución: ciclo de vida de un turno}{58}{section.3.12}%

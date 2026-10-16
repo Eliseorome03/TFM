@@ -936,19 +936,6 @@ Las reglas incorporan metadatos que permiten contextualizar la decisión del mot
 
  Estos elementos se proporcionan a Mistral para que formule la explicación dirigida al usuario a partir de información determinada por el motor de reglas, evitando que el modelo genere por su cuenta los fundamentos de la decisión.
 
-\subsection{Verificación del motor de reglas}
-
-La verificación del comportamiento del motor simbólico se articula mediante dos baterías de pruebas complementarias ubicadas en el directorio \texttt{tests/}:
-
-\begin{itemize}
-    \item \textbf{Verificación unitaria del catálogo (\texttt{test\_drools\_rules.py}):} Esta batería comprueba la correcta implementación y activación individual de cada regla de negocio. La estrategia parte de un perfil base que cumple todos los criterios de concesión estándar (\texttt{R\_APROBACION\_ESTANDAR}) y altera de forma aislada los datos pertinentes para evaluar la respuesta ante cada condición específica. De este modo, se comprueba que cada regla se dispare ante sus premisas específicas y asigne el estado, fundamentación jurídica y tono requeridos.
-
-    \item \textbf{Verificación de prioridades y resolución de conflictos (\texttt{test\_drools\_salience.py}):} Dado que en un escenario real una solicitud puede activar múltiples reglas a la vez, esta batería valida el comportamiento del motor ante condiciones concurrentes. Las pruebas configuran casos en los que se satisfacen simultáneamente las premisas de dos o más reglas en distintos escalones de prioridad (por ejemplo, minoría de edad frente a ratio financiero, propósito no financiable frente a consulta de CIRBE, o morosidad en ASNEF frente a discrepancia declarada). La batería verifica que la regla de mayor \textit{salience} resuelva el conflicto y que la guarda (\texttt{estado == ``EN\_PROCESO''}), unida a la actualización del hecho (\texttt{update(\$res)}), inhiba la ejecución de las reglas de menor prioridad, garantizando que no se sobreescriba la decisión.
-\end{itemize}
-
-La combinación de ambas baterías permite certificar tanto la validez de las reglas aisladas como el determinismo y la robustez del motor ante conflictos normativos.
-
-
 \section{Entorno bancario simulado}
 
 El prototipo utiliza un entorno bancario simulado que permite representar tanto la información interna de los clientes como las consultas a fuentes externas de solvencia. Este entorno se compone de una base de datos que representa el \textit{core} bancario y un servicio que simula las consultas a CIRBE y ASNEF.

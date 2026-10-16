@@ -16,16 +16,16 @@ class Settings(BaseSettings):
     """
 
     # --- Base de Datos ---
-    database_url: str
+    database_url: str = "mysql+pymysql://banca_user:banca_password_2024@localhost:3306/banca_db"
 
     # --- API Key de Mistral ---
     mistral_api_key: str
 
     # --- URL del microservicio Drools ---
-    drools_url: str
+    drools_url: str = "http://localhost:8080/api/evaluate"
 
     # --- Modelo de Mistral a utilizar ---
-    mistral_model: str
+    mistral_model: str = "ministral-8b-latest"
 
     # --- Timeout para llamadas HTTP a Drools (segundos) ---
     drools_timeout: int = 30

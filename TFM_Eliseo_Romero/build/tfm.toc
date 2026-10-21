@@ -87,16 +87,15 @@
 \contentsline {subsection}{\numberline {3.8.2}Recopilación de información y consulta externa}{49}{subsection.3.8.2}%
 \contentsline {subsection}{\numberline {3.8.3}Riesgo externo, discrepancias y supervisión humana}{49}{subsection.3.8.3}%
 \contentsline {subsection}{\numberline {3.8.4}Aprobación y justificación de las decisiones}{50}{subsection.3.8.4}%
-\contentsline {subsection}{\numberline {3.8.5}Verificación del motor de reglas}{50}{subsection.3.8.5}%
-\contentsline {section}{\numberline {3.9}Entorno bancario simulado}{51}{section.3.9}%
+\contentsline {section}{\numberline {3.9}Entorno bancario simulado}{50}{section.3.9}%
 \contentsline {subsection}{\numberline {3.9.1}Simulación del \textit {core}}{51}{subsection.3.9.1}%
-\contentsline {subsection}{\numberline {3.9.2}Simulación de consultas externas de solvencia}{52}{subsection.3.9.2}%
-\contentsline {section}{\numberline {3.10}Persistencia y trazabilidad}{52}{section.3.10}%
+\contentsline {subsection}{\numberline {3.9.2}Simulación de consultas externas de solvencia}{51}{subsection.3.9.2}%
+\contentsline {section}{\numberline {3.10}Persistencia y trazabilidad}{51}{section.3.10}%
 \contentsline {subsection}{\numberline {3.10.1}Esquema de la tabla \texttt {trazas\_auditoria}}{52}{subsection.3.10.1}%
-\contentsline {subsection}{\numberline {3.10.2}Registro de las operaciones}{53}{subsection.3.10.2}%
+\contentsline {subsection}{\numberline {3.10.2}Registro de las operaciones}{52}{subsection.3.10.2}%
 \contentsline {subsection}{\numberline {3.10.3}Reconstrucción de la evaluación}{53}{subsection.3.10.3}%
-\contentsline {section}{\numberline {3.11}Interfaz de usuario y consola de auditoría}{54}{section.3.11}%
-\contentsline {subsection}{\numberline {3.11.1}Diseño de la interfaz y distribución de los paneles}{54}{subsection.3.11.1}%
-\contentsline {subsection}{\numberline {3.11.2}Implementación técnica y comunicación con el backend}{55}{subsection.3.11.2}%
-\contentsline {subsection}{\numberline {3.11.3}Consola de inspección}{56}{subsection.3.11.3}%
-\contentsline {section}{\numberline {3.12}Flujo de ejecución: ciclo de vida de un turno}{58}{section.3.12}%
+\contentsline {section}{\numberline {3.11}Interfaz de usuario y consola de auditoría}{53}{section.3.11}%
+\contentsline {subsection}{\numberline {3.11.1}Diseño de la interfaz y distribución de los paneles}{53}{subsection.3.11.1}%
+\contentsline {subsection}{\numberline {3.11.2}Implementación técnica y comunicación con el backend}{54}{subsection.3.11.2}%
+\contentsline {subsection}{\numberline {3.11.3}Consola de inspección}{55}{subsection.3.11.3}%
+\contentsline {section}{\numberline {3.12}Flujo de ejecución: ciclo de vida de un turno}{57}{section.3.12}%

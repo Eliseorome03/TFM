@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.5) (preloaded format=pdflatex 2026.9.14)  13 OCT 2026 17:01
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.5) (preloaded format=pdflatex 2026.9.14)  20 OCT 2026 19:08
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -132,7 +132,16 @@ LaTeX Info: Redefining \Relbar on input line 970.
 \mathdisplay@stack=\toks24
 LaTeX Info: Redefining \[ on input line 2965.
 LaTeX Info: Redefining \] on input line 2966.
-) (C:\Users\Eliseo Romero Marin\AppData\Local\Programs\MiKTeX\tex/latex/geometry\geometry.sty
+) (C:\Users\Eliseo Romero Marin\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\amssymb.sty
+Package: amssymb 2013/01/14 v3.01 AMS font symbols
+ (C:\Users\Eliseo Romero Marin\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\amsfonts.sty
+Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
+\symAMSa=\mathgroup4
+\symAMSb=\mathgroup5
+LaTeX Font Info:    Redeclaring math symbol \hbar on input line 98.
+LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
+(Font)                  U/euf/m/n --> U/euf/b/n on input line 106.
+)) (C:\Users\Eliseo Romero Marin\AppData\Local\Programs\MiKTeX\tex/latex/geometry\geometry.sty
 Package: geometry 2026/03/07 v6.0 Page Geometry
  (C:\Users\Eliseo Romero Marin\AppData\Local\Programs\MiKTeX\tex/latex/graphics\keyval.sty
 Package: keyval 2026-05-17 v1.15 key=value parser (DPC)
@@ -154,7 +163,10 @@ Package: iftex 2024/12/12 v1.0g TeX engine tests
 \Gm@layouthoffset=\dimen167
 \Gm@layoutvoffset=\dimen168
 \Gm@dimlist=\toks26
- (C:\Users\Eliseo Romero Marin\AppData\Local\Programs\MiKTeX\tex/latex/geometry\geometry.cfg)) (C:\Users\Eliseo Romero Marin\AppData\Local\Programs\MiKTeX\tex/latex/lm\lmodern.sty
+ (C:\Users\Eliseo Romero Marin\AppData\Local\Programs\MiKTeX\tex/latex/geometry\geometry.cfg)) (C:\Users\Eliseo Romero Marin\AppData\Local\Programs\MiKTeX\tex/latex/url\url.sty
+\Urlmuskip=\muskip18
+Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
+) (C:\Users\Eliseo Romero Marin\AppData\Local\Programs\MiKTeX\tex/latex/lm\lmodern.sty
 Package: lmodern 2015/05/01 v1.6.1 Latin Modern Fonts
 LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
 (Font)                  OT1/cmr/m/n --> OT1/lmr/m/n on input line 22.
@@ -386,10 +398,6 @@ Package hyperref Info: Backreferencing OFF on input line 4219.
 Package hyperref Info: Implicit mode ON; LaTeX internals redefined.
 Package hyperref Info: Bookmarks ON on input line 4466.
 \c@Hy@tempcnt=\count318
- (C:\Users\Eliseo Romero Marin\AppData\Local\Programs\MiKTeX\tex/latex/url\url.sty
-\Urlmuskip=\muskip18
-Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
-)
 LaTeX Info: Redefining \url on input line 4805.
 \XeTeXLinkMargin=\dimen199
  (C:\Users\Eliseo Romero Marin\AppData\Local\Programs\MiKTeX\tex/generic/bitset\bitset.sty
@@ -425,7 +433,7 @@ Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 28
 )
 \Hy@SectionHShift=\skip74
 )
-LaTeX Font Info:    Trying to load font information for T1+lmr on input line 57.
+LaTeX Font Info:    Trying to load font information for T1+lmr on input line 59.
  (C:\Users\Eliseo Romero Marin\AppData\Local\Programs\MiKTeX\tex/latex/lm\t1lmr.fd
 File: t1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 ) (C:\Users\Eliseo Romero Marin\AppData\Local\Programs\MiKTeX\tex/latex/l3kernel\l3backend-pdftex.def
@@ -439,26 +447,26 @@ Package babel Info: 'spanish' activates 'spanish' shorthands.
 )
 \openout1 = `tfm.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 57.
-LaTeX Font Info:    ... okay on input line 57.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 57.
-LaTeX Font Info:    ... okay on input line 57.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 57.
-LaTeX Font Info:    ... okay on input line 57.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 57.
-LaTeX Font Info:    ... okay on input line 57.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 57.
-LaTeX Font Info:    ... okay on input line 57.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 57.
-LaTeX Font Info:    ... okay on input line 57.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 57.
-LaTeX Font Info:    ... okay on input line 57.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 57.
-LaTeX Font Info:    ... okay on input line 57.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 57.
-LaTeX Font Info:    ... okay on input line 57.
-LaTeX Info: Redefining \. on input line 57.
-LaTeX Info: Redefining \% on input line 57.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 59.
+LaTeX Font Info:    ... okay on input line 59.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 59.
+LaTeX Font Info:    ... okay on input line 59.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 59.
+LaTeX Font Info:    ... okay on input line 59.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 59.
+LaTeX Font Info:    ... okay on input line 59.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 59.
+LaTeX Font Info:    ... okay on input line 59.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 59.
+LaTeX Font Info:    ... okay on input line 59.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 59.
+LaTeX Font Info:    ... okay on input line 59.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 59.
+LaTeX Font Info:    ... okay on input line 59.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 59.
+LaTeX Font Info:    ... okay on input line 59.
+LaTeX Info: Redefining \. on input line 59.
+LaTeX Info: Redefining \% on input line 59.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
@@ -494,13 +502,13 @@ LaTeX Info: Redefining \% on input line 57.
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-LaTeX Info: Redefining \microtypecontext on input line 57.
-Package microtype Info: Applying patch `item' on input line 57.
-Package microtype Info: Applying patch `toc' on input line 57.
-Package microtype Info: Applying patch `eqnum' on input line 57.
-Package microtype Info: Applying patch `footnote' on input line 57.
-Package microtype Info: Applying patch `verbatim' on input line 57.
-LaTeX Info: Redefining \microtypesetup on input line 57.
+LaTeX Info: Redefining \microtypecontext on input line 59.
+Package microtype Info: Applying patch `item' on input line 59.
+Package microtype Info: Applying patch `toc' on input line 59.
+Package microtype Info: Applying patch `eqnum' on input line 59.
+Package microtype Info: Applying patch `footnote' on input line 59.
+Package microtype Info: Applying patch `verbatim' on input line 59.
+LaTeX Info: Redefining \microtypesetup on input line 59.
 Package microtype Info: Generating PDF output.
 Package microtype Info: Character protrusion enabled (level 2).
 Package microtype Info: Using default protrusion set `alltext'.
@@ -532,7 +540,7 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 48
  (C:\Users\Eliseo Romero Marin\AppData\Local\Programs\MiKTeX\tex/latex/00miktex\epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
 ))
-Package hyperref Info: Link coloring OFF on input line 57.
+Package hyperref Info: Link coloring OFF on input line 59.
  (c:/Users\Eliseo Romero Marin\Documents\TFM\TFM_Eliseo_Romero\build\tfm.out) (c:/Users\Eliseo Romero Marin\Documents\TFM\TFM_Eliseo_Romero\build\tfm.out)
 \@outlinefile=\write3
 \openout3 = `tfm.out'.
@@ -563,7 +571,18 @@ LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <8> on input line 3.
 LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <6> on input line 3.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 3.
+ (C:\Users\Eliseo Romero Marin\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsa.fd
+File: umsa.fd 2013/01/14 v3.01 AMS symbols A
+) (C:\Users\Eliseo Romero Marin\AppData\Local\Programs\MiKTeX\tex/latex/microtype\mt-msa.cfg
+File: mt-msa.cfg 2006/02/04 v1.1 microtype config. file: AMS symbols (a) (RS)
 )
+LaTeX Font Info:    Trying to load font information for U+msb on input line 3.
+ (C:\Users\Eliseo Romero Marin\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsb.fd
+File: umsb.fd 2013/01/14 v3.01 AMS symbols B
+) (C:\Users\Eliseo Romero Marin\AppData\Local\Programs\MiKTeX\tex/latex/microtype\mt-msb.cfg
+File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
+))
 \tf@toc=\write4
 \openout4 = `tfm.toc'.
 
@@ -575,7 +594,7 @@ Cap\'{\i }tulo 1.
 [2
 
 ] [3] [4]
-LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 114.
+LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 116.
  (C:\Users\Eliseo Romero Marin\AppData\Local\Programs\MiKTeX\tex/latex/lm\t1lmtt.fd
 File: t1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
@@ -584,12 +603,12 @@ Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
 
-Overfull \hbox (11.84747pt too wide) in paragraph at lines 120--120
+Overfull \hbox (11.84747pt too wide) in paragraph at lines 122--122
 |[]\T1/lmr/bx/n/17.28 (-20) Inteligencia Ar-ti-fi-cial Co-ne-xio-nis-ta (Deep Lear-
  []
 
 [5] [6]
-LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 144.
+LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 146.
  (C:\Users\Eliseo Romero Marin\AppData\Local\Programs\MiKTeX\tex/latex/lm\ts1lmr.fd
 File: ts1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 ) [7{C:/Users/Eliseo Romero Marin/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-ts1.enc}] [8] [9] [10] [11{C:/Users/Eliseo Romero Marin/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-mathit.enc}{C:/Users/Eliseo Romero Marin/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-rm.enc}{C:/Users/Eliseo Romero Marin/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-mathsy.enc}] [12] [13] [14] [15] [16]
@@ -601,7 +620,7 @@ Cap\'{\i }tulo 3.
 [32
 
 ]
-Overfull \hbox (23.37357pt too wide) in paragraph at lines 571--586
+Overfull \hbox (23.37357pt too wide) in paragraph at lines 573--588
  [][] 
  []
 
@@ -609,34 +628,34 @@ Overfull \hbox (23.37357pt too wide) in paragraph at lines 571--586
 <imagenes/resumen_orquestador.jpeg, id=348, 1027.84pt x 1027.84pt>
 File: imagenes/resumen_orquestador.jpeg Graphic file (type jpg)
 <use imagenes/resumen_orquestador.jpeg>
-Package pdftex.def Info: imagenes/resumen_orquestador.jpeg  used on input line 619.
+Package pdftex.def Info: imagenes/resumen_orquestador.jpeg  used on input line 621.
 (pdftex.def)             Requested size: 412.56497pt x 412.57161pt.
  [34] [35 <./imagenes/resumen_orquestador.jpeg>] [36] [37] [38]
 <imagenes/docker_structure.jpeg, id=382, 1027.84pt x 1027.84pt>
 File: imagenes/docker_structure.jpeg Graphic file (type jpg)
 <use imagenes/docker_structure.jpeg>
-Package pdftex.def Info: imagenes/docker_structure.jpeg  used on input line 690.
+Package pdftex.def Info: imagenes/docker_structure.jpeg  used on input line 692.
 (pdftex.def)             Requested size: 401.18535pt x 401.18799pt.
  [39]
 LaTeX Font Info:    Font shape `T1/lmtt/bx/n' in size <12> not available
-(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 698.
+(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 700.
  [40 <./imagenes/docker_structure.jpeg>] [41]
-Underfull \hbox (badness 5288) in paragraph at lines 721--722
+Underfull \hbox (badness 5288) in paragraph at lines 723--724
 []\T1/lmr/m/n/12 (+20) Estos cálcu-los de-ri-va-dos son rea-li-za-dos por el mi-cro-ser-vi-cio Ja-va
  []
 
 [42{C:/Users/Eliseo Romero Marin/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-mathex.enc}] [43]
-Underfull \hbox (badness 10000) in paragraph at lines 758--759
+Underfull \hbox (badness 10000) in paragraph at lines 760--761
 []\T1/lmr/m/n/12 (+20) FastAPI re-cons-tru-ye el con-tex-to le-yen-do el úl-ti-mo
  []
 
 
-Underfull \hbox (badness 2126) in paragraph at lines 758--759
+Underfull \hbox (badness 2126) in paragraph at lines 760--761
 \T1/lmtt/m/n/12 InformationState \T1/lmr/m/n/12 (+20) per-sis-ti-do en la ba-se de da-tos me-dian-te el mé-to-do
  []
 
 [44]
-Overfull \hbox (7.32823pt too wide) in paragraph at lines 791--791
+Overfull \hbox (7.32823pt too wide) in paragraph at lines 793--793
 []\T1/lmtt/m/n/12 Pago 650 de alquiler y tengo una deuda de 5000 euros en otro banco."[] 
  []
 
@@ -644,103 +663,92 @@ Overfull \hbox (7.32823pt too wide) in paragraph at lines 791--791
 <imagenes/Capa de OrquestaciÃ³n y-2026-10-11-214747.png, id=424, 7991.8575pt x 5636.05624pt>
 File: imagenes/Capa de OrquestaciÃ³n y-2026-10-11-214747.png Graphic file (type png)
 <use imagenes/Capa de OrquestaciÃ³n y-2026-10-11-214747.png>
-Package pdftex.def Info: imagenes/Capa de OrquestaciÃ³n y-2026-10-11-214747.png  used on input line 825.
+Package pdftex.def Info: imagenes/Capa de OrquestaciÃ³n y-2026-10-11-214747.png  used on input line 827.
 (pdftex.def)             Requested size: 309.42372pt x 218.17993pt.
  [46] [47 <./imagenes/Capa de OrquestaciÃ³n y-2026-10-11-214747.png>]
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10.95> on input line 870.
+(Font)              <10.95> on input line 872.
 
-Underfull \hbox (badness 1009) in paragraph at lines 898--899
+Underfull \hbox (badness 1009) in paragraph at lines 900--901
 \T1/lmr/m/n/12 (+20) pro-duc-to. \T1/lmtt/m/n/12 R_EDAD_MINIMA \T1/lmr/m/n/12 (+20) de-nie-ga las so-li-ci-tu-des de usua-rios me-no-res de
  []
 
 
-Underfull \hbox (badness 1546) in paragraph at lines 898--899
+Underfull \hbox (badness 1546) in paragraph at lines 900--901
 \T1/lmr/m/n/12 (+20) 18 años, mien-tras que \T1/lmtt/m/n/12 R_EDAD_MAXIMA \T1/lmr/m/n/12 (+20) de-nie-ga aque-llas cu-yo ti-tu-lar su-
  []
 
 
-Underfull \hbox (badness 1571) in paragraph at lines 898--899
+Underfull \hbox (badness 1571) in paragraph at lines 900--901
 \T1/lmr/m/n/12 (+20) pe-ra-ría los 75 años al ven-ci-mien-to pre-vis-to del prés-ta-mo. Por su par-
  []
 
 [48]
-Underfull \hbox (badness 10000) in paragraph at lines 906--907
+Underfull \hbox (badness 10000) in paragraph at lines 908--909
 \T1/lmr/m/n/12 (+20) so-li-ci-ta el pro-pó-si-to cuan-do los da-tos an-te-rio-res es-tán dis-po-ni-bles.
  []
 
 
-Underfull \hbox (badness 1460) in paragraph at lines 906--907
+Underfull \hbox (badness 1460) in paragraph at lines 908--909
 \T1/lmtt/m/n/12 R_GASTOS_FIJOS_REQUERIDOS \T1/lmr/m/n/12 (+20) se-ña-la la au-sen-cia de los gas-tos fi-jos men-
  []
 
 [49]
-Underfull \hbox (badness 6188) in paragraph at lines 921--922
+Underfull \hbox (badness 6188) in paragraph at lines 923--924
 []\T1/lmr/m/n/12 (+20) Cuando se cum-ple es-ta con-di-ción, el mo-tor es-ta-ble-ce el es-ta-do
  []
 
 [50]
-Underfull \hbox (badness 10000) in paragraph at lines 946--947
-[]\T1/lmr/bx/n/12 (+20) Verificación de prio-ri-da-des y re-so-lu-ción de con-flic-tos
- []
-
-
-Underfull \hbox (badness 2582) in paragraph at lines 946--947
-\T1/lmr/bx/n/12 (+20) (\T1/lmtt/b/n/12 test_drools_salience.py\T1/lmr/bx/n/12 (+20) ): \T1/lmr/m/n/12 (+20) Da-do que en un es-ce-na-rio real una
- []
-
-[51]
-Underfull \hbox (badness 3838) in paragraph at lines 971--972
+Underfull \hbox (badness 3838) in paragraph at lines 960--961
 []\T1/lmr/m/n/12 (+20) Las con-sul-tas a CIR-BE y AS-NEF se si-mu-lan me-dian-te la cla-se
  []
 
 LaTeX Font Info:    Font shape `T1/lmtt/bx/n' in size <14.4> not available
-(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 979.
-[52]
-Underfull \hbox (badness 4673) in paragraph at lines 988--989
+(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 968.
+[51]
+Underfull \hbox (badness 4673) in paragraph at lines 977--978
 []\T1/lmtt/b/n/12 action_type\T1/lmr/m/n/12 (+20) : Ti-po de ope-ra-ción eje-cu-ta-da (\T1/lmtt/m/n/12 VARCHAR(64)\T1/lmr/m/n/12 (+20) ), co-mo
  []
 
-
-Underfull \hbox (badness 1237) in paragraph at lines 1009--1010
+[52]
+Underfull \hbox (badness 1237) in paragraph at lines 998--999
 []\T1/lmr/bx/n/12 (+20) Entrada y sa-li-da de la eva-lua-ción: \T1/lmr/m/n/12 (+20) los cam-pos \T1/lmtt/m/n/12 step_input \T1/lmr/m/n/12 (+20) y
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1011--1012
+Underfull \hbox (badness 10000) in paragraph at lines 1000--1001
 []\T1/lmr/bx/n/12 (+20) Respuesta di-ri-gi-da al usua-rio: \T1/lmr/m/n/12 (+20) si la sa-li-da de
  []
 
 
-Underfull \hbox (badness 1496) in paragraph at lines 1011--1012
+Underfull \hbox (badness 1496) in paragraph at lines 1000--1001
 \T1/lmtt/m/n/12 GENERATE_NATURAL_RESPONSE \T1/lmr/m/n/12 (+20) con-ser-va el tex-to ge-ne-ra-do, es po-si-ble
  []
 
-[53] [54]
-<imagenes/Captura de pantalla 2026-10-12 185227.png, id=485, 1443.89438pt x 771.63281pt>
+[53]
+<imagenes/Captura de pantalla 2026-10-12 185227.png, id=480, 1443.89438pt x 771.63281pt>
 File: imagenes/Captura de pantalla 2026-10-12 185227.png Graphic file (type png)
 <use imagenes/Captura de pantalla 2026-10-12 185227.png>
-Package pdftex.def Info: imagenes/Captura de pantalla 2026-10-12 185227.png  used on input line 1036.
+Package pdftex.def Info: imagenes/Captura de pantalla 2026-10-12 185227.png  used on input line 1025.
 (pdftex.def)             Requested size: 350.68274pt x 187.4092pt.
- [55 <./imagenes/Captura de pantalla 2026-10-12 185227.png>]
-<imagenes/Captura de pantalla 2026-10-12 194805.png, id=494, 1073.51062pt x 431.36156pt>
+ [54 <./imagenes/Captura de pantalla 2026-10-12 185227.png>] [55]
+<imagenes/Captura de pantalla 2026-10-12 194805.png, id=497, 1073.51062pt x 431.36156pt>
 File: imagenes/Captura de pantalla 2026-10-12 194805.png Graphic file (type png)
 <use imagenes/Captura de pantalla 2026-10-12 194805.png>
-Package pdftex.def Info: imagenes/Captura de pantalla 2026-10-12 194805.png  used on input line 1082.
+Package pdftex.def Info: imagenes/Captura de pantalla 2026-10-12 194805.png  used on input line 1071.
 (pdftex.def)             Requested size: 350.68274pt x 140.90828pt.
- [56]
-<imagenes/Captura de pantalla 2026-10-12 210012.png, id=503, 1104.37593pt x 698.61pt>
+<imagenes/Captura de pantalla 2026-10-12 210012.png, id=498, 1104.37593pt x 698.61pt>
 File: imagenes/Captura de pantalla 2026-10-12 210012.png Graphic file (type png)
 <use imagenes/Captura de pantalla 2026-10-12 210012.png>
-Package pdftex.def Info: imagenes/Captura de pantalla 2026-10-12 210012.png  used on input line 1094.
+Package pdftex.def Info: imagenes/Captura de pantalla 2026-10-12 210012.png  used on input line 1083.
 (pdftex.def)             Requested size: 288.79422pt x 182.68964pt.
- [57 <./imagenes/Captura de pantalla 2026-10-12 194805.png> <./imagenes/Captura de pantalla 2026-10-12 210012.png>] [58]
-<imagenes/Capa de OrquestaciÃ³n y-2026-10-12-201042.png, id=520, 6999.14874pt x 8221.71625pt>
+ [56 <./imagenes/Captura de pantalla 2026-10-12 194805.png>] [57 <./imagenes/Captura de pantalla 2026-10-12 210012.png>]
+<imagenes/Capa de OrquestaciÃ³n y-2026-10-12-201042.png, id=513, 6999.14874pt x 8221.71625pt>
 File: imagenes/Capa de OrquestaciÃ³n y-2026-10-12-201042.png Graphic file (type png)
 <use imagenes/Capa de OrquestaciÃ³n y-2026-10-12-201042.png>
-Package pdftex.def Info: imagenes/Capa de OrquestaciÃ³n y-2026-10-12-201042.png  used on input line 1120.
+Package pdftex.def Info: imagenes/Capa de OrquestaciÃ³n y-2026-10-12-201042.png  used on input line 1109.
 (pdftex.def)             Requested size: 371.30595pt x 436.07507pt.
- [59] [60 <./imagenes/Capa de OrquestaciÃ³n y-2026-10-12-201042.png>] (c:/Users\Eliseo Romero Marin\Documents\TFM\TFM_Eliseo_Romero\build\tfm.aux
+ [58] [59 <./imagenes/Capa de OrquestaciÃ³n y-2026-10-12-201042.png>] (c:/Users\Eliseo Romero Marin\Documents\TFM\TFM_Eliseo_Romero\build\tfm.aux
 LaTeX Info: Redefining \. on input line 11.
 LaTeX Info: Redefining \% on input line 11.
 )
@@ -752,17 +760,17 @@ Package rerunfilecheck Info: File `tfm.out' has not changed.
 (rerunfilecheck)             Checksum: 2C867941896C28E199316A2D5B7F5EAA;6567.
  ) 
 Here is how much of TeX's memory you used:
- 16005 strings out of 467441
- 264023 string characters out of 5400751
- 738384 words of memory out of 5000000
- 44574 multiletter control sequences out of 15000+600000
- 739959 words of font info for 238 fonts, out of 8000000 for 9000
+ 16555 strings out of 467441
+ 271059 string characters out of 5400751
+ 738992 words of memory out of 5000000
+ 45104 multiletter control sequences out of 15000+600000
+ 741505 words of font info for 245 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 74i,12n,79p,1328b,684s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 74i,12n,79p,1328b,770s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/Users/Eliseo Romero Marin/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmbx10.pfb><C:/Users/Eliseo Romero Marin/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmbx12.pfb><C:/Users/Eliseo Romero Marin/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmbxi10.pfb><C:/Users/Eliseo Romero Marin/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmex10.pfb><C:/Users/Eliseo Romero Marin/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmmi12.pfb><C:/Users/Eliseo Romero Marin/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmmi8.pfb><C:/Users/Eliseo Romero Marin/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr10.pfb><C:/Users/Eliseo Romero Marin/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr12.pfb><C:/Users/Eliseo Romero Marin/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmri12.pfb><C:/Users/Eliseo Romero Marin/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmri8.pfb><C:/Users/Eliseo Romero Marin/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy10.pfb><C:/Users/Eliseo Romero Marin/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtk10.pfb><C:/Users/Eliseo Romero Marin/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtt10.pfb><C:/Users/Eliseo Romero Marin/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtt12.pfb>
-Output written on "c:/Users\Eliseo Romero Marin\Documents\TFM\TFM_Eliseo_Romero\build\tfm.pdf" (60 pages, 2808122 bytes).
+Output written on "c:/Users\Eliseo Romero Marin\Documents\TFM\TFM_Eliseo_Romero\build\tfm.pdf" (59 pages, 2805284 bytes).
 PDF statistics:
- 648 PDF objects out of 1000 (max. 8388607)
- 210 named destinations out of 1000 (max. 500000)
+ 643 PDF objects out of 1000 (max. 8388607)
+ 208 named destinations out of 1000 (max. 500000)
  57580 words of extra memory for PDF output out of 61914 (max. 10000000)
 

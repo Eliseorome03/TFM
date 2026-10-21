@@ -528,7 +528,7 @@ def main():
     print("==========================================================================")
 
     if passed == total:
-        print("[ÉXITO TOTAL] Todas las reglas activas del catálogo de préstamos y")
+        print("[ÉXITO] Todas las reglas activas del catálogo de préstamos y")
         print("todas las fórmulas financieras derivadas han sido verificadas al 100%.")
     else:
         print(f"[ALERTA] Se detectaron {total - passed} fallos en la batería de pruebas.")

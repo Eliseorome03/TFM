@@ -1,24 +1,24 @@
-=== TEST: 23_condicional ===
+=== TEST: 18_matematico ===
 Cliente ID: CLI-001
-Session ID: 58fb3c30-161e-40c7-82d1-61fd0c2b6137
+Session ID: f58ac7e7-e7b0-409a-9ba4-59a0099fa1fa
 
-[Turno 1] Usuario: Quiero 4000 euros para un coche, 0 gastos fijos.
-[Turno 1] Sistema: Para poder ayudarle a evaluar su solicitud de **4.000 euros** destinados a la compra de un vehículo, necesitaríamos conocer el plazo de devolución que tendría en mente (por ejemplo, en meses).
+[Turno 1] Usuario: Quiero pagar una cuota de 130 euros en los próximos 12 meses para reformar la casa.
+[Turno 1] Sistema: Para poder ayudarle con su solicitud de financiación para la reforma de su vivienda, ¿podría indicarme el **importe total** que desea solicitar? Así podremos evaluar su caso de manera precisa y ajustada a sus necesidades.
+[Turno 2] Usuario: No tengo ningún gasto fijo
+[Turno 2] Sistema: Para poder ayudarle a evaluar su solicitud de préstamo para la reforma, necesitaría confirmar el **importe total que desea financiar**. Así podremos calcular su cuota mensual y ajustar la propuesta a sus necesidades.
 
-Con esa información, podremos calcular su cuota mensual y analizar su viabilidad de forma precisa. ¿Podría indicarnos cuántos meses planea para devolver el préstamo? Estamos aquí para orientarle.
-[Turno 2] Usuario: A pagar en 12 meses si me dais un buen interés, o en 36 meses si es alto.
-[Turno 2] Sistema: Para poder analizar su solicitud y ofrecerle la mejor opción, ¿podría indicarme cuántos meses desea financiar el vehículo? Así podremos calcular su cuota y evaluar las condiciones más adecuadas para usted.
+¿Podría indicarme cuánto asciende la cantidad que solicita? Estamos aquí para facilitarle el proceso.
 
 === ESTADO FINAL (INFORMATION STATE) ===
 {
-  "session_id": "58fb3c30-161e-40c7-82d1-61fd0c2b6137",
+  "session_id": "f58ac7e7-e7b0-409a-9ba4-59a0099fa1fa",
   "turn_id": 2,
   "datos_usuario": {
     "intencion_principal": "SOLICITAR_PRESTAMO",
-    "cantidad_solicitada": 4000.0,
-    "plazo_meses": null,
-    "proposito": "VEHICULO",
-    "gastos_fijos_mensuales": 0.0,
+    "cantidad_solicitada": null,
+    "plazo_meses": 12,
+    "proposito": "REFORMA",
+    "gastos_fijos_mensuales": null,
     "deuda_declarada": null,
     "duda_catch_all": "NINGUNA"
   },
@@ -45,7 +45,7 @@ Con esa información, podremos calcular su cuota mensual y analizar su viabilida
     "cuota_estimada": null,
     "ratio_endeudamiento": null,
     "remanente_subsistencia": null,
-    "edad_al_vencimiento": null
+    "edad_al_vencimiento": 36
   },
   "evaluacion_drools": {
     "estado": "REQUIERE_DATOS",
@@ -53,7 +53,7 @@ Con esa información, podremos calcular su cuota mensual y analizar su viabilida
       "R_CANTIDAD_Y_PLAZO_REQUERIDOS"
     ],
     "accion_requerida": null,
-    "dato_faltante": "plazo_meses",
+    "dato_faltante": "cantidad_solicitada",
     "articulo_normativo": "Obligación de evaluación de riesgos crediticios",
     "texto_legal": "Para poder evaluar correctamente su solicitud es imprescindible conocer tanto el importe total del préstamo como el plazo de devolución en meses. Sin estos datos no es posible realizar el análisis de solvencia requerido por la normativa.",
     "tono_mensaje": "amable, orientativo y conciso"

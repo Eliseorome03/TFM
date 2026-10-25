@@ -5,21 +5,22 @@ from runner import run_test_case
 
 def main():
     messages = [
-        "Quiero 3000 euros para comprar una moto... bueno no, pensándolo mejor, la moto es muy peligrosa, lo voy a usar para pagarme un máster.",
-        "A pagar en 12 meses",
-        "0 gastos"
+        "Quiero 4000 euros para un coche, 0 gastos fijos.",
+        "A pagar en 12 meses si me dais un buen interés, o en 36 meses si es alto."
     ]
     
     def check_nlu(state):
         u = state.get("datos_usuario", {})
-        return u.get("proposito") == "ESTUDIOS"
+        # A nivel técnico, comprobamos el mecanismo Fail-Safe: 
+        # devuelve None ante ambigüedad lógica.
+        return u.get("plazo_meses") is None
         
     run_test_case(
         category="cat1_nlu",
-        test_name="20_contradiccion",
+        test_name="22_condicional",
         cliente_id="CLI-001", 
         messages=messages,
-        expected_estado_final="APROBADO",
+        expected_estado_final="REQUIERE_DATOS",
         extra_asserts=check_nlu
     )
 

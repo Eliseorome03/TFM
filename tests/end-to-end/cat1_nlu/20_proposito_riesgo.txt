@@ -1,4 +1,4 @@
-=== TEST: 21_proposito_riesgo ===
+=== TEST: 20_proposito_riesgo ===
 Cliente ID: CLI-001
 Session ID: a9491739-0385-4a66-9e65-2d70b056bd05
 

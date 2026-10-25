@@ -16,7 +16,7 @@ def main():
         
     run_test_case(
         category="cat1_nlu",
-        test_name="21_proposito_riesgo",
+        test_name="20_proposito_riesgo",
         cliente_id="CLI-001", 
         messages=messages,
         expected_estado_final="DENEGADO",

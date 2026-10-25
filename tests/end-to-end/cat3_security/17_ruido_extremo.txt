@@ -1,4 +1,4 @@
-=== TEST: 18_ruido_extremo ===
+=== TEST: 17_ruido_extremo ===
 Cliente ID: CLI-001
 Session ID: 0855cb3c-4927-4f65-90bd-b1307ce8a8a8
 

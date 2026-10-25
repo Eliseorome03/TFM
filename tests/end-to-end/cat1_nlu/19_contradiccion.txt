@@ -1,4 +1,4 @@
-=== TEST: 20_contradiccion ===
+=== TEST: 19_contradiccion ===
 Cliente ID: CLI-001
 Session ID: cd926b41-873c-407f-866c-2e8402ebaf3d
 

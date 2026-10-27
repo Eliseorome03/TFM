@@ -109,8 +109,8 @@ CREATE TABLE IF NOT EXISTS trazas_auditoria (
                             COMMENT 'Snapshot consolidado del information_state (SYSTEM_SPEC.md §2)',
 
     -- Marca temporal precisa (UTC) — inmutable por diseño
-    created_at          TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP
-                            COMMENT 'Marca de tiempo UTC precisa para auditoría temporal (EU AI Act Art. 12)',
+    created_at          TIMESTAMP(6)    NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
+                            COMMENT 'Marca de tiempo UTC precisa con microsegundos para auditoría temporal (EU AI Act Art. 12)',
 
     -- Claves e índices
     PRIMARY KEY (id),

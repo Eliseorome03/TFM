@@ -6,7 +6,8 @@ Cada registro representa un paso atómico dentro de un turno conversacional,
 con snapshot del estado del sistema antes y después de la acción.
 """
 
-from sqlalchemy import Column, BigInteger, Integer, String, JSON, TIMESTAMP
+from sqlalchemy import Column, BigInteger, Integer, String, JSON
+from sqlalchemy.dialects.mysql import TIMESTAMP
 from sqlalchemy.sql import func
 
 from app.database import Base
@@ -81,10 +82,10 @@ class TrazaAuditoria(Base):
         comment="Snapshot consolidado del information_state tras completarse el paso",
     )
     created_at = Column(
-        TIMESTAMP,
+        TIMESTAMP(fsp=6),
         nullable=False,
-        server_default=func.now(),
-        comment="Marca de tiempo precisa (UTC) para auditoría temporal",
+        server_default=func.now(6),
+        comment="Marca de tiempo precisa (UTC) con resolución de microsegundos para auditoría temporal",
     )
 
     def __repr__(self) -> str:

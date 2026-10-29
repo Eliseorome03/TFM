@@ -2,3 +2,8 @@
 *__pycache__*
 venv/
 auxiliar/
+
+# Ignorar todo el contenido de la carpeta build excepto el archivo PDF
+**/build/*
+!**/build/*.pdf
+!**/build/**/

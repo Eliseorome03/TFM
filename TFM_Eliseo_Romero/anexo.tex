@@ -1,0 +1,303 @@
+% ==============================================================================
+% ANEXO: GUÍA DE REPRODUCCIÓN Y DESPLIEGUE DEL PROTOTIPO
+% ==============================================================================
+
+\chapter{Guía de Reproducción y Despliegue del Prototipo}
+\label{anexo:despliegue}
+
+El presente anexo describe los procedimientos técnicos necesarios para clonar, configurar y desplegar de forma autónoma el prototipo neuro-simbólico desarrollado en este Trabajo Fin de Máster. Su propósito es garantizar la reproducibilidad experimental del sistema por parte de evaluadores, investigadores o desarrolladores interesados en examinar la arquitectura.
+
+El código fuente íntegro del proyecto se encuentra disponible de forma pública en el repositorio alojado en GitHub \cite{tfmGitHub}, bajo la siguiente dirección:
+
+\begin{center}
+\url{https://github.com/Eliseorome03/TFM}
+\end{center}
+
+No obstante, la simple obtención del código mediante el control de versiones no resulta suficiente para la puesta en marcha inmediata del sistema. Por motivos de seguridad y buenas prácticas de ingeniería de software, las credenciales privadas y los parámetros específicos del entorno no se versionan en el repositorio. En consecuencia, es necesario instanciar el archivo de configuración de variables de entorno y aprovisionar una clave de acceso a la plataforma de Mistral AI, tal como se detalla en las siguientes secciones.
+
+\section{Requisitos del sistema y dependencias previas}
+
+Para desplegar y ejecutar el prototipo de forma adecuada, el equipo anfitrión debe cumplir con los siguientes requisitos:
+
+\begin{enumerate}
+    \item \textbf{Control de versiones:} Disponer de \texttt{git} (versión 2.30 o superior) para la clonación del repositorio y la gestión de ramas.
+    
+    \item \textbf{Entorno de ejecución de contenedores (método recomendado):}
+    \begin{itemize}
+        \item \textbf{Docker Engine} (versión 20.10 o superior) y \textbf{Docker Compose} (v2.0 o superior), o bien \textbf{Docker Desktop} en entornos Windows o macOS.
+        \item La contenedorización constituye la vía de despliegue preferente, ya que encapsula y orquesta de forma automatizada las dependencias de los tres servicios principales: la base de datos relacional MariaDB, el microservicio Drools en Spring Boot (Java 17) y el backend orquestador en FastAPI (Python 3.11).
+    \end{itemize}
+
+    \item \textbf{Entorno de ejecución nativo/local (método alternativo):} Si se opta por ejecutar los servicios directamente sobre el sistema operativo anfitrión sin Docker, se requiere:
+    \begin{itemize}
+        \item \textbf{Python 3.11} con el gestor de paquetes \texttt{pip} y soporte para entornos virtuales (\texttt{venv}).
+        \item \textbf{Java Development Kit (JDK) 17} y \textbf{Apache Maven} (versión 3.9 o superior) para la compilación y ejecución de la aplicación Drools.
+        \item Un servidor activo de \textbf{MariaDB 11.2} (o MySQL 8.0+) en escucha en el puerto estándar 3306.
+    \end{itemize}
+
+    \item \textbf{Conectividad de red externa:} Es indispensable disponer de acceso a Internet tanto durante la fase de construcción de las imágenes (descarga de paquetes de Python, artefactos Maven e imágenes base de Docker) como en tiempo de ejecución, dado que el componente neuronal realiza llamadas seguras a los servidores de Mistral AI (\texttt{https://api.mistral.ai}).
+
+    \item \textbf{Disponibilidad de puertos de red:} El sistema requiere que los siguientes puertos locales no estén ocupados por otros procesos:
+    \begin{itemize}
+        \item \texttt{8000}: Utilizado por el backend de FastAPI y la interfaz web estática.
+        \item \texttt{8080}: Utilizado por el microservicio Spring Boot con el motor Drools.
+        \item \texttt{3306}: Utilizado por el servidor de base de datos MariaDB.
+    \end{itemize}
+\end{enumerate}
+
+\section{Clonación del repositorio}
+
+Para descargar el proyecto en el equipo local, debe abrirse un terminal de comandos y ejecutar la siguiente instrucción:
+
+\begin{verbatim}
+git clone https://github.com/Eliseorome03/TFM.git
+cd TFM
+\end{verbatim}
+
+Una vez dentro del directorio raíz \texttt{TFM/}, se observará la estructura del proyecto, compuesta por el directorio \texttt{backend/} (servidor FastAPI y frontend web), \texttt{drools-app/} (microservicio Java de reglas de negocio), \texttt{database/} (esquema DDL e inserción de datos sintéticos) y \texttt{tests/} (baterías de pruebas unitarias, de integración y de seguridad).
+
+\section{Configuración de variables de entorno y archivo auxiliar}
+
+Por estrictas razones de seguridad, el archivo que almacena las variables de entorno operativas (\texttt{.env}) contiene contraseñas de bases de datos y claves privadas de API, por lo que está explícitamente excluido del seguimiento de Git mediante el archivo \texttt{.gitignore}. Por consiguiente, tras clonar el repositorio, dicho archivo no existirá en el directorio raíz.
+
+Para facilitar la configuración sin exponer credenciales sensibles, el repositorio incluye un archivo auxiliar de plantilla denominado \textbf{\texttt{.env\_aux}}. Este archivo contiene la estructura completa de variables que requiere la arquitectura, preconfiguradas con valores funcionales por defecto para entornos de desarrollo y pruebas, a excepción de la clave privada de Mistral AI.
+
+\subsection{Creación del archivo \texttt{.env}}
+
+El primer paso consiste en renombrar o copiar este archivo auxiliar creando un nuevo archivo denominado estrictamente \texttt{.env} en la raíz del proyecto. Según el sistema operativo utilizado, puede ejecutarse alguno de los siguientes comandos desde la raíz del repositorio:
+
+\begin{itemize}
+    \item \textbf{En entornos Linux o macOS (Bash / Zsh):}
+\begin{verbatim}
+cp .env_aux .env
+\end{verbatim}
+
+    \item \textbf{En entornos Windows (PowerShell):}
+\begin{verbatim}
+Copy-Item .env_aux .env
+\end{verbatim}
+
+    \item \textbf{En entornos Windows (Símbolo del sistema / CMD):}
+\begin{verbatim}
+copy .env_aux .env
+\end{verbatim}
+\end{itemize}
+
+\subsection{Estructura del archivo de variables}
+
+Al abrir el archivo \texttt{.env} resultante en un editor de texto, se observará el siguiente contenido:
+
+\begin{verbatim}
+# .env - Variables de entorno del sistema
+# Configuración leída por docker-compose.yml
+
+# -- MISTRAL AI ------------------------------
+MISTRAL_API_KEY=
+MISTRAL_MODEL=ministral-8b-latest
+
+# -- BASE DE DATOS MariaDB -------------------
+MARIADB_ROOT_PASSWORD=root_secret_2024
+MARIADB_DATABASE=banca_db
+MARIADB_USER=banca_user
+MARIADB_PASSWORD=banca_password_2024
+MARIADB_PORT=3306
+
+# -- MOTOR DE REGLAS DROOLS ------------------
+DROOLS_PORT=8080
+DROOLS_TIMEOUT=30
+
+# -- BACKEND FastAPI -------------------------
+BACKEND_PORT=8000
+\end{verbatim}
+
+Los parámetros de base de datos (\texttt{MARIADB\_*}) y los puertos de los servicios están sincronizados con la configuración de Docker Compose y con el script de base de datos \texttt{database/init.sql}. La única variable que debe ser completada obligatoriamente por el usuario es \texttt{MISTRAL\_API\_KEY}. El modelo predeterminado es \texttt{ministral-8b-latest}, el cual ofrece una respuesta óptima para tareas estructuradas en el nivel de uso gratuito.
+
+\section{Obtención de una clave de API gratuita en Mistral AI}
+
+El componente neuronal del prototipo depende del SDK oficial de Mistral AI para realizar la extracción estructurada del lenguaje natural (NLU) y la redacción final de las respuestas al cliente (NLG). Para poder utilizar este servicio sin coste económico, Mistral AI ofrece una modalidad gratuita de acceso para desarrolladores e investigadores. Los pasos para obtener una clave de API gratuita son los siguientes:
+
+\begin{enumerate}
+    \item \textbf{Acceso a la plataforma de desarrollo:} Dirigirse en un navegador web a la consola de Mistral AI (\textit{la Plateforme}):
+    \begin{center}
+    \url{https://console.mistral.ai/}
+    \end{center}
+
+    \item \textbf{Registro de cuenta:} Crear una cuenta seleccionando la opción de registro (\textit{Sign up}). Es posible registrarse introduciendo una dirección de correo electrónico personal o profesional, o bien mediante autenticación federada con cuentas de Google, GitHub o Microsoft.
+
+    \item \textbf{Verificación de identidad:} Confirmar el correo electrónico a través del mensaje de validación enviado por la plataforma. Para activar el plan de uso y prevenir abusos automatizados, la plataforma puede solicitar la verificación adicional de un número de teléfono móvil mediante un código de un solo uso recibido por SMS.
+
+    \item \textbf{Plan gratuito por defecto (\textit{Free / Experiment Plan}):} Una vez validada la cuenta, la plataforma asigna de manera automática el plan gratuito de experimentación. \textbf{No se requiere introducir ningún dato bancario ni tarjeta de crédito} para hacer uso de este nivel. Este plan otorga acceso a los modelos de lenguaje de Mistral (incluido \texttt{ministral-8b-latest} y la familia \texttt{mistral-small}) con límites de tasa (*rate limits*) suficientes para el desarrollo, las pruebas manuales y la evaluación académica.
+
+    \item \textbf{Generación de la clave de API:}
+    \begin{itemize}
+        \item En el menú lateral izquierdo de la consola, pulsar sobre el apartado \textbf{API Keys} (o \textbf{Codestral / API Keys}).
+        \item Hacer clic en el botón \textbf{Create new key} (\textit{Crear nueva clave}).
+        \item Asignar un nombre a la clave (por ejemplo, \texttt{clave-tfm}).
+        \item Dejar el alcance de conectores por defecto y pulsar sobre \textbf{Create}.
+    \end{itemize}
+
+    \item \textbf{Copia e inserción en el archivo \texttt{.env}:} La clave completa únicamente se mostrará en pantalla una vez. Debe copiarse de inmediato y pegarse en el archivo \texttt{.env} en la raíz del repositorio, asignándola a la variable correspondiente:
+\begin{verbatim}
+MISTRAL_API_KEY=token_obtenido_en_mistral
+\end{verbatim}
+\end{enumerate}
+
+\section{Puesta en marcha y despliegue del sistema}
+
+Una vez configurado el archivo \texttt{.env}, existen dos modalidades para levantar la arquitectura completa: mediante Docker Compose (método automatizado y recomendado) o mediante ejecución local desacoplada.
+
+\subsection{Modalidad A: Despliegue con Docker Compose (Recomendado)}
+
+Esta modalidad construye automáticamente las imágenes y levanta la red interna de contenedores garantizando la compatibilidad exacta entre versiones. Desde el directorio raíz del repositorio (\texttt{TFM/}), ejecute:
+
+\begin{verbatim}
+docker compose up --build
+\end{verbatim}
+
+\noindent\textit{Nota: En versiones antiguas de Docker, la sintaxis equivalente es \texttt{docker-compose up --build}.}
+
+Durante la ejecución, Docker Compose realiza en cascada las siguientes operaciones:
+
+\begin{enumerate}
+    \item \textbf{Arranque de MariaDB (\texttt{banca\_mariadb}):} Se inicia el motor de base de datos MariaDB 11.2. En el primer arranque, el contenedor detecta que el volumen persistente \texttt{banca\_db\_data} está vacío y ejecuta automáticamente el script \texttt{database/init.sql}. Este script crea la base de datos \texttt{banca\_db}, define la tabla de auditoría \texttt{trazas\_auditoria} y la tabla de clientes con los cuatro perfiles de prueba sintéticos (\texttt{CLI-001}, \texttt{CLI-002}, \texttt{CLI-003} y \texttt{CLI-004}).
+    
+    \item \textbf{Compilación y arranque de Drools (\texttt{banca\_drools}):} Utiliza un esquema de construcción multi-etapa (\textit{multi-stage build}). Primero compila el proyecto Java 17 y sus dependencias de Drools KIE mediante Maven en un contenedor temporal, y después traslada el artefacto ejecutable (\texttt{app.jar}) a una imagen ligera basada en Eclipse Temurin JRE 17. El servicio permanece en espera hasta que MariaDB supera satisfactoriamente su comprobación de salud (*healthcheck*).
+    
+    \item \textbf{Arranque del Backend FastAPI (\texttt{banca\_backend}):} Se construye la imagen Python 3.11, se instalan las dependencias fijadas en el archivo \texttt{requirements.txt} del backend, se carga el simulador externo \texttt{bde.json} y se arranca el servidor Uvicorn en el puerto 8000. Este servicio espera a que tanto MariaDB como el motor Drools se encuentren plenamente operativos antes de aceptar conexiones.
+\end{enumerate}
+
+El sistema habrá finalizado su inicialización cuando el terminal muestre los mensajes de confirmación de arranque de Uvicorn en \texttt{http://0.0.0.0:8000}. Para detener los contenedores en cualquier momento, basta con pulsar \texttt{Ctrl + C} o ejecutar en otro terminal:
+
+\begin{verbatim}
+docker compose down
+\end{verbatim}
+
+Si en algún momento se desea restablecer la base de datos a su estado original (borrando las trazas de auditoría acumuladas durante las pruebas), se puede destruir el volumen persistente ejecutando:
+
+\begin{verbatim}
+docker compose down -v
+\end{verbatim}
+
+\subsection{Modalidad B: Despliegue nativo local (Sin Docker)}
+
+Si se prefiere ejecutar los servicios directamente sobre el sistema operativo para labores de depuración de bajo nivel, deben abrirse tres terminales independientes y seguir los siguientes pasos:
+
+\begin{enumerate}
+    \item \textbf{Terminal 1 — Base de datos:} Asegurarse de tener un servidor MariaDB o MySQL activo en el puerto 3306. Ejecutar manualmente el script de inicialización:
+\begin{verbatim}
+mysql -u root -p < database/init.sql
+\end{verbatim}
+
+    \item \textbf{Terminal 2 — Microservicio Drools:} Acceder a la carpeta del componente Java, compilar y arrancar la aplicación de Spring Boot:
+\begin{verbatim}
+cd drools-app
+mvn clean spring-boot:run
+\end{verbatim}
+    El microservicio estará listo cuando escuche en \texttt{http://localhost:8080}.
+
+    \item \textbf{Terminal 3 — Backend orquestador FastAPI:} Acceder a la carpeta \texttt{backend/}, configurar un entorno virtual de Python, instalar dependencias y lanzar el servidor:
+\begin{verbatim}
+cd backend
+python -m venv venv
+
+# Activación del entorno virtual:
+# En Linux/macOS:
+source venv/bin/activate
+# En Windows:
+venv\Scripts\activate
+
+# Instalación de librerías
+pip install -r requirements.txt
+
+# Copiar el archivo .env configurado a la carpeta backend
+cp ../.env .env
+
+# Iniciar el backend FastAPI
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+\end{verbatim}
+\end{enumerate}
+
+\section{Interacción y verificación del prototipo}
+
+Una vez completado el despliegue a través de cualquiera de las dos modalidades, el sistema ofrece tres vías de interacción y verificación:
+
+\subsection{Interfaz web experimental}
+
+Para interactuar de forma conversacional con el prototipo y observar la consola de auditoría en tiempo real, abra un navegador web y navegue a la siguiente dirección:
+
+\begin{center}
+\url{http://localhost:8000/static/index.html}
+\end{center}
+
+Desde esta interfaz, la pantalla se divide en dos secciones operativas:
+\begin{itemize}
+    \item \textbf{Panel conversacional (izquierda):} Permite mantener el diálogo con el asistente para solicitar un préstamo. En la parte superior se incluye un selector de perfiles que permite cargar los clientes simulados (\texttt{CLI-001} Juan Pérez — solvente; \texttt{CLI-002} María Gómez — avalista de empresa en concurso; \texttt{CLI-003} Carlos Ruiz — cliente con morosidad en ASNEF; \texttt{CLI-004} Ana Fernández — cliente próxima a edad máxima de amortización).
+    \item \textbf{Consola de inspección (derecha):} Refleja de forma síncrona el ciclo de ejecución neuro-simbólico: las micro-acciones ejecutadas por el orquestador en cada turno, el estado dictaminado por Drools, la regla exacta disparada, el artículo legal asociado y el volcado estructurado del \texttt{InformationState}.
+\end{itemize}
+
+\subsection{Documentación interactiva de la API (Swagger UI)}
+
+FastAPI expone automáticamente la documentación OpenAPI interactiva del backend en:
+
+\begin{center}
+\url{http://localhost:8000/docs}
+\end{center}
+
+A través de esta consola es posible probar los endpoints REST de manera individualizada sin pasar por la interfaz gráfica, tales como:
+\begin{itemize}
+    \item \texttt{POST /api/chat}: Envío directo de mensajes conversacionales.
+    \item \texttt{GET /api/clientes}: Consulta del catálogo de perfiles de clientes disponibles en el core.
+    \item \texttt{GET /api/mock/bde/\{dni\}}: Consulta de solvencia en la simulación de CIRBE y ASNEF.
+\end{itemize}
+
+\subsection{Comprobación de salud del motor de reglas}
+
+Para verificar que el microservicio de Drools está activo y respondiendo adecuadamente, puede consultarse en el navegador o mediante \texttt{curl} su endpoint de salud:
+
+\begin{verbatim}
+curl http://localhost:8080/actuator/health
+\end{verbatim}
+
+\noindent La respuesta esperada es \texttt{\{"status":"UP"\}}.
+
+\section{Ejecución de la batería de pruebas automatizadas}
+
+Para replicar los resultados de evaluación expuestos en el Capítulo 5 de este trabajo, el repositorio incluye un conjunto de pruebas automatizadas distribuidas en la carpeta \texttt{tests/}.
+
+Con el sistema desplegado y los servicios activos, sitúese en la raíz del repositorio con el entorno virtual activado y ejecute:
+
+\begin{itemize}
+    \item \textbf{Pruebas unitarias de las reglas Drools:}
+\begin{verbatim}
+python tests/drools/test_drools_rules.py
+python tests/drools/test_drools_salience.py
+\end{verbatim}
+    Verifican el catálogo de reglas y la correcta aplicación de prioridades (\textit{salience}) ante conflictos de decisión.
+
+    \item \textbf{Pruebas de evaluación NLU:}
+\begin{verbatim}
+python tests/NLU/evaluate_nlu.py
+\end{verbatim}
+    Calcula la exactitud estricta y la resolución operativa del componente de extracción estructurada comparándolo con el archivo de verdad campo a campo \texttt{nlu\_ground\_truth.csv}.
+
+    \item \textbf{Batería completa de extremo a extremo (E2E):}
+\begin{verbatim}
+python tests/end-to-end/run_all.py
+\end{verbatim}
+    Ejecuta de forma secuencial los 22 escenarios conversacionales completos descritos en la evaluación, categorizados en casos de variabilidad lingüística (Categoría 1), interacción con reglas Drools (Categoría 2) y resistencia frente a vectores de inyección o ataque semántico (Categoría 3).
+\end{itemize}
+
+\section{Resolución de problemas habituales}
+
+A continuación se resumen las incidencias más comunes que pueden surgir durante el despliegue y sus respectivas soluciones:
+
+\begin{itemize}
+    \item \textbf{Error de autenticación \texttt{HTTP 401 Unauthorized} en llamadas a Mistral:} Ocurre si la variable \texttt{MISTRAL\_API\_KEY} no ha sido configurada en el archivo \texttt{.env}, si se han dejado espacios en blanco al pegarla o si la clave ha expirado. Verifique que el valor asignado en \texttt{.env} coincide exactamente con el generado en la consola de Mistral AI.
+    
+    \item \textbf{Límite de tasa excedido (\texttt{HTTP 429 Too Many Requests}):} La modalidad gratuita de Mistral AI impone límites de peticiones por segundo y por minuto. Si se ejecutan los scripts de evaluación automatizada a gran velocidad, pueden producirse excepciones por exceso de tasa. La solución consiste en distanciar ligeramente las peticiones o incorporar pausas de un segundo entre turnos de prueba.
+
+    \item \textbf{Conflicto de puertos (\textit{Port already in use}):} Si alguno de los puertos estándar (8000, 8080 o 3306) se encuentra ocupado por un servicio existente en la máquina anfitriona (como una instancia local previa de MySQL o Apache), edite el archivo \texttt{.env} y modifique las variables \texttt{BACKEND\_PORT}, \texttt{DROOLS\_PORT} o \texttt{MARIADB\_PORT} asignando puertos libres (por ejemplo, 8001, 8081 o 3307).
+
+    \item \textbf{Fallos de conectividad entre contenedores:} Si el backend indica que no puede contactar con Drools o con MariaDB, asegúrese de utilizar \texttt{docker compose up} desde la raíz del proyecto para que todos los contenedores se suscriban a la red compartida \texttt{banca\_neurosimbolico\_net}.
+\end{itemize}
+

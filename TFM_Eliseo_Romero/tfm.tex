@@ -130,7 +130,7 @@ Los objetivos siguen una progresión desde el análisis del problema hasta la ev
 
 \section{Estructura del trabajo}
 
-El resto del trabajo se organiza en cinco capítulos:
+El resto del trabajo se organiza en cinco capítulos y un anexo:
 
 \begin{itemize}
     \item El \textbf{Capítulo 2, Marco teórico y estado del arte}, presenta los fundamentos conceptuales necesarios para estudiar el problema. Se delimitan los conceptos de transparencia, interpretabilidad, explicabilidad y \textit{accountability}; se diferencia entre explicaciones \textit{post-hoc} y explicabilidad constitutiva; y se revisan los requisitos regulatorios considerados. También se analizan las propiedades y limitaciones de la inteligencia artificial neuronal, la inteligencia artificial simbólica y las principales formas de integración neuro-simbólica.
@@ -142,6 +142,8 @@ El resto del trabajo se organiza en cinco capítulos:
     \item El \textbf{Capítulo 5, Evaluación de la solución propuesta}, expone la estrategia, las métricas y los resultados de las pruebas. La evaluación comprende el motor simbólico, el NLU, el NLG, el funcionamiento de extremo a extremo y la trazabilidad de una sesión completa. El capítulo finaliza con una síntesis que diferencia entre las propiedades verificadas mediante pruebas, las propiedades observables en la implementación y aquellas que no han sido demostradas.
 
     \item El \textbf{Capítulo 6, Conclusiones}, analiza el cumplimiento de los objetivos específicos, expone las limitaciones del prototipo y responde al objetivo general. Finalmente, plantea líneas futuras relacionadas con la ampliación de la evaluación, la generación asistida de reglas o la interacción entre componentes neuronales y simbólicos entre otros.
+
+    \item El \textbf{Anexo A, Guía de reproducción y despliegue del prototipo}, detalla los requisitos técnicos, la configuración de variables de entorno, la obtención de credenciales de Mistral AI y las instrucciones paso a paso para clonar y ejecutar el sistema en local o mediante contenedores Docker.
 \end{itemize}
 
 Esta organización permite avanzar desde la formulación del problema hasta la evaluación de una solución concreta. El marco teórico y el estado del arte permiten identificar las alternativas existentes y fundamentar la propuesta; el dominio crediticio permite convertir el problema general en requisitos concretos; la implementación desarrolla el prototipo; y la evaluación determina qué conclusiones pueden sostenerse a partir de la evidencia obtenida.
@@ -798,7 +800,7 @@ El código del prototipo se ha organizado siguiendo patrones de diseño de separ
     \item \textbf{\texttt{tests/}}: Contiene la batería de pruebas automatizadas. Comentaremos esto en el siguiente capítulo más en profundidad.
 \end{itemize}
 
-El código fuente está disponible en el repositorio de GitHub \cite{tfmGitHub}. Las instrucciones para clonarlo y preparar el prototipo se incluirán en el anexo dedicado a la reproducción del proyecto.
+El código fuente está disponible en el repositorio de GitHub \cite{tfmGitHub}. Las instrucciones para clonarlo, configurarlo y desplegarlo se detallan en el Anexo~\ref{anexo:despliegue}.
 
 
 \section{El \textit{Information State Update} (ISU)}
@@ -2142,6 +2144,10 @@ La adaptación no consistiría en trasladar directamente las reglas y los datos 
 En cambio, algunos elementos generales de la arquitectura podrían conservarse: la utilización de un componente neuronal para interpretar el lenguaje, el mantenimiento de un estado estructurado, la aplicación de reglas mediante un motor simbólico, la generación de respuestas a partir del resultado obtenido y el registro de la secuencia de procesamiento. 
 
 Esta adaptación permitiría comprobar si la separación entre procesamiento lingüístico y decisión simbólica constituye un patrón reutilizable o si las ventajas observadas solamente servirían en el caso de originación de crédito.
+
+\appendix
+\addto\captionsspanish{\renewcommand{\appendixname}{Anexo}}
+\include{anexo}
 
 \include{bibliografia}
 

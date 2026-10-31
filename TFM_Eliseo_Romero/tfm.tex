@@ -64,7 +64,7 @@
     % --- LOGO ---
     \begin{figure}[H]
         \centering
-        \includegraphics[width=0.4\textwidth]{logo_universidad.jpg}
+        \includegraphics[width=0.4\textwidth]{imagenes/logo_universidad.jpg}
     \end{figure}
     
     \vspace{1.5cm}
@@ -93,6 +93,48 @@
     {\normalsize Sevilla, Noviembre 2026\par}
     \vspace*{0.5cm}
 \end{titlepage}
+
+\thispagestyle{plain}
+\begin{center}
+    {\Large \textbf{Resumen}}
+\end{center}
+\vspace{0.5cm}
+
+\noindent
+Los sistemas conversacionales basados en modelos de lenguaje ofrecen una elevada capacidad para interpretar y generar lenguaje natural, pero su naturaleza probabilística dificulta la inspección y reproducción de las decisiones que toman. Esta limitación resulta especialmente relevante en dominios regulados, donde debe ser posible identificar los datos utilizados, los criterios aplicados y el proceso que conduce a cada resultado.
+
+Este Trabajo Fin de Máster propone una arquitectura neuro-simbólica para separar las capacidades lingüísticas del sistema de la toma de decisiones. La propuesta se aplica a un escenario académico de originación de crédito bancario y combina un modelo de lenguaje, encargado de la comprensión y generación del diálogo, con un motor simbólico que ejecuta reglas de negocio explícitas. La arquitectura mantiene, además, una representación estructurada y persistente de la solicitud e incorpora un registro de las operaciones realizadas durante su procesamiento. 
+
+Para estudiar el comportamiento del prototipo se evaluaron individualmente el motor de reglas y los componentes de comprensión y generación del lenguaje, así como el funcionamiento integrado del sistema, su respuesta ante entradas adversariales y la trazabilidad de las decisiones. Los resultados obtenidos fueron favorables en los escenarios analizados: las reglas produjeron resultados reproducibles, el sistema mantuvo la información a lo largo de conversaciones multiturno y la decisión simbólica permaneció separada de la generación textual. La evaluación también permitió identificar algunas limitaciones del componente neuronal.
+
+En conjunto, el trabajo muestra la viabilidad técnica de utilizar una arquitectura neuro-simbólica para mantener explícita, reproducible y trazable la lógica de decisión de un sistema conversacional. No obstante, la solución constituye un prototipo académico y no un sistema preparado para su utilización en una entidad financiera, para lo que requeriría ampliar la validación, incorporar una supervisión humana efectiva y sustituir las reglas y fuentes simuladas por políticas e integraciones reales.
+
+\vspace{0.5cm}
+
+\noindent\textbf{Palabras clave:} inteligencia artificial neuro-simbólica, modelos de lenguaje, sistemas basados en reglas, trazabilidad, \textit{accountability}, originación de crédito.
+
+\newpage
+
+\thispagestyle{plain}
+\begin{center}
+    {\Large \textbf{Abstract}}
+\end{center}
+\vspace{0.5cm}
+
+\noindent
+Conversational systems based on language models offer a strong ability to interpret and generate natural language. However, their probabilistic nature makes it difficult to inspect and reproduce the decisions they make. This limitation is particularly relevant in regulated domains, where it must be possible to identify the data used, the criteria applied, and the process leading to each outcome.
+
+This Master's Thesis proposes a neuro-symbolic architecture that separates the system's linguistic capabilities from its decision-making process. The proposal is applied to an academic banking credit origination scenario and combines a language model, responsible for dialogue understanding and generation, with a symbolic engine that executes explicit business rules. In addition, the architecture maintains a structured and persistent representation of the application and incorporates a record of the operations performed throughout its processing.
+
+To assess the behaviour of the prototype, the rule engine and the language understanding and generation components were evaluated individually. The integrated operation of the system, its response to adversarial inputs, and the traceability of its decisions were also examined. The results were favourable in the scenarios analysed: the rules produced reproducible outcomes, the system retained information across multi-turn conversations, and symbolic decision-making remained separate from text generation. The evaluation also identified several limitations of the neural component.
+
+Overall, this work demonstrates the technical feasibility of using a neuro-symbolic architecture to keep the decision logic of a conversational system explicit, reproducible, and traceable. Nevertheless, the proposed solution is an academic prototype rather than a system ready for deployment in a financial institution. Such deployment would require broader validation, effective human oversight, and the replacement of the simulated rules and data sources with actual policies and system integrations. 
+
+\vspace{0.5cm}
+
+\noindent\textbf{Keywords:} neuro-symbolic artificial intelligence, language models, rule-based systems, traceability, accountability, credit origination.
+
+\newpage
 
 \tableofcontents
 
@@ -166,7 +208,7 @@ Los objetivos siguen una progresión desde el análisis del problema hasta la ev
 
 \section{Estructura del trabajo}
 
-El resto del trabajo se organiza en cinco capítulos y un anexo:
+El resto del trabajo se organiza en cinco capítulos y un apéndice:
 
 \begin{itemize}
     \item El \textbf{Capítulo 2, Marco teórico y estado del arte}, presenta los fundamentos conceptuales necesarios para estudiar el problema. Se delimitan los conceptos de transparencia, interpretabilidad, explicabilidad y \textit{accountability}; se diferencia entre explicaciones \textit{post-hoc} y explicabilidad constitutiva; y se revisan los requisitos regulatorios considerados. También se analizan las propiedades y limitaciones de la inteligencia artificial neuronal, la inteligencia artificial simbólica y las principales formas de integración neuro-simbólica.
@@ -179,7 +221,7 @@ El resto del trabajo se organiza en cinco capítulos y un anexo:
 
     \item El \textbf{Capítulo 6, Conclusiones}, analiza el cumplimiento de los objetivos específicos, expone las limitaciones del prototipo y responde al objetivo general. Finalmente, plantea líneas futuras relacionadas con la ampliación de la evaluación, la generación asistida de reglas o la interacción entre componentes neuronales y simbólicos entre otros.
 
-    \item El \textbf{Anexo A, Guía de reproducción y despliegue del prototipo}, detalla los requisitos técnicos, la configuración de variables de entorno, la obtención de credenciales de Mistral AI y las instrucciones paso a paso para clonar y ejecutar el sistema en local o mediante contenedores Docker.
+    \item El \textbf{Apéndice A, Guía de reproducción y despliegue del prototipo}, detalla los requisitos técnicos, la configuración de variables de entorno, la obtención de credenciales de Mistral AI y las instrucciones paso a paso para clonar y ejecutar el sistema en local o mediante contenedores Docker.
 \end{itemize}
 
 Esta organización permite avanzar desde la formulación del problema hasta la evaluación de una solución concreta. El marco teórico y el estado del arte permiten identificar las alternativas existentes y fundamentar la propuesta; el dominio crediticio permite convertir el problema general en requisitos concretos; la implementación desarrolla el prototipo; y la evaluación determina qué conclusiones pueden sostenerse a partir de la evidencia obtenida.
@@ -836,7 +878,7 @@ El código del prototipo se ha organizado siguiendo patrones de diseño de separ
     \item \textbf{\texttt{tests/}}: Contiene la batería de pruebas automatizadas. Comentaremos esto en el siguiente capítulo más en profundidad.
 \end{itemize}
 
-El código fuente está disponible en el repositorio de GitHub \cite{tfmGitHub}. Las instrucciones para clonarlo, configurarlo y desplegarlo se detallan en el Anexo~\ref{anexo:despliegue}.
+El código fuente está disponible en el repositorio de GitHub \cite{tfmGitHub}. Las instrucciones para clonarlo, configurarlo y desplegarlo se detallan en el Apéndice~\ref{apendice:despliegue}.
 
 
 \section{El \textit{Information State Update} (ISU)}
@@ -2182,8 +2224,8 @@ En cambio, algunos elementos generales de la arquitectura podrían conservarse: 
 Esta adaptación permitiría comprobar si la separación entre procesamiento lingüístico y decisión simbólica constituye un patrón reutilizable o si las ventajas observadas solamente servirían en el caso de originación de crédito.
 
 \appendix
-\addto\captionsspanish{\renewcommand{\appendixname}{Anexo}}
-\include{anexo}
+
+\include{apendice}
 
 \include{bibliografia}
 

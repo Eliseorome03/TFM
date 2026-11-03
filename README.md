@@ -1,4 +1,4 @@
-# Sistema Conversacional Neuro-Simbólico para la Evaluación de Crédito Bancario
+# Diseño, Implementación y Evaluación de una Arquitectura Neuro-Simbólica para Sistemas Conversacionales Auditables en Dominios de Alto Riesgo
 
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=flat&logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?style=flat&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
@@ -336,7 +336,7 @@ Si utilizas este trabajo o parte de su código en investigaciones académicas o 
 ```bibtex
 @misc{tfmGitHub,
   author       = {Romero Mar{\'\i}n, Eliseo},
-  title        = {Repositorio de c{\'o}digo del Trabajo Fin de M{\'a}ster: Sistema Conversacional Neuro-Simb{\'o}lico para la Evaluaci{\'o}n Crediticia},
+  title        = {Repositorio de c{\'o}digo del Trabajo Fin de M{\'a}ster: Dise{\~n}o, Implementaci{\'o}n y Evaluaci{\'o}n de una Arquitectura Neuro-Simb{\'o}lica para Sistemas Conversacionales Auditables en Dominios de Alto Riesgo},
   year         = {2026},
   howpublished = {\url{https://github.com/Eliseorome03/TFM}}
 }

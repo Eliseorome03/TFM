@@ -8,6 +8,7 @@
 [![MariaDB](https://img.shields.io/badge/MariaDB-11.2-003545?style=flat&logo=mariadb&logoColor=white)](https://mariadb.org/)
 [![Mistral AI](https://img.shields.io/badge/Mistral_AI-ministral--8b-FF7000?style=flat)](https://mistral.ai/)
 [![Docker](https://img.shields.io/badge/Docker_Compose-Multi--Container-2496ED?style=flat&logo=docker&logoColor=white)](https://www.docker.com/)
+[![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC_BY--NC--SA_4.0-lightgrey.svg)](LICENSE)
 
 > **Trabajo Fin de Máster (TFM)**
 > **Autor:** Eliseo Romero Marín  
@@ -18,24 +19,24 @@
 
 ## Tabla de Contenidos
 
-1. [Visión General del Proyecto](#-visión-general-del-proyecto)
-2. [Principios Arquitectónicos](#-principios-arquitectónicos)
-3. [Stack Tecnológico](#-stack-tecnológico)
-4. [Estructura del Repositorio](#-estructura-del-repositorio)
-5. [Guía Rápida de Despliegue](#-guía-rápida-de-despliegue)
+1. [Visión General del Proyecto](#visión-general-del-proyecto)
+2. [Principios Arquitectónicos](#principios-arquitectónicos)
+3. [Stack Tecnológico](#stack-tecnológico)
+4. [Estructura del Repositorio](#estructura-del-repositorio)
+5. [Guía Rápida de Despliegue](#guía-rápida-de-despliegue)
    - [Requisitos Previos](#requisitos-previos)
    - [Paso 1: Clonar el Repositorio](#paso-1-clonar-el-repositorio)
    - [Paso 2: Configurar Variables de Entorno (.env)](#paso-2-configurar-variables-de-entorno-env)
    - [Paso 3: Obtener API Key Gratuita de Mistral AI](#paso-3-obtener-api-key-gratuita-de-mistral-ai)
    - [Paso 4: Despliegue con Docker Compose](#paso-4-despliegue-con-docker-compose-recomendado)
    - [Despliegue Alternativo en Local (sin Docker)](#despliegue-alternativo-en-local-sin-docker)
-6. [Acceso e Interacción con el Prototipo](#-acceso-e-interacción-con-el-prototipo)
+6. [Acceso e Interacción con el Prototipo](#acceso-e-interacción-con-el-prototipo)
    - [Interfaz Web y Consola de Auditoría](#interfaz-web-y-consola-de-auditoría)
    - [Perfiles de Prueba Simulados](#perfiles-de-prueba-simulados)
    - [Documentación Interactiva Swagger UI](#documentación-interactiva-swagger-ui)
-7. [Batería de Pruebas y Evaluación](#-batería-de-pruebas-y-evaluación)
-8. [Resolución de Problemas](#-resolución-de-problemas)
-9. [Cita del Trabajo](#-cita-del-trabajo)
+7. [Resolución de Problemas](#resolución-de-problemas)
+8. [Cita del Trabajo](#cita-del-trabajo)
+9. [Licencia](#licencia)
 
 ---
 
@@ -340,3 +341,11 @@ Si utilizas este trabajo o parte de su código en investigaciones académicas o 
   howpublished = {\url{https://github.com/Eliseorome03/TFM}}
 }
 ```
+
+---
+
+## Licencia
+
+Este proyecto y su material asociado (código fuente, documentación y modelos) se distribuyen bajo la licencia **Creative Commons Atribución-NoComercial-CompartirIgual 4.0 Internacional (CC BY-NC-SA 4.0)**.
+
+Para consultar los términos completos de uso, distribución y atribución, revisa el archivo [LICENSE](LICENSE) en la raíz del repositorio o accede a [https://creativecommons.org/licenses/by-nc-sa/4.0/](https://creativecommons.org/licenses/by-nc-sa/4.0/).

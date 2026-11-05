@@ -100,6 +100,7 @@
     {\normalsize Sevilla, Noviembre 2026\par}
     \vspace*{0.5cm}
 \end{titlepage}
+\pagenumbering{roman}
 
 \thispagestyle{plain}
 \begin{center}
@@ -979,7 +980,8 @@ Por ejemplo se incluye el siguiente caso, en el que el modelo debe identificar l
 
 \begin{verbatim}
 Usuario: "Necesito 8000 euros a 2 años para hacer una reforma. 
-Pago 650 de alquiler y tengo una deuda de 5000 euros en otro banco."
+Pago 650 de alquiler y tengo una deuda de 5000 euros 
+en otro banco."
 
 JSON: {
   "intencion_principal": "SOLICITAR_PRESTAMO",
@@ -1653,7 +1655,7 @@ El análisis de las 8 respuestas que experimentaron alguna penalización permite
 
 \begin{enumerate}
     \item \textbf{Alucinación del evaluador automático (Caso ID 5):} 
-    Constituyó la nota más baja de la batería ($3{,}67/5$). Ante una solicitud para apuestas, el modelo generó: \textit{«Lamentamos informarle que no podemos aprobar su solicitud de préstamo...»}. Sorprendentemente, el juez automático castigó con dureza la fidelidad ($2/5$), justificando literalmente que la frase \textit{«contradice abiertamente la decisión al usar el verbo 'aprobar' en lugar de 'denegar', generando confusión inicial»}. 
+    Constituyó la nota más baja de la batería ($3{,}67/5$). Ante una solicitud para apuestas, el modelo generó: \textit{«Lamentamos informarle que no podemos aprobar su solicitud de préstamo...»}. Sorprendentemente, el juez automático castigó con dureza la fidelidad ($2/5$), justificando literalmente que la frase \textit{«contradice abiertamente la decisión al usar el verbo ``aprobar'' en lugar de ``denegar'', generando confusión inicial»}. 
     Cualquier evaluador humano entiende que la perífrasis «no podemos aprobar» es sinónimo inequívoco de rechazo; sin embargo, el evaluador automático incurrió en un falso positivo al interpretar de manera rígidamente léxica el término «aprobar». Este caso es especialmente revelador para la literatura, pues demuestra que los evaluadores basados en LLMs pueden alucinar al buscar correlaciones solo en la forma del lenguaje, dejando de lado el contexto y el uso real que se hace de él.
     \item \textbf{Adición de giros de cortesía (Casos ID 7, 13 y 16):} En estos tres casos, la precisión factual descendió a $4/5$ debido a pequeñas adiciones conversacionales no fundamentadas en el estado inmutable:
     \begin{itemize}
@@ -1966,8 +1968,8 @@ Para examinar el contenido almacenado en una operación concreta, las siguientes
 
 \begin{figure}[H]
 \centering
-\begin{minipage}{0.95\textwidth}
-\begin{small}
+\begin{minipage}{\textwidth}
+\footnotesize
 \begin{verbatim}
 --- STEP_INPUT (Datos suministrados al motor Drools) ---
 {
@@ -1994,7 +1996,6 @@ Para examinar el contenido almacenado en una operación concreta, las siguientes
   }
 }
 \end{verbatim}
-\end{small}
 \end{minipage}
 \caption{Detalle de entrada registrado en la evaluación resolutiva de Drools (Registro ID 217).}
 \label{lst:audit_trace}
@@ -2002,8 +2003,8 @@ Para examinar el contenido almacenado en una operación concreta, las siguientes
 
 \begin{figure}[H]
 \centering
-\begin{minipage}{0.95\textwidth}
-\begin{small}
+\begin{minipage}{\textwidth}
+\footnotesize
 \begin{verbatim}
 --- STEP_OUTPUT (Resultado emitido por el motor de reglas) ---
 {
@@ -2026,7 +2027,6 @@ Para examinar el contenido almacenado en una operación concreta, las siguientes
   "tono_mensaje": "firme, profesional y especialmente cuidadoso"
 }
 \end{verbatim}
-\end{small}
 \end{minipage}
 \caption{Detalle de salida registrado en la evaluación resolutiva de Drools (Registro ID 217).}
 \end{figure}

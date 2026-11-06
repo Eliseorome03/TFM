@@ -34,7 +34,13 @@ from evaluate_nlg import get_test_cases, JUDGE_SYSTEM_PROMPT
 CSV_INPUT_PATH = os.path.join(CURRENT_DIR, "nlg_evaluation.csv")
 CSV_OUTPUT_PATH = os.path.join(CURRENT_DIR, "nlg_evaluation_gemini.csv")
 
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "***REMOVED***")
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+
+if not GEMINI_API_KEY:
+    raise EnvironmentError(
+        "No se ha configurado la variable de entorno GEMINI_API_KEY"
+    )
+
 GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-3.5-flash-lite")
 
 RESPONSE_SCHEMA = {

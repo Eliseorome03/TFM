@@ -16,7 +16,9 @@ Encapsula dos operaciones lingüísticas estrictamente separadas:
 Arquitectura: Symbolic[Neuro] — el LLM es un servicio encapsulado.
 """
 
+import json
 import logging
+import httpx
 from mistralai.client import Mistral
 from mistralai.client.models import UserMessage, SystemMessage
 
@@ -104,21 +106,29 @@ class MistralClient:
     """
 
     def __init__(self) -> None:
-        """Inicializa el cliente Mistral con la API Key desde configuración."""
-        self._client = Mistral(api_key=settings.mistral_api_key)
-        self._model = settings.mistral_model
-        logger.info(
-            "MistralClient inicializado con modelo: %s",
-            self._model,
-        )
+        """Inicializa el cliente del LLM (Mistral o Gemini) según configuración."""
+        self._provider = getattr(settings, "llm_provider", "mistral").lower()
+        if self._provider == "gemini":
+            self._gemini_api_key = settings.gemini_api_key
+            self._gemini_model = getattr(settings, "gemini_model", "gemini-3.5-flash-lite")
+            self._gemini_url = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
+            logger.info(
+                "MistralClient configurado con proveedor GEMINI (%s)",
+                self._gemini_model,
+            )
+        else:
+            self._client = Mistral(api_key=settings.mistral_api_key)
+            self._model = settings.mistral_model
+            logger.info(
+                "MistralClient inicializado con modelo Mistral: %s",
+                self._model,
+            )
 
     def extraer_nlu(self, mensaje: str, historial: str = "") -> EsquemaNLU:
         """
         Extrae entidades financieras del mensaje del usuario mediante structured output.
 
-        Utiliza `chat.parse()` del SDK de Mistral, que garantiza que la respuesta
-        sea un JSON válido y conforme al esquema Pydantic `EsquemaNLU`.
-        Esta garantía es fundamental para la robustez del pipeline.
+        Garantiza que la respuesta sea un JSON válido y conforme al esquema Pydantic `EsquemaNLU`.
 
         Args:
             mensaje: Texto libre introducido por el usuario.
@@ -128,7 +138,7 @@ class MistralClient:
             EsquemaNLU: Objeto Pydantic con los campos extraídos.
 
         Raises:
-            Exception: Si Mistral no puede procesar el mensaje o el structured output falla.
+            Exception: Si el proveedor de LLM no puede procesar el mensaje.
         """
         logger.info("NLU: Procesando mensaje del usuario (longitud: %d chars)", len(mensaje))
 
@@ -137,17 +147,43 @@ class MistralClient:
         else:
             content = f"Usuario: {mensaje}"
 
-        response = self._client.chat.parse(
-            model=self._model,
-            messages=[
-                SystemMessage(content=_NLU_SYSTEM_PROMPT),
-                UserMessage(content=content),
-            ],
-            response_format=EsquemaNLU,
-            temperature=0.0,  # Determinismo máximo para extracción de entidades
-        )
+        if self._provider == "gemini":
+            sys_prompt = (
+                f"{_NLU_SYSTEM_PROMPT}\n\n"
+                f"IMPORTANTE: Debes responder EXCLUSIVAMENTE con un JSON plano válido que cumpla con el siguiente esquema JSON:\n"
+                f"{json.dumps(EsquemaNLU.model_json_schema(), ensure_ascii=False)}"
+            )
+            payload = {
+                "model": self._gemini_model,
+                "messages": [
+                    {"role": "system", "content": sys_prompt},
+                    {"role": "user", "content": content},
+                ],
+                "response_format": {"type": "json_object"},
+                "temperature": 0.0,
+            }
+            with httpx.Client(timeout=30.0) as client:
+                resp = client.post(
+                    self._gemini_url,
+                    headers={"Authorization": f"Bearer {self._gemini_api_key}"},
+                    json=payload,
+                )
+                resp.raise_for_status()
+                data = resp.json()
+                raw_json = data["choices"][0]["message"]["content"]
+                parsed_result = EsquemaNLU.model_validate_json(raw_json)
+        else:
+            response = self._client.chat.parse(
+                model=self._model,
+                messages=[
+                    SystemMessage(content=_NLU_SYSTEM_PROMPT),
+                    UserMessage(content=content),
+                ],
+                response_format=EsquemaNLU,
+                temperature=0.0,  # Determinismo máximo para extracción de entidades
+            )
+            parsed_result: EsquemaNLU = response.choices[0].message.parsed
 
-        parsed_result: EsquemaNLU = response.choices[0].message.parsed
         logger.info(
             "NLU: Extracción completada — intención='%s', cantidad=%s, plazo=%s, propósito=%s",
             parsed_result.intencion_principal,
@@ -223,17 +259,36 @@ JUSTIFICACIÓN NORMATIVA (incluir SOLO si hay texto_legal y el estado es decisiv
 Redacta ahora el mensaje para el cliente siguiendo estrictamente las instrucciones de tu sistema.
 """
 
-        response = self._client.chat.complete(
-            model=self._model,
-            messages=[
-                SystemMessage(content=_NLG_SYSTEM_PROMPT),
-                UserMessage(content=contexto_estado),
-            ],
-            temperature=0.2,  # Ligera variabilidad para naturalidad, sin creatividad excesiva
-            max_tokens=200,
-        )
-
-        respuesta_texto = response.choices[0].message.content.strip()
+        if self._provider == "gemini":
+            payload = {
+                "model": self._gemini_model,
+                "messages": [
+                    {"role": "system", "content": _NLG_SYSTEM_PROMPT},
+                    {"role": "user", "content": contexto_estado},
+                ],
+                "temperature": 0.2,
+                "max_tokens": 200,
+            }
+            with httpx.Client(timeout=30.0) as client:
+                resp = client.post(
+                    self._gemini_url,
+                    headers={"Authorization": f"Bearer {self._gemini_api_key}"},
+                    json=payload,
+                )
+                resp.raise_for_status()
+                data = resp.json()
+                respuesta_texto = data["choices"][0]["message"]["content"].strip()
+        else:
+            response = self._client.chat.complete(
+                model=self._model,
+                messages=[
+                    SystemMessage(content=_NLG_SYSTEM_PROMPT),
+                    UserMessage(content=contexto_estado),
+                ],
+                temperature=0.2,  # Ligera variabilidad para naturalidad, sin creatividad excesiva
+                max_tokens=200,
+            )
+            respuesta_texto = response.choices[0].message.content.strip()
         logger.info(
             "NLG: Respuesta generada (%d chars)",
             len(respuesta_texto),

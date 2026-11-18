@@ -19,7 +19,12 @@ class Settings(BaseSettings):
     database_url: str = "mysql+pymysql://banca_user:banca_password_2024@localhost:3306/banca_db"
 
     # --- API Key de Mistral ---
-    mistral_api_key: str
+    mistral_api_key: str = ""
+
+    # --- Configuración LLM (Mistral / Gemini) ---
+    llm_provider: str = "mistral"
+    gemini_api_key: str = ""
+    gemini_model: str = "gemini-3.5-flash-lite"
 
     # --- URL del microservicio Drools ---
     drools_url: str = "http://localhost:8080/api/evaluate"

@@ -119,9 +119,12 @@ services:
       DROOLS_URL: "http://drools-app:8080/api/evaluate"
       DROOLS_TIMEOUT: ${DROOLS_TIMEOUT}
 
-      # ── Mistral AI ───────────────────────────────────────────────────────────
+      # ── Mistral / Gemini AI ──────────────────────────────────────────────────
       MISTRAL_API_KEY: ${MISTRAL_API_KEY}
       MISTRAL_MODEL:   ${MISTRAL_MODEL}
+      LLM_PROVIDER:    ${LLM_PROVIDER:-mistral}
+      GEMINI_API_KEY:  ${GEMINI_API_KEY:-}
+      GEMINI_MODEL:    ${GEMINI_MODEL:-gemini-3.5-flash-lite}
 
       # ── Mock BdE ─────────────────────────────────────────────────────────────
       BDE_JSON_PATH: "bde.json"

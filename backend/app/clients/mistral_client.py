@@ -124,6 +124,44 @@ class MistralClient:
                 self._model,
             )
 
+    def _call_gemini_with_retry(self, payload: dict) -> dict:
+        """Llama al endpoint de Gemini con reintento automático ante picos de demanda o límites transitorios."""
+        max_attempts = 4
+        backoff = 2.0
+        with httpx.Client(timeout=45.0) as client:
+            for attempt in range(1, max_attempts + 1):
+                try:
+                    resp = client.post(
+                        self._gemini_url,
+                        headers={"Authorization": f"Bearer {self._gemini_api_key}"},
+                        json=payload,
+                    )
+                    if resp.status_code in (429, 503) and attempt < max_attempts:
+                        logger.warning(
+                            "Gemini devolvió %d (intento %d/%d). Reintentando en %.1fs...",
+                            resp.status_code,
+                            attempt,
+                            max_attempts,
+                            backoff,
+                        )
+                        import time
+                        time.sleep(backoff)
+                        backoff *= 2.0
+                        continue
+                    resp.raise_for_status()
+                    return resp.json()
+                except (httpx.TimeoutException, httpx.NetworkError) as err:
+                    if attempt < max_attempts:
+                        logger.warning(
+                            "Fallo de conexión o timeout con Gemini (%s). Reintentando...",
+                            str(err),
+                        )
+                        import time
+                        time.sleep(backoff)
+                        backoff *= 2.0
+                        continue
+                    raise
+
     def extraer_nlu(self, mensaje: str, historial: str = "") -> EsquemaNLU:
         """
         Extrae entidades financieras del mensaje del usuario mediante structured output.
@@ -162,16 +200,9 @@ class MistralClient:
                 "response_format": {"type": "json_object"},
                 "temperature": 0.0,
             }
-            with httpx.Client(timeout=30.0) as client:
-                resp = client.post(
-                    self._gemini_url,
-                    headers={"Authorization": f"Bearer {self._gemini_api_key}"},
-                    json=payload,
-                )
-                resp.raise_for_status()
-                data = resp.json()
-                raw_json = data["choices"][0]["message"]["content"]
-                parsed_result = EsquemaNLU.model_validate_json(raw_json)
+            data = self._call_gemini_with_retry(payload)
+            raw_json = data["choices"][0]["message"]["content"]
+            parsed_result = EsquemaNLU.model_validate_json(raw_json)
         else:
             response = self._client.chat.parse(
                 model=self._model,
@@ -269,15 +300,8 @@ Redacta ahora el mensaje para el cliente siguiendo estrictamente las instruccion
                 "temperature": 0.2,
                 "max_tokens": 200,
             }
-            with httpx.Client(timeout=30.0) as client:
-                resp = client.post(
-                    self._gemini_url,
-                    headers={"Authorization": f"Bearer {self._gemini_api_key}"},
-                    json=payload,
-                )
-                resp.raise_for_status()
-                data = resp.json()
-                respuesta_texto = data["choices"][0]["message"]["content"].strip()
+            data = self._call_gemini_with_retry(payload)
+            respuesta_texto = data["choices"][0]["message"]["content"].strip()
         else:
             response = self._client.chat.complete(
                 model=self._model,
